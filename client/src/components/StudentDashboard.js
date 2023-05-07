@@ -1,8 +1,10 @@
 import { faBars, faSignOutAlt, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React, { useState } from 'react';
-import {useNavigate, Link } from 'react-router-dom';
+import { Link, Route, Routes, useNavigate } from 'react-router-dom';
 import frederickLogo from '../images/frederick-white-logo.png';
+import CreateRequest from './CreateRequest';
+import ViewRequests from './ViewRequests';
 
 const StudentDashboard = ({ email, role }) => {
   const navigate = useNavigate();
@@ -41,12 +43,12 @@ const StudentDashboard = ({ email, role }) => {
           </div>
         </div>
         <nav className="flex flex-col items-center justify-center mt-44 py-14">
-          <Link to="#" className="text-left text-white text-lg my-4 hover:text-green-400">
-            Create Request
-          </Link>
-          <Link to="#" className="text-left text-white text-lg my-4 hover:text-green-400">
-            View Requests
-          </Link>
+        <Link to="create-request" className="text-left text-white text-lg my-4 hover:text-green-400">
+          Create Request
+        </Link>
+        <Link to="view-requests" className="text-left text-white text-lg my-4 hover:text-red-400">
+          View Requests
+        </Link>
           <div className="absolute bottom-0 left-0 w-full text-center py-4">
             <button
               className="px-10 ml-10 py-7 flex items-center text-white text-xl hover:text-red-500"
@@ -67,8 +69,10 @@ const StudentDashboard = ({ email, role }) => {
             />
           </button>
         </div>
-        <h1 className="text-4xl font-semibold mb-4">Student Dashboard</h1>
-        
+        <Routes>
+          <Route path="create-request" element={<CreateRequest />} />
+          <Route path="view-requests" element={<ViewRequests />} />
+        </Routes>
       </div>
     </div>
   );
