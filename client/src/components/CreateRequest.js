@@ -9,15 +9,42 @@ const CreateRequest = () => {
     description: '',
   });
   const [message, setMessage] = useState('');
+  const [errors, setErrors] = useState({});
 
   const handleChange = (e) => {
     setFormValues({ ...formValues, [e.target.name]: e.target.value });
   };
 
+  const validateForm = () => {
+    const errors = {};
+
+    if (!formValues.first_name) {
+      errors.first_name = 'First name is required';
+    }
+    if (!formValues.last_name) {
+      errors.last_name = 'Last name is required';
+    }
+    if (!formValues.sport) {
+      errors.sport = 'Sport is required';
+    }
+    if (!formValues.description) {
+      errors.description = 'Description is required';
+    }
+
+    return errors;
+  };
+
   const handleSubmit = async (e, status = 'submitted') => {
     e.preventDefault();
+    const validationErrors = validateForm();
+    setErrors(validationErrors);
+
+    if (Object.keys(validationErrors).length > 0) {
+      return;
+    }
+
     setMessage('');
-  
+
     try {
       const token = localStorage.getItem('token');
       const response = await axios.post(
@@ -30,7 +57,7 @@ const CreateRequest = () => {
           },
         }
       );
-  
+
       if (status === 'draft') {
         setMessage('Scholarship request saved as a draft successfully');
       } else {
@@ -44,9 +71,8 @@ const CreateRequest = () => {
       }
     }
   };
-  
 
- return (
+  return (
     <div className="max-w-lg mx-auto mt-10">
       <h2 className="text-2xl font-semibold mb-6">Create Scholarship Request</h2>
       <form className="space-y-4" onSubmit={handleSubmit}>
@@ -63,6 +89,10 @@ const CreateRequest = () => {
             className="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-indigo-500"
           />
         </div>
+        {errors.first_name && (
+          <p className="text-red-500 text-sm">{errors.first_name}</p>
+        )}
+
         <div className="flex flex-col">
           <label htmlFor="last_name" className="text-sm font-medium mb-1">
             Last Name:
@@ -76,8 +106,12 @@ const CreateRequest = () => {
             className="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-indigo-500"
           />
         </div>
+        {errors.last_name && (
+          <p className="text-red-500 text-sm">{errors.last_name}</p>
+        )}
+
         <div className="flex flex-col">
-          <label htmlFor="sport" className="text-sm font-medium mb-1">
+        <label htmlFor="sport" className="text-sm font-medium mb-1">
             Sport:
           </label>
           <input
@@ -89,6 +123,10 @@ const CreateRequest = () => {
             className="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-indigo-500"
           />
         </div>
+        {errors.sport && (
+          <p className="text-red-500 text-sm">{errors.sport}</p>
+        )}
+
         <div className="flex flex-col">
           <label htmlFor="description" className="text-sm font-medium mb-1">
             Description:
@@ -101,6 +139,10 @@ const CreateRequest = () => {
             className="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-indigo-500 h-32"
           />
         </div>
+        {errors.description && (
+          <p className="text-red-500 text-sm">{errors.description}</p>
+        )}
+
         <div className="flex space-x-4">
           <button
             type="submit"
@@ -134,3 +176,4 @@ const CreateRequest = () => {
 };
 
 export default CreateRequest;
+
