@@ -73,7 +73,7 @@ const CreateRequest = () => {
   };
 
   return (
-    <div className="max-w-lg mx-auto mt-10">
+    <div className="max-w-lg mx-auto mt-10 ml-0">
       <h2 className="text-2xl font-semibold mb-6">Create Scholarship Request</h2>
       <form className="space-y-4" onSubmit={handleSubmit}>
         <div className="flex flex-col">
@@ -163,7 +163,7 @@ const CreateRequest = () => {
       {message && (
         <p
           className={`mt-4 ${
-            message.startsWith('Scholarship request created successfully')
+            message.startsWith('Scholarship request created successfully') || message.startsWith('Scholarship request saved as a draft successfully')
               ? 'text-green-600'
               : 'text-red-500'
           }`}

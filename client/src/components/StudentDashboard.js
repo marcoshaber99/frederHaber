@@ -46,7 +46,7 @@ const StudentDashboard = ({ email, role }) => {
         <Link to="create-request" className="text-left text-white text-lg my-4 hover:text-green-400">
           Create Request
         </Link>
-        <Link to="view-requests" className="text-left text-white text-lg my-4 hover:text-red-400">
+        <Link to="view-requests" className="text-left text-white text-lg my-4 hover:text-green-400">
           View Requests
         </Link>
           <div className="absolute bottom-0 left-0 w-full text-center py-4">
