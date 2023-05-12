@@ -62,3 +62,35 @@ exports.updateRequest = async (req, res) => {
   }
 };
 
+exports.getRequest = async (req, res) => {
+  try {
+    const user_id = req.user.id;
+    const requestId = req.params.id;
+
+    // Fetch the specific request to check if it exists and belongs to the user
+    const [existingRequests] = await db.query('SELECT * FROM scholarship_requests WHERE id = ? AND user_id = ?', [requestId, user_id]);
+
+    if (existingRequests.length === 0) {
+      return res.status(404).json({ message: 'Scholarship request not found or you do not have permission to view it' });
+    }
+
+    res.status(200).json(existingRequests[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+exports.getNewRequests = async (req, res) => {
+  try {
+    const [requests] = await db.query('SELECT * FROM scholarship_requests WHERE status = "submitted"');
+
+    res.status(200).json({ requests });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+
+
