@@ -4,7 +4,9 @@ import React, { useState } from 'react';
 import { Link, Route, Routes, useNavigate } from 'react-router-dom';
 import frederickLogo from '../images/frederick-white-logo.png';
 import CreateRequest from './CreateRequest';
+import UpdateRequest from './UpdateRequest';
 import ViewRequests from './ViewRequests';
+
 
 const StudentDashboard = ({ email, role }) => {
   const navigate = useNavigate();
@@ -72,6 +74,7 @@ const StudentDashboard = ({ email, role }) => {
         <Routes>
           <Route path="create-request" element={<CreateRequest />} />
           <Route path="view-requests" element={<ViewRequests />} />
+          <Route path="view-requests/:id" element={<UpdateRequest />} />
         </Routes>
       </div>
     </div>
