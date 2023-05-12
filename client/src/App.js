@@ -9,6 +9,8 @@ import ManagerDashboard from './components/ManagerDashboard';
 import RegisterForm from './components/RegisterForm';
 import ResetPasswordForm from './components/ResetPasswordForm';
 import StudentDashboard from './components/StudentDashboard';
+// import UpdateRequest from './components/UpdateRequest';
+
 
 const App = () => {
   const [currentUserRole, setCurrentUserRole] = useState(null);
@@ -71,6 +73,9 @@ const App = () => {
             )
           }
         />
+        {/* <Route path="/update-request/:id" element={<UpdateRequest />} /> */}
+
+        
       </Routes>
     </Router>
   );

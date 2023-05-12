@@ -1,6 +1,8 @@
+import { PencilIcon, TrashIcon } from '@heroicons/react/outline';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
-import { TrashIcon } from '@heroicons/react/outline';
+import { Link } from "react-router-dom";
+
 
 
 const ViewRequests = () => {
@@ -54,6 +56,12 @@ const ViewRequests = () => {
               request.status === 'draft' ? 'bg-gray-200' : ''
             } relative`}
           >
+            <Link
+              to={`${request.id}`}
+              className="absolute top-2 right-8 text-blue-500 p-1 rounded hover:bg-blue-200 transition duration-200"
+            >
+              <PencilIcon className="w-5 h-5" />
+            </Link>
             <button
               onClick={() => handleDelete(request.id)}
               className="absolute top-2 right-2 text-red-500 p-1 rounded hover:bg-red-200 transition duration-200"
