@@ -1,6 +1,7 @@
 import { faBars, faSignOutAlt, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { Link, Route, Routes, useNavigate } from 'react-router-dom';
 import frederickLogo from '../images/frederick-white-logo.png';
 import NewRequests from './NewRequests';
@@ -9,6 +10,27 @@ import NewRequests from './NewRequests';
 const AdminDashboard = ({ email, role }) => {
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const [newRequestsCount, setNewRequestsCount] = useState(0);
+
+  useEffect(() => {
+    const fetchNewRequestsCount = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get('http://localhost:5001/api/scholarship/get-new-requests-count', {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setNewRequestsCount(response.data.count);
+      } catch (error) {
+        console.error('Error fetching new requests count:', error);
+      }
+    };
+
+    fetchNewRequestsCount();
+  }, []);
 
   const handleLogout = () => {
     navigate('/logout');

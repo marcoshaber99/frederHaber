@@ -1,4 +1,7 @@
 const db = require('../config/db.config');
+const sgMail = require('@sendgrid/mail');
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
 
 exports.createRequest = async (req, res) => {
   try {
@@ -6,6 +9,35 @@ exports.createRequest = async (req, res) => {
     const user_id = req.user.id;
 
     await db.query('INSERT INTO scholarship_requests (user_id, first_name, last_name, sport, description, status) VALUES (?, ?, ?, ?, ?, ?)', [user_id, first_name, last_name, sport, description, status]);
+
+    // Get all admins' emails from the database
+    let adminEmails;
+    try {
+      const [admins] = await db.query('SELECT email FROM users WHERE role = "admin"');
+      adminEmails = admins.map(admin => admin.email);
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({ message: 'Server error while fetching admin emails' });
+    }
+
+    // Prepare the email notification
+    const msg = {
+      to: adminEmails,
+      from: 'st018940@stud.frederick.ac.cy',
+      subject: 'New Sports Scholarship Request',
+      text: `A new sports scholarship request has been submitted. Please review it here: http://localhost:3000/admin-dashboard/new-requests`,
+      html: `<p>A new sports scholarship request has been submitted. Please review it <a href="http://localhost:3000/admin-dashboard/new-requests">here</a>.</p>`
+    };
+    
+
+    // Send an email notification to all admins when a new request is made
+    try {
+      await sgMail.sendMultiple(msg);
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({ message: 'Server error while sending notification emails' });
+    }
+
 
     res.status(201).json({ message: 'Scholarship request created successfully' });
   } catch (err) {

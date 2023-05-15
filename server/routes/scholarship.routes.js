@@ -7,7 +7,7 @@ const {
     getRequest,
     deleteRequest,
     updateRequest,
-    getNewRequests
+    getNewRequests,
 } = require('../controllers/scholarship.controller');
 
 
