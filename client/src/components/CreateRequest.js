@@ -7,6 +7,13 @@ const CreateRequest = () => {
     last_name: '',
     sport: '',
     description: '',
+    government_id: '',
+    registration_number: '',
+    phone_number: '',
+    course_title: '',
+    academic_year: '',
+    education_level: '',
+    city: '',
   });
   const [message, setMessage] = useState('');
   const [errors, setErrors] = useState({});
@@ -31,6 +38,25 @@ const CreateRequest = () => {
       errors.description = 'Description is required';
     }
 
+    if (!formValues.government_id) {
+      errors.government_id = 'Government ID is required';
+    }
+    if (!formValues.phone_number) {
+      errors.phone_number = 'Phone number is required';
+    }
+    if (!formValues.course_title) {
+      errors.course_title = 'Course title is required';
+    }
+    if (!formValues.academic_year) {
+      errors.academic_year = 'Academic year is required';
+    }
+    if (!formValues.education_level) {
+      errors.education_level = 'Education level is required';
+    }
+    if (!formValues.city) {
+      errors.city = 'City is required';
+    }
+  
     return errors;
   };
 
@@ -110,6 +136,128 @@ const CreateRequest = () => {
           <p className="text-red-500 text-sm">{errors.last_name}</p>
         )}
 
+        {/* For Government ID */}
+        <div className="flex flex-col">
+          <label htmlFor="government_id" className="text-sm font-medium mb-1">
+            Government ID:
+          </label>
+          <input
+            type="text"
+            id="government_id"
+            name="government_id"
+            value={formValues.government_id}
+            onChange={handleChange}
+            className="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-indigo-500"
+          />
+        </div>
+        {errors.government_id && (
+          <p className="text-red-500 text-sm">{errors.government_id}</p>
+        )}
+
+        <div className="flex flex-col">
+          <label htmlFor="registration_number" className="text-sm font-medium mb-1">
+            Registration Number:
+          </label>
+          <input
+            type="text"
+            id="registration_number"
+            name="registration_number"
+            value={formValues.registration_number}
+            onChange={handleChange}
+            className="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-indigo-500"
+          />
+        </div>
+
+          <div className="flex flex-col">
+          <label htmlFor="phone_number" className="text-sm font-medium mb-1">
+            Phone Number:
+          </label>
+          <input
+            type="tel"
+            id="phone_number"
+            name="phone_number"
+            value={formValues.phone_number}
+            onChange={handleChange}
+            className="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-indigo-500"
+          />
+          </div>
+          {errors.phone_number && (
+            <p className="text-red-500 text-sm">{errors.phone_number}</p>
+          )}
+
+          <div className="flex flex-col">
+            <label htmlFor="course_title" className="text-sm font-medium mb-1">
+              Course Title:
+            </label>
+            <input
+              type="text"
+              id="course_title"
+              name="course_title"
+              value={formValues.course_title}
+              onChange={handleChange}
+              className="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-indigo-500"
+            />
+            </div>
+            {errors.course_title && (
+              <p className="text-red-500 text-sm">{errors.course_title}</p>
+            )}
+
+            <div className="flex flex-col">
+              <label htmlFor="academic_year" className="text-sm font-medium mb-1">
+                Academic Year:
+              </label>
+              <input
+                type="number"
+                id="academic_year"
+                name="academic_year"
+                value={formValues.academic_year}
+                onChange={handleChange}
+                className="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-indigo-500"
+              />
+              </div>
+              {errors.academic_year && (
+                <p className="text-red-500 text-sm">{errors.academic_year}</p>
+              )}
+
+              <div className="flex flex-col">
+                        <label htmlFor="education_level" className="text-sm font-medium mb-1">
+                          Education Level:
+                        </label>
+                        <select
+                          id="education_level"
+                          name="education_level"
+                          value={formValues.education_level}
+                          onChange={handleChange}
+                          className="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-indigo-500"
+                        >
+                          <option value="">Select education level</option>
+                          <option value="undergraduate">Undergraduate</option>
+                          <option value="postgraduate">Postgraduate</option>
+                        </select>
+                      </div>
+                      {errors.education_level && (
+                        <p className="text-red-500 text-sm">{errors.education_level}</p>
+                      )}
+         <div className="flex flex-col">
+          <label htmlFor="city" className="text-sm font-medium mb-1">
+            City:
+          </label>
+          <select
+            id="city"
+            name="city"
+            value={formValues.city}
+            onChange={handleChange}
+            className="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-indigo-500"
+          >
+            <option value="">Select city</option>
+            <option value="Limassol">Limassol</option>
+            <option value="Nicosia">Nicosia</option>
+          </select>
+        </div>
+        {errors.city && (
+          <p className="text-red-500 text-sm">{errors.city}</p>
+        )}
+
         <div className="flex flex-col">
         <label htmlFor="sport" className="text-sm font-medium mb-1">
             Sport:
@@ -142,6 +290,8 @@ const CreateRequest = () => {
         {errors.description && (
           <p className="text-red-500 text-sm">{errors.description}</p>
         )}
+
+        
 
         <div className="flex space-x-4">
           <button

@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 const NewRequests = () => {
@@ -49,6 +49,13 @@ const NewRequests = () => {
           <h2 className="text-2xl font-semibold mb-6">Selected Request Details</h2>
           <p><strong>First Name:</strong> {selectedRequest.first_name}</p>
           <p><strong>Last Name:</strong> {selectedRequest.last_name}</p>
+          <p><strong>Government ID:</strong> {selectedRequest.government_id}</p>
+          <p><strong>Registration Number:</strong> {selectedRequest.registration_number}</p>
+          <p><strong>Phone Number:</strong> {selectedRequest.phone_number}</p>
+          <p><strong>Course Title:</strong> {selectedRequest.course_title}</p>
+          <p><strong>Academic Year:</strong> {selectedRequest.academic_year}</p>
+          <p><strong>Education Level:</strong> {selectedRequest.education_level}</p>
+          <p><strong>City:</strong> {selectedRequest.city}</p>
           <p><strong>Sport:</strong> {selectedRequest.sport}</p>
           <p><strong>Description:</strong> {selectedRequest.description}</p>
           <p><strong>Status:</strong> {selectedRequest.status}</p>

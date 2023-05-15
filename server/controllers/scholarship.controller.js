@@ -5,39 +5,58 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 exports.createRequest = async (req, res) => {
   try {
-    const { first_name, last_name, sport, description, status } = req.body;
+    const { 
+      first_name, 
+      last_name, 
+      sport, 
+      description, 
+      government_id, 
+      registration_number, 
+      phone_number, 
+      course_title, 
+      academic_year, 
+      education_level, 
+      city, 
+      status 
+    } = req.body;
+
     const user_id = req.user.id;
 
-    await db.query('INSERT INTO scholarship_requests (user_id, first_name, last_name, sport, description, status) VALUES (?, ?, ?, ?, ?, ?)', [user_id, first_name, last_name, sport, description, status]);
+    await db.query(
+      'INSERT INTO scholarship_requests (user_id, first_name, last_name, sport, description, government_id, registration_number, phone_number, course_title, academic_year, education_level, city, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', 
+      [user_id, first_name, last_name, sport, description, government_id, registration_number, phone_number, course_title, academic_year, education_level, city, status]
+    );
 
-    // Get all admins' emails from the database
-    let adminEmails;
-    try {
-      const [admins] = await db.query('SELECT email FROM users WHERE role = "admin"');
-      adminEmails = admins.map(admin => admin.email);
-    } catch (err) {
-      console.error(err);
-      return res.status(500).json({ message: 'Server error while fetching admin emails' });
+    // Only send email notification when the request is submitted, not when it's a draft
+    if (status === 'submitted') {
+      // Get all admins' emails from the database
+      let adminEmails;
+      try {
+        const [admins] = await db.query('SELECT email FROM users WHERE role = "admin"');
+        adminEmails = admins.map(admin => admin.email);
+      } catch (err) {
+        console.error(err);
+        return res.status(500).json({ message: 'Server error while fetching admin emails' });
+      }
+
+      //the email contents
+      const msg = {
+        to: adminEmails,
+        from: 'st018940@stud.frederick.ac.cy',
+        subject: 'New Sports Scholarship Request',
+        text: `A new sports scholarship request has been submitted. Please review it here: http://localhost:3000/admin-dashboard/new-requests`,
+        html: `<p>A new sports scholarship request has been submitted. Please review it <a href="http://localhost:3000/admin-dashboard/new-requests">here</a>.</p>`
+      };
+      
+
+      // Send an email notification to all admins when a new request is made
+      try {
+        await sgMail.sendMultiple(msg);
+      } catch (err) {
+        console.error(err);
+        return res.status(500).json({ message: 'Server error while sending notification emails' });
+      }
     }
-
-    // Prepare the email notification
-    const msg = {
-      to: adminEmails,
-      from: 'st018940@stud.frederick.ac.cy',
-      subject: 'New Sports Scholarship Request',
-      text: `A new sports scholarship request has been submitted. Please review it here: http://localhost:3000/admin-dashboard/new-requests`,
-      html: `<p>A new sports scholarship request has been submitted. Please review it <a href="http://localhost:3000/admin-dashboard/new-requests">here</a>.</p>`
-    };
-    
-
-    // Send an email notification to all admins when a new request is made
-    try {
-      await sgMail.sendMultiple(msg);
-    } catch (err) {
-      console.error(err);
-      return res.status(500).json({ message: 'Server error while sending notification emails' });
-    }
-
 
     res.status(201).json({ message: 'Scholarship request created successfully' });
   } catch (err) {
@@ -45,6 +64,7 @@ exports.createRequest = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+
 
 exports.getRequests = async (req, res) => {
   try {
@@ -74,7 +94,7 @@ exports.deleteRequest = async (req, res) => {
 
 exports.updateRequest = async (req, res) => {
   try {
-    const { first_name, last_name, sport, description, status } = req.body;
+    const { first_name, last_name, sport, description, government_id, registration_number, phone_number, course_title, academic_year, education_level, city, status } = req.body;
     const user_id = req.user.id;
     const requestId = req.params.id;
 
@@ -85,7 +105,38 @@ exports.updateRequest = async (req, res) => {
       return res.status(404).json({ message: 'Scholarship request not found or you do not have permission to update it' });
     }
 
-    await db.query('UPDATE scholarship_requests SET first_name = ?, last_name = ?, sport = ?, description = ?, status = ? WHERE id = ? AND user_id = ?', [first_name, last_name, sport, description, status, requestId, user_id]);
+    // Check if the request was previously a draft and is now being submitted
+    if (existingRequests[0].status === 'draft' && status === 'submitted') {
+      // Get all admins' emails from the database
+      let adminEmails;
+      try {
+        const [admins] = await db.query('SELECT email FROM users WHERE role = "admin"');
+        adminEmails = admins.map(admin => admin.email);
+      } catch (err) {
+        console.error(err);
+        return res.status(500).json({ message: 'Server error while fetching admin emails' });
+      }
+
+      //the email contents
+      const msg = {
+        to: adminEmails,
+        from: 'st018940@stud.frederick.ac.cy',
+        subject: 'New Sports Scholarship Request',
+        text: `A sports scholarship request has been submitted. Please review it here: http://localhost:3000/admin-dashboard/new-requests`,
+        html: `<p>A sports scholarship request has been submitted. Please review it <a href="http://localhost:3000/admin-dashboard/new-requests">here</a>.</p>`
+      };
+
+      // Send an email notification to all admins when a new request is made
+      try {
+        await sgMail.sendMultiple(msg);
+      } catch (err) {
+        console.error(err);
+        return res.status(500).json({ message: 'Server error while sending notification emails' });
+      }
+    }
+
+    await db.query('UPDATE scholarship_requests SET first_name = ?, last_name = ?, sport = ?, description = ?, government_id = ?, registration_number = ?, phone_number = ?, course_title = ?, academic_year = ?, education_level = ?, city = ?, status = ? WHERE id = ? AND user_id = ?', [first_name, last_name, sport, description, government_id, registration_number, phone_number, course_title, academic_year, education_level, city, status, requestId, user_id]);
+
 
     res.status(200).json({ message: 'Scholarship request updated successfully' });
   } catch (err) {
