@@ -5,7 +5,6 @@ import { Link } from 'react-router-dom';
 const NewRequests = () => {
   const [newRequests, setNewRequests] = useState([]);
   const [selectedRequest, setSelectedRequest] = useState(null);
-  const [showFullDescription, setShowFullDescription] = useState(false);
 
   useEffect(() => {
     const fetchNewRequests = async () => {
@@ -28,17 +27,12 @@ const NewRequests = () => {
 
   const handleRequestSelect = (request) => {
     setSelectedRequest(request);
-    setShowFullDescription(false);
-  };
-
-  const handleReadMoreClick = () => {
-    setShowFullDescription(!showFullDescription);
   };
 
   return (
     <div className="max-w-6xl mx-auto mt-10">
       <h2 className="text-2xl font-semibold mb-6">New Scholarship Requests</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 break-words md:grid-cols-2 lg:grid-cols-3 gap-4">
         {newRequests.map((request) => (
           <div
             key={request.id}
@@ -66,10 +60,8 @@ const NewRequests = () => {
           <p><strong>Education Level:</strong> {selectedRequest.education_level}</p>
           <p><strong>City:</strong> {selectedRequest.city}</p>
           <p><strong>Sport:</strong> {selectedRequest.sport}</p>
-          <p className={`whitespace-normal overflow-wrap break-word ${showFullDescription ? '' : 'line-clamp-3'}`}><strong>Description:</strong> {selectedRequest.description}</p>
-          {!showFullDescription && (
-            <button className="mt-2 text-blue-500 hover:text-blue-700" onClick={handleReadMoreClick}>Read More</button>
-          )}
+          <p className="whitespace-normal overflow-wrap break-all w-2/3"><strong>Description:</strong> {selectedRequest.description}</p>
+          
           <p><strong>Status:</strong> {selectedRequest.status}</p>
         </div>
       )}
