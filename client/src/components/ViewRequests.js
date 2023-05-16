@@ -49,32 +49,21 @@ const ViewRequests = () => {
         View Scholarship Requests
       </h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {requests.map((request) => (
-          <div
-            key={request.id}
-            className={`bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition duration-200 ${
-              request.status === 'draft' ? 'bg-gray-200' : ''
-            } relative`}
-          >
-            <Link
-              to={`${request.id}`}
-              className="absolute top-2 right-8 text-blue-500 p-1 rounded hover:bg-blue-200 transition duration-200"
-            >
-              <PencilIcon className="w-5 h-5" />
-            </Link>
-            <button
-              onClick={() => handleDelete(request.id)}
-              className="absolute top-2 right-2 text-red-500 p-1 rounded hover:bg-red-200 transition duration-200"
-            >
-              <TrashIcon className="w-5 h-5" />
-            </button>
-            <h3 className="font-semibold text-xl mb-2">{request.sport}</h3>
-            <p className="text-gray-600">{request.description}</p>
-            {request.status === 'draft' && (
-              <p className="mt-4 text-yellow-600 font-semibold">Draft</p>
-            )}
-          </div>
-        ))}
+      {requests.map((request) => (
+        <div key={request.id} className={`bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition duration-200 ${ request.status === 'draft' ? 'bg-gray-200' : '' } relative`} >
+          <Link to={`${request.id}`} className="absolute top-2 right-8 text-blue-500 p-1 rounded hover:bg-blue-200 transition duration-200" >
+            <PencilIcon className="w-5 h-5" />
+          </Link>
+          <button onClick={() => handleDelete(request.id)} className="absolute top-2 right-2 text-red-500 p-1 rounded hover:bg-red-200 transition duration-200" >
+            <TrashIcon className="w-5 h-5" />
+          </button>
+          <h3 className="font-semibold text-xl mb-2">{request.sport}</h3>
+          <p className="text-gray-600">{request.description.substring(0, 30) + (request.description.length > 30 ? "..." : "")}</p>
+          {request.status === 'draft' && (
+            <p className="mt-4 text-yellow-600 font-semibold">Draft</p>
+          )}
+        </div>
+      ))}
       </div>
     </div>
   );

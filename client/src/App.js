@@ -9,7 +9,6 @@ import ManagerDashboard from './components/ManagerDashboard';
 import RegisterForm from './components/RegisterForm';
 import ResetPasswordForm from './components/ResetPasswordForm';
 import StudentDashboard from './components/StudentDashboard';
-import UpdateRequest from './components/UpdateRequest';
 
 
 const App = () => {

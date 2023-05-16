@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 const NewRequests = () => {
   const [newRequests, setNewRequests] = useState([]);
   const [selectedRequest, setSelectedRequest] = useState(null);
+  const [showFullDescription, setShowFullDescription] = useState(false);
 
   useEffect(() => {
     const fetchNewRequests = async () => {
@@ -27,6 +28,11 @@ const NewRequests = () => {
 
   const handleRequestSelect = (request) => {
     setSelectedRequest(request);
+    setShowFullDescription(false);
+  };
+
+  const handleReadMoreClick = () => {
+    setShowFullDescription(!showFullDescription);
   };
 
   return (
@@ -40,7 +46,10 @@ const NewRequests = () => {
             onClick={() => handleRequestSelect(request)}
           >
             <h3 className="font-semibold text-xl mb-2">{request.sport}</h3>
-            <p className="text-gray-600">{request.description}</p>
+            <p className="text-gray-600">
+              {request.description.substring(0, 30) + (request.description.length > 30 ? "..." : "")}
+              
+            </p>
           </div>
         ))}
       </div>
@@ -57,7 +66,10 @@ const NewRequests = () => {
           <p><strong>Education Level:</strong> {selectedRequest.education_level}</p>
           <p><strong>City:</strong> {selectedRequest.city}</p>
           <p><strong>Sport:</strong> {selectedRequest.sport}</p>
-          <p><strong>Description:</strong> {selectedRequest.description}</p>
+          <p className={`whitespace-normal overflow-wrap break-word ${showFullDescription ? '' : 'line-clamp-3'}`}><strong>Description:</strong> {selectedRequest.description}</p>
+          {!showFullDescription && (
+            <button className="mt-2 text-blue-500 hover:text-blue-700" onClick={handleReadMoreClick}>Read More</button>
+          )}
           <p><strong>Status:</strong> {selectedRequest.status}</p>
         </div>
       )}

@@ -37,25 +37,28 @@ const UpdateRequest = () => {
     if (!formValues.sport) {
       errors.sport = 'Sport is required';
     }
-    if (!formValues.description) {
-      errors.description = 'Description is required';
+    if (!formValues.description || formValues.description.length > 200) {
+      errors.description = 'Description is required and should not be more than 200 characters';
     }
-    if (!formValues.government_id) {
-      errors.government_id = 'Government ID is required';
+    if (!formValues.government_id || isNaN(formValues.government_id)) {
+      errors.government_id = 'Government ID is required and should be a numeric value';
     }
-    if (!formValues.phone_number) {
-      errors.phone_number = 'Phone number is required';
+     if (formValues.registration_number && (isNaN(formValues.registration_number) || formValues.registration_number.toString().length !== 5)) {
+      errors.registration_number = 'Registration number should be a 5 digit numeric value';
     }
-    if (!formValues.course_title) {
-      errors.course_title = 'Course title is required';
+    if (!formValues.phone_number || isNaN(formValues.phone_number)) {
+      errors.phone_number = 'Phone number is required and should be a numeric value';
     }
-    if (!formValues.academic_year) {
-      errors.academic_year = 'Academic year is required';
+    if (!formValues.course_title || formValues.course_title.length > 55) {
+      errors.course_title = 'Course title is required and should not be more than 55 characters';
     }
-    if (!formValues.education_level) {
+    if (!formValues.academic_year || isNaN(formValues.academic_year) || formValues.academic_year < 1 || formValues.academic_year > 4) {
+      errors.academic_year = 'Academic year is required and should be a numeric value between 1 and 4';
+    }
+    if (!formValues.education_level || formValues.education_level === 'Select education level') {
       errors.education_level = 'Education level is required';
     }
-    if (!formValues.city) {
+    if (!formValues.city || formValues.city === 'Select city') {
       errors.city = 'City is required';
     }
 
@@ -91,12 +94,16 @@ const UpdateRequest = () => {
       }
     } catch (error) {
       if (error.response) {
-        setMessage(error.response.data.message);
+      if (error.response.data.errors) {
+        setErrors(error.response.data.errors);
       } else {
-        setMessage('Error updating scholarship request');
+        setMessage(error.response.data.message);
       }
+    } else {
+      setMessage('Error submitting scholarship request');
     }
-  };
+  }
+};
 
   useEffect(() => {
     const fetchRequest = async () => {
@@ -217,6 +224,9 @@ const UpdateRequest = () => {
             className="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-indigo-500"
           />
         </div>
+        {errors.registration_number && (
+          <p className="text-red-500 text-sm">{errors.registration_number}</p>
+        )}
 
         <div className="flex flex-col">
           <label htmlFor="phone_number" className="text-sm font-medium mb-1">
@@ -236,7 +246,7 @@ const UpdateRequest = () => {
         )}
 
         <div className="flex flex-col">
-          <label           htmlFor="course_title" className="text-sm font-medium mb-1">
+          <label htmlFor="course_title" className="text-sm font-medium mb-1">
             Course Title:
           </label>
           <input
@@ -362,7 +372,7 @@ const UpdateRequest = () => {
       {message && (
         <p
           className={`mt-4 ${
-            message.startsWith('Scholarship request created successfully') || message.startsWith('Scholarship request saved as a draft successfully')
+            message.startsWith('Scholarship request updated successfully') || message.startsWith('Scholarship request saved as a draft successfully')
               ? 'text-green-600'
               : 'text-red-500'
           }`}
