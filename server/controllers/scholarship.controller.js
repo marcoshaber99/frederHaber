@@ -30,6 +30,12 @@ exports.createRequest = async (req, res) => {
 
     const user_id = req.user.id;
 
+    const [existingRequests] = await db.query('SELECT * FROM scholarship_requests WHERE user_id = ? AND status = ?', [user_id, 'submitted']);
+
+    if (existingRequests.length > 0) {
+      return res.status(400).json({ message: 'You already have a request that is waiting for approval. Please wait until it is processed.' });
+    }
+
     // If registration_number is not provided or is an empty string, set it to null
     if (!registration_number) {
       registration_number = null;
@@ -73,8 +79,6 @@ exports.createRequest = async (req, res) => {
   }
 };
 
-
-
 exports.getRequests = async (req, res) => {
   try {
     const user_id = req.user.id; 
@@ -92,6 +96,17 @@ exports.deleteRequest = async (req, res) => {
     const requestId = req.params.id;
     const user_id = req.user.id;
 
+    // Fetch the current request to check if it exists and belongs to the user
+    const [existingRequests] = await db.query('SELECT * FROM scholarship_requests WHERE id = ? AND user_id = ?', [requestId, user_id]);
+
+    if (existingRequests.length === 0) {
+      return res.status(404).json({ message: 'Scholarship request not found or you do not have permission to delete it' });
+    }
+
+    if (existingRequests[0].status === 'submitted') {
+      return res.status(400).json({ message: 'You cannot delete a request that is waiting for approval.' });
+    }
+
     await db.query('DELETE FROM scholarship_requests WHERE id = ? AND user_id = ?', [requestId, user_id]);
 
     res.status(200).json({ message: 'Scholarship request deleted successfully' });
@@ -100,6 +115,7 @@ exports.deleteRequest = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+
 
 exports.updateRequest = async (req, res) => {
   try {
@@ -126,11 +142,14 @@ exports.updateRequest = async (req, res) => {
     const user_id = req.user.id;
     const requestId = req.params.id;
 
-    // Fetch the current request to check if it exists and belongs to the user
     const [existingRequests] = await db.query('SELECT * FROM scholarship_requests WHERE id = ? AND user_id = ?', [requestId, user_id]);
 
     if (existingRequests.length === 0) {
       return res.status(404).json({ message: 'Scholarship request not found or you do not have permission to update it' });
+    }
+
+    if (existingRequests[0].status === 'submitted') {
+      return res.status(400).json({ message: 'You cannot edit a request that is waiting for approval.' });
     }
 
      // If registration_number is not provided or is an empty string, set it to null
@@ -208,5 +227,24 @@ exports.getNewRequests = async (req, res) => {
   }
 };
 
+exports.updateRequestStatus = async (req, res) => {
+  try {
+    const requestId = req.params.id;
+    const newStatus = req.body.status;
+
+    // Validate new status
+    if (!['draft', 'submitted', 'requires_more_info'].includes(newStatus)) {
+      return res.status(400).json({ message: 'Invalid status' });
+    }
+
+    // Update status in the database
+    await db.query('UPDATE scholarship_requests SET status = ? WHERE id = ?', [newStatus, requestId]);
+
+    res.status(200).json({ message: 'Scholarship request status updated successfully' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
 
 

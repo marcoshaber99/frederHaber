@@ -1,4 +1,4 @@
-import { PencilIcon, TrashIcon } from '@heroicons/react/outline';
+import { PencilIcon, TrashIcon, ClockIcon } from '@heroicons/react/solid'; 
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { Link } from "react-router-dom";
@@ -44,13 +44,13 @@ const ViewRequests = () => {
   
 
   return (
-    <div className="max-w-6xl mx-auto mt-10">
+    <div className="mt-10 ml-2">
       <h2 className="text-2xl font-semibold mb-6">
         View Scholarship Requests
       </h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 ">
       {requests.map((request) => (
-        <div key={request.id} className={`bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition duration-200 ${ request.status === 'draft' ? 'bg-gray-200' : '' } relative`} >
+        <div key={request.id} className={`bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition duration-200 overflow-wrap break-word ${ request.status === 'draft' ? 'bg-gray-200' : '' } hover:shadow-lg transition duration-200 transform hover:scale-105 cursor-pointer`} >
           <Link to={`${request.id}`} className="absolute top-2 right-8 text-blue-500 p-1 rounded hover:bg-blue-200 transition duration-200" >
             <PencilIcon className="w-5 h-5" />
           </Link>
@@ -58,9 +58,16 @@ const ViewRequests = () => {
             <TrashIcon className="w-5 h-5" />
           </button>
           <h3 className="font-semibold text-xl mb-2">{request.sport}</h3>
-          <p className="text-gray-600">{request.description.substring(0, 30) + (request.description.length > 30 ? "..." : "")}</p>
+          <p className="text-gray-600">{request.description.substring(0, 20) + (request.description.length > 20 ? "..." : "")}</p>
           {request.status === 'draft' && (
             <p className="mt-4 text-yellow-600 font-semibold">Draft</p>
+          )}
+  
+          {request.status === 'submitted' && (
+            <div className="flex items-center mt-4">
+              <ClockIcon className="h-5 w-5 mr-2 animate-spin-slow text-blue-500"/>
+              <p className="text-blue-500 animate-pulse">Waiting for approval</p>
+            </div>
           )}
         </div>
       ))}

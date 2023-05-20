@@ -21,11 +21,11 @@ const StudentDashboard = ({ email, role }) => {
   };
 
   return (
-    <div className="h-screen flex">
+    <div className="h-screen flex overflow-hidden">
       <div
-        className={`bg-blue-800 fixed inset-y-0 left-0 z-10 transform transition-transform duration-300 w-64 p-4 ${
+        className={`bg-blue-800 fixed inset-y-0 left-0 z-10 transform transition-transform duration-300 w-48 p-4 ${
           isMenuOpen ? 'translate-x-0' : '-translate-x-full'
-        } md:relative md:translate-x-0`}
+        } md:relative md:translate-x-0 h-full`}
       >
         <div className="flex justify-between items-end mb-8">
           <div>
@@ -45,24 +45,26 @@ const StudentDashboard = ({ email, role }) => {
           </div>
         </div>
         <nav className="flex flex-col items-center justify-center mt-44 py-14">
+
         <Link to="create-request" className="text-left text-white text-lg my-4 hover:text-green-400">
           Create Request
         </Link>
         <Link to="view-requests" className="text-left text-white text-lg my-4 hover:text-green-400">
           View Requests
         </Link>
-          <div className="absolute bottom-0 left-0 w-full text-center py-4">
-            <button
-              className="px-10 ml-10 py-7 flex items-center text-white text-xl hover:text-red-500"
-              onClick={handleLogout}
-            >
-              <FontAwesomeIcon icon={faSignOutAlt} className="mr-2" />
-              Logout
-            </button>
-          </div>
+        <div className="absolute bottom-0 left-0 w-full flex justify-center py-4">
+          <button
+            className="px-10 py-7 flex items-center text-white text-xl hover:text-red-500"
+            onClick={handleLogout}
+          >
+            <FontAwesomeIcon icon={faSignOutAlt} className="mr-2" />
+            Logout
+          </button>
+        </div>
+
         </nav>
       </div>
-      <div className="flex-1 p-8 md:ml-64">
+      <div className="flex-1 p-8 md:ml-32 mr-8 overflow-y-auto">
         <div className="md:hidden">
           <button onClick={toggleMenu} className="text-blue-800">
             <FontAwesomeIcon

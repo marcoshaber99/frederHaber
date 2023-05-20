@@ -1,7 +1,7 @@
 import { faBars, faSignOutAlt, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import React, { useEffect, useState } from 'react';
 import { Link, Route, Routes, useNavigate } from 'react-router-dom';
 import frederickLogo from '../images/frederick-white-logo.png';
 import NewRequests from './NewRequests';
@@ -41,7 +41,7 @@ const AdminDashboard = ({ email, role }) => {
   };
 
   return (
-    <div className="h-screen flex">
+    <div className="h-screen flex overflow-hidden">
       <div
         className={`bg-blue-800 fixed inset-y-0 left-0 z-10 transform transition-transform duration-300 w-64 p-4 ${
           isMenuOpen ? 'translate-x-0' : '-translate-x-full'
@@ -86,7 +86,7 @@ const AdminDashboard = ({ email, role }) => {
           </div>
         </nav>
       </div>
-      <div className="flex-1 p-8 md:ml-64">
+      <div className="flex-1 p-8 md:ml-32 mr-8 overflow-y-auto">
         <div className="md:hidden">
           <button onClick={toggleMenu} className="text-blue-800">
             <FontAwesomeIcon
@@ -97,7 +97,6 @@ const AdminDashboard = ({ email, role }) => {
         </div>
         <Routes>
           <Route path="new-requests" element={<NewRequests />} />
-          {/* Add similar Routes for other admin pages here */}
         </Routes>
       </div>
     </div>

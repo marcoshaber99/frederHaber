@@ -6,7 +6,11 @@ import './index.css';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <App />
-  </React.StrictMode>
+    <div className="m-0 p-0">
+      <App />
+    </div>
+  </React.StrictMode>,
+    document.getElementById('root')
+
 );
 

@@ -17,6 +17,8 @@ const CreateRequest = () => {
   });
   const [message, setMessage] = useState('');
   const [errors, setErrors] = useState({});
+  const [formStatus, setFormStatus] = useState('draft');
+
 
   const handleChange = (e) => {
     setFormValues({ ...formValues, [e.target.name]: e.target.value });
@@ -74,7 +76,13 @@ const handleSubmit = async (e, status = 'submitted') => {
     return;
   }
 
+  if (formStatus === 'submitted') {
+    return;
+  }
+
   setMessage('');
+  setFormStatus(status);
+
 
   try {
     const token = localStorage.getItem('token');
@@ -306,10 +314,11 @@ const handleSubmit = async (e, status = 'submitted') => {
         
 
         <div className="flex space-x-4">
-          <button
+        <button
             type="submit"
             onClick={(e) => handleSubmit(e, 'submitted')}
             className="bg-blue-700 text-white px-6 py-2 rounded hover:bg-blue-900 transition duration-200"
+            disabled={formStatus === 'submitted'}
           >
             Submit
           </button>
