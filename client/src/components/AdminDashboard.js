@@ -1,93 +1,108 @@
+import { css } from '@emotion/react';
 import { faBars, faSignOutAlt, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import axios from 'axios';
-import React, { useEffect, useState } from 'react';
-import { Link, Route, Routes, useNavigate } from 'react-router-dom';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Link, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import ClipLoader from "react-spinners/ClipLoader";
 import frederickLogo from '../images/frederick-white-logo.png';
 import NewRequests from './NewRequests';
 
+// Loader CSS override
+const override = css`
+  display: inline-block;
+  margin-left: 5px;
+`;
 
 const AdminDashboard = ({ email, role }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [newRequestsCount, setNewRequestsCount] = useState(null);
+  const [loadingNewRequestsCount, setLoadingNewRequestsCount] = useState(false);
 
-  const [newRequestsCount, setNewRequestsCount] = useState(0);
+  const fetchNewRequestsCount = useCallback(async () => {
+    setLoadingNewRequestsCount(true);
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get('http://localhost:5001/api/scholarship/get-new-requests-count', {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setNewRequestsCount(response.data); // Changed this line
+    } catch (error) {
+      console.error('Error fetching new requests count:', error);
+    } finally {
+      setLoadingNewRequestsCount(false);
+    }
+}, []);
 
   useEffect(() => {
-    const fetchNewRequestsCount = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:5001/api/scholarship/get-new-requests-count', {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        setNewRequestsCount(response.data.count);
-      } catch (error) {
-        console.error('Error fetching new requests count:', error);
-      }
-    };
-
     fetchNewRequestsCount();
-  }, []);
+  }, [fetchNewRequestsCount]);
 
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     navigate('/logout');
-  };
+  }, [navigate]);
 
-  const toggleMenu = () => {
+  const toggleMenu = useCallback(() => {
     setIsMenuOpen(!isMenuOpen);
-  };
+  }, [isMenuOpen]);
+
+  const isActive = useCallback((path) => {
+    return location.pathname.includes(path);
+  }, [location]);
 
   return (
-    <div className="h-screen flex overflow-hidden">
+    <div className="h-screen flex flex-col md:flex-row overflow-hidden">
       <div
-        className={`bg-blue-800 fixed inset-y-0 left-0 z-10 transform transition-transform duration-300 w-64 p-4 ${
+        className={`bg-blue-800 fixed inset-y-0 left-0 z-10 transform transition-transform duration-300 w-64 md:w-48 p-4 ${
           isMenuOpen ? 'translate-x-0' : '-translate-x-full'
         } md:relative md:translate-x-0`}
       >
-        <div className="flex justify-between items-end mb-8">
-          <div>
-            <Link to="#">
-              <img
-                src={frederickLogo}
-                alt="Frederick University Logo"
-                className="w-33 mb-4 mt-2"
-              />
-            </Link>
-            <p className="text-gray-300 text-lg px-2">{role}</p>
-          </div>
+        <div className="flex justify-between items-center mb-8">
+        <Link to="#">
+            <img
+              src={frederickLogo}
+              alt="Logo of Frederick University"
+              className="w-full mb-4 mt-2"
+            />
+          </Link>
           <div className="md:hidden">
-            <button onClick={toggleMenu} className="text-white ">
-              <FontAwesomeIcon icon={faTimes} className="text-2xl w-33 mb-11 mt-2" />
+            <button onClick={toggleMenu} className="text-white">
+              <FontAwesomeIcon icon={faTimes} className="text-2xl" />
             </button>
           </div>
         </div>
-        <nav className="flex flex-col items-center justify-center mt-44 py-14">
-        <Link to="new-requests" className="text-left text-white text-lg my-4 hover:text-green-400">
-          New Requests
-        </Link>
-        {/* Add similar Links for other admin pages here */}
-        <Link to="#" className="text-left text-white text-lg my-4 hover:text-green-400">
-          Open Requests
-        </Link>
-        <Link to="#" className="text-left text-white text-lg my-4 hover:text-green-400">
-          Closed Requests
-        </Link>
-          <div className="absolute bottom-0 left-0 w-full text-center py-4">
-            <button
-              className="px-10 ml-10 py-7 flex items-center text-white text-xl hover:text-red-500"
-              onClick={handleLogout}
-            >
-              <FontAwesomeIcon icon={faSignOutAlt} className="mr-2" />
-              Logout
-            </button>
-          </div>
+        <div className="mb-8 text-center md:text-left">
+          <p className="text-gray-300 text-md">{role}</p>
+          <p className="text-gray-100 text-sm">{email}</p>
+        </div>
+        <nav className="flex flex-col items-center justify-center md:justify-start mt-44 py-14 md:mt-0">
+          <Link to="new-requests" className={`text-left text-lg my-4 transition-all duration-300 transform hover:scale-110 ${isActive('new-requests') ? 'text-green-400' : 'text-white'} hover:text-green-400`}>
+            New Requests {loadingNewRequestsCount ? <ClipLoader color="#ffffff" loading={loadingNewRequestsCount} css={override} size={20} /> : `(${newRequestsCount})`}
+          </Link>
+          <Link to="#" className={`text-left text-lg my-4 ${isActive('open-requests') ? 'text-green-400' : 'text-white'} hover:text-green-400`}>
+            Open Requests
+          </Link>
+          <Link to="#" className={`text-left text-lg my-4 ${isActive('closed-requests') ? 'text-green-400' : 'text-white'} hover:text-green-400`}>
+            Closed Requests
+          </Link>
         </nav>
+        <div className="fixed bottom-0 left-0 w-full flex justify-center py-4 bg-blue-800 md:absolute md:bg-transparent">
+          <button
+            className="px-10 py-2 flex items-center text-white text-xl hover:text-red-500"
+            onClick={handleLogout}
+          >
+            <FontAwesomeIcon icon={faSignOutAlt} className="mr-2" />
+            Logout
+          </button>
+        </div>
       </div>
-      <div className="flex-1 p-8 md:ml-32 mr-8 overflow-y-auto">
-        <div className="md:hidden">
+      <div className="flex-1 p-4 md:p-8 md:ml-48 mr-8 overflow-y-auto">
+        <div className="md:hidden mb-4">
           <button onClick={toggleMenu} className="text-blue-800">
             <FontAwesomeIcon
               icon={isMenuOpen ? faTimes : faBars}
@@ -101,6 +116,7 @@ const AdminDashboard = ({ email, role }) => {
       </div>
     </div>
   );
+  
 };
 
 export default AdminDashboard;

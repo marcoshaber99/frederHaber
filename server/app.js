@@ -9,7 +9,7 @@ const app = express();
 
 // Middleware
 app.use(express.json());
-app.use(cors());
+app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
 
 // Routes
 const authRoutes = require('./routes/auth.routes');

@@ -65,8 +65,8 @@ const ViewRequests = () => {
   
           {request.status === 'submitted' && (
             <div className="flex items-center mt-4">
-              <ClockIcon className="h-5 w-5 mr-2 animate-spin-slow text-blue-500"/>
-              <p className="text-blue-500 animate-pulse">Waiting for approval</p>
+              <ClockIcon className="h-5 w-5 mr-2 animate-spin-slow text-blue-700"/>
+              <p className="text-blue-500 animate-pulse text-lg font-bold">Waiting for approval</p>
             </div>
           )}
         </div>

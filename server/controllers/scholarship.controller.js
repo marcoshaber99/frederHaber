@@ -157,8 +157,7 @@ exports.updateRequest = async (req, res) => {
       registration_number = null;
     }
 
-    // Check if the request was previously a draft and is now being submitted
-    if (existingRequests[0].status === 'draft' && status === 'submitted') {
+    if ((existingRequests[0].status === 'draft' || existingRequests[0].status === 'requires_more_info') && status === 'submitted') {
       // Get all admins' emails from the database
       let adminEmails;
       try {
@@ -247,4 +246,14 @@ exports.updateRequestStatus = async (req, res) => {
   }
 };
 
+exports.getNewRequestsCount = async (req, res) => {
+  try {
+    const [requests] = await db.query('SELECT COUNT(*) as count FROM scholarship_requests WHERE status = "submitted"');
+
+    res.status(200).json(requests[0].count);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
 

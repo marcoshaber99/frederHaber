@@ -1,7 +1,13 @@
 import axios from 'axios';
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 
 const CreateRequest = () => {
+  const navigate = useNavigate();
+
   const [formValues, setFormValues] = useState({
     first_name: '',
     last_name: '',
@@ -97,26 +103,36 @@ const handleSubmit = async (e, status = 'submitted') => {
       }
     );
     if (status === 'draft') {
-      setMessage('Scholarship request saved as a draft successfully');
+      toast.success('Scholarship request saved as a draft successfully');
+      setTimeout(() => {
+        navigate('/student-dashboard/view-requests');
+      }, 2000); // delay of 2 seconds
     } else {
-      setMessage('Scholarship request created successfully');
+      toast.success('Scholarship request created successfully');
+      setTimeout(() => {
+        navigate('/student-dashboard/view-requests');
+      }, 2000); // delay of 2 seconds
     }
   } catch (error) {
     if (error.response) {
       if (error.response.data.errors) {
         setErrors(error.response.data.errors);
+        toast.error('Form errors occurred');
       } else {
-        setMessage(error.response.data.message);
+        toast.error(error.response.data.message);
       }
     } else {
-      setMessage('Error submitting scholarship request');
+      toast.error('Error submitting scholarship request');
     }
   }
 };
 
 
+
   return (
     <div className="max-w-lg mx-auto mt-10 ml-0">
+          <ToastContainer />
+
       <h2 className="text-2xl font-semibold mb-6">Create Scholarship Request</h2>
       <form className="space-y-4" onSubmit={handleSubmit}>
         <div className="flex flex-col">

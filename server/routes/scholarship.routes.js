@@ -8,10 +8,9 @@ const {
     deleteRequest,
     updateRequest,
     getNewRequests,
-    updateRequestStatus
+    updateRequestStatus,
+    getNewRequestsCount
 } = require('../controllers/scholarship.controller');
-
-
 
 const verifyToken = require('../middlewares/verifyToken');
 const verifyAdmin = require('../middlewares/verifyAdmin');
@@ -24,6 +23,8 @@ router.put('/update-request/:id', verifyToken, updateRequest);
 router.get('/get-requests/:id', verifyToken, getRequest);
 router.get('/get-new-requests', verifyToken, getNewRequests);
 router.patch('/update-request-status/:id', verifyToken, verifyAdmin, updateRequestStatus);
+router.get('/get-new-requests-count', verifyToken, getNewRequestsCount);
+
 
 
 

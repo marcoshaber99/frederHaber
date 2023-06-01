@@ -23,7 +23,7 @@ const StudentDashboard = ({ email, role }) => {
   return (
     <div className="h-screen flex overflow-hidden">
       <div
-        className={`bg-blue-800 fixed inset-y-0 left-0 z-10 transform transition-transform duration-300 w-48 p-4 ${
+        className={`bg-blue-800 fixed inset-y-0 left-0 z-10 transform transition-transform duration-300 w-52 p-4 ${
           isMenuOpen ? 'translate-x-0' : '-translate-x-full'
         } md:relative md:translate-x-0 h-full`}
       >
@@ -33,10 +33,13 @@ const StudentDashboard = ({ email, role }) => {
               <img
                 src={frederickLogo}
                 alt="Frederick University Logo"
-                className="w-33 mb-4 mt-2"
+                className="w-48 mb-4 mt-2"
               />
             </Link>
-            <p className="text-gray-300 text-lg px-2">{role}</p>
+            <p className="text-gray-300 text-lg px-1">{role}</p>
+            <p className="text-gray-200 text-sm px-1">{email}</p>
+
+
           </div>
           <div className="md:hidden">
             <button onClick={toggleMenu} className="text-white ">

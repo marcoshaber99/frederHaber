@@ -9,6 +9,9 @@ router.post('/activate', activate);
 router.post('/set-role', setRole);
 router.post('/role-selection', verifyToken, roleSelection);
 router.get('/user-details', verifyToken, getUserDetails);
+router.post('/verify-token', verifyToken, getUserDetails);
+
+
 
 
 module.exports = router;

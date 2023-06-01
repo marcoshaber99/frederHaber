@@ -109,9 +109,13 @@ exports.login = async (req, res) => {
     }
 
     // Create a JWT token
-    const token = jwt.sign({ id: user[0].id, role: user[0].role }, process.env.JWT_SECRET, {
+    const token = jwt.sign({ 
+      id: user[0].id, 
+      role: user[0].role, 
+      email: user[0].email 
+    }, process.env.JWT_SECRET, {
       expiresIn: '1h'
-    });
+    })
 
     res.status(200).json({
       token,
@@ -200,16 +204,21 @@ exports.roleSelection = async (req, res) => {
 
 exports.getUserDetails = async (req, res) => {
   try {
-    const decoded = jwt.verify(req.headers.authorization.split(" ")[1], process.env.JWT_SECRET);
-    const [user] = await db.query('SELECT * FROM users WHERE id = ?', [decoded.id]);
-    if (!user[0]) {
-      res.status(404).json({ message: "User not found" });
-    } else {
-      res.status(200).json({ email: user[0].email, role: user[0].role });
+    const userId = req.user.id;
+
+    // Find the user with the given ID
+    const [user] = await db.query('SELECT * FROM users WHERE id = ?', [userId]);
+    if (user.length === 0) {
+      return res.status(404).json({ message: 'User not found' });
     }
-  } catch (error) {
-    res.status(401).json({ message: "Unauthorized" });
+
+    res.status(200).json({
+      userEmail: user[0].email,
+      userRole: user[0].role
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
   }
 };
-
 

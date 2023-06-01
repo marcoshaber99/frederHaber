@@ -1,4 +1,7 @@
 import React, { useEffect, useState } from 'react';
+import { css } from "@emotion/react";
+import ClipLoader from "react-spinners/ClipLoader";
+import axios from 'axios';
 import { Navigate, Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import ActivateAccount from './components/ActivateAccount/ActivateAccount';
 import AdminDashboard from './components/AdminDashboard';
@@ -10,19 +13,50 @@ import RegisterForm from './components/RegisterForm';
 import ResetPasswordForm from './components/ResetPasswordForm';
 import StudentDashboard from './components/StudentDashboard';
 
+const override = css`
+  display: block;
+  margin: 0 auto;
+  border-color: red;
+`;
 
 const App = () => {
-  const [currentUserRole, setCurrentUserRole] = useState(null);
-  const [currentUserEmail, setCurrentUserEmail] = useState(null);
+  const [currentUserRole, setCurrentUserRole] = useState(undefined);
+  const [currentUserEmail, setCurrentUserEmail] = useState(undefined);
 
-  useEffect(() => {
-    const storedUserRole = localStorage.getItem('userRole');
-    const storedUserEmail = localStorage.getItem('userEmail');
-    if (storedUserRole && storedUserEmail) {
-      setCurrentUserRole(storedUserRole);
-      setCurrentUserEmail(storedUserEmail);
+  const verifyToken = async (token) => {
+    try {
+      const response = await axios.post(
+        `http://localhost:5001/api/auth/verify-token`, 
+        {}, 
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setCurrentUserRole(response.data.userRole);
+      setCurrentUserEmail(response.data.userEmail);
+    } catch (error) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('userRole');
+      localStorage.removeItem('userEmail');
+      setCurrentUserRole(null);
+      setCurrentUserEmail(null);
     }
-  }, []);
+};
+
+
+useEffect(() => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    verifyToken(token);
+  } else {
+    setCurrentUserRole(null);
+    setCurrentUserEmail(null);
+  }
+}, []);
+
+  if (currentUserRole === undefined || currentUserEmail === undefined) {
+    return <div className="sweet-loading">
+                <ClipLoader color="#123abc" loading={true} css={override} size={150} />
+           </div>;
+  }
 
   return (
     <Router>
