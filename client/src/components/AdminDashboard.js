@@ -58,7 +58,7 @@ const AdminDashboard = ({ email, role }) => {
   return (
     <div className="h-screen flex flex-col md:flex-row overflow-hidden">
       <div
-        className={`bg-blue-800 fixed inset-y-0 left-0 z-10 transform transition-transform duration-300 w-64 md:w-48 p-4 ${
+        className={`bg-blue-800 fixed inset-y-0 left-0 z-10 transform transition-transform duration-300 w-60 md:w-62 p-4 ${
           isMenuOpen ? 'translate-x-0' : '-translate-x-full'
         } md:relative md:translate-x-0`}
       >
@@ -67,7 +67,7 @@ const AdminDashboard = ({ email, role }) => {
             <img
               src={frederickLogo}
               alt="Logo of Frederick University"
-              className="w-full mb-4 mt-2"
+              className="w-full mt-2"
             />
           </Link>
           <div className="md:hidden">
@@ -77,23 +77,23 @@ const AdminDashboard = ({ email, role }) => {
           </div>
         </div>
         <div className="mb-8 text-center md:text-left">
-          <p className="text-gray-300 text-md">{role}</p>
-          <p className="text-gray-100 text-sm">{email}</p>
+          <p className="text-md text-orange-400">{role}</p>
+          <p className="text-gray-100">{email}</p>
         </div>
-        <nav className="flex flex-col items-center justify-center md:justify-start mt-44 py-14 md:mt-0">
-          <Link to="new-requests" className={`text-left text-lg my-4 transition-all duration-300 transform hover:scale-110 ${isActive('new-requests') ? 'text-green-400' : 'text-white'} hover:text-green-400`}>
+        <nav className="flex flex-col items-center md:justify-start py-48 md:mt-0">
+          <Link to="new-requests" className={`text-lg my-4 transition-all duration-300 transform hover:scale-105 ${isActive('new-requests') ? 'text-green-400' : 'text-white'} hover:text-green-400`}>
             New Requests {loadingNewRequestsCount ? <ClipLoader color="#ffffff" loading={loadingNewRequestsCount} css={override} size={20} /> : `(${newRequestsCount})`}
           </Link>
-          <Link to="#" className={`text-left text-lg my-4 ${isActive('open-requests') ? 'text-green-400' : 'text-white'} hover:text-green-400`}>
+          <Link to="#" className={`text-left text-lg my-4 mr-4 ${isActive('open-requests') ? 'text-green-400' : 'text-white'} hover:text-green-400`}>
             Open Requests
           </Link>
-          <Link to="#" className={`text-left text-lg my-4 ${isActive('closed-requests') ? 'text-green-400' : 'text-white'} hover:text-green-400`}>
+          <Link to="#" className={`text-left text-lg my-4 mr-2 ${isActive('closed-requests') ? 'text-green-400' : 'text-white'} hover:text-green-400`}>
             Closed Requests
           </Link>
         </nav>
         <div className="fixed bottom-0 left-0 w-full flex justify-center py-4 bg-blue-800 md:absolute md:bg-transparent">
           <button
-            className="px-10 py-2 flex items-center text-white text-xl hover:text-red-500"
+            className="px-10 py-8 flex items-center text-white text-xl hover:text-red-400 duration-300 transform hover:scale-105"
             onClick={handleLogout}
           >
             <FontAwesomeIcon icon={faSignOutAlt} className="mr-2" />

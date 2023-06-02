@@ -110,13 +110,14 @@ const NewRequests = () => {
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {newRequests.map((request) => (
                 <div
-                  key={request.id}
-                  className={`bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition duration-200 transform hover:scale-105 cursor-pointer 
-                  ${selectedRequest && selectedRequest.id === request.id ? 'border-2 border-blue-500' : ''}`}
-                  onClick={() => handleRequestSelect(request)}
-                >
+                key={request.id}
+                className={`bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition duration-200 transform hover:scale-105 cursor-pointer 
+                ${selectedRequest && selectedRequest.id === request.id ? 'border-2 border-blue-500' : ''} overflow-auto`}
+                onClick={() => handleRequestSelect(request)}
+              >
+              
                   <h3 className="font-semibold text-lg mb-2 text-blue-500">{request.sport}</h3>
-                  <p className="text-gray-600 text-sm">
+                  <p className="text-gray-600 text-sm overflow-auto">
                     {request.description.substring(0, 30) + (request.description.length > 30 ? "..." : "")}
                   </p>
                 </div>

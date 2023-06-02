@@ -1,4 +1,4 @@
-import { PencilIcon, TrashIcon, ClockIcon } from '@heroicons/react/solid'; 
+import { ClockIcon, PencilIcon, TrashIcon } from '@heroicons/react/solid';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { Link } from "react-router-dom";
@@ -50,7 +50,7 @@ const ViewRequests = () => {
       </h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 ">
       {requests.map((request) => (
-        <div key={request.id} className={`bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition duration-200 overflow-wrap break-word ${ request.status === 'draft' ? 'bg-gray-200' : '' } hover:shadow-lg transition duration-200 transform hover:scale-105 cursor-pointer`} >
+        <div key={request.id} className={`bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition duration-200 overflow-wrap break-word overflow-auto ${ request.status === 'draft' ? 'bg-gray-200' : '' } hover:shadow-lg transition duration-200 transform hover:scale-105 cursor-pointer `} >
           <Link to={`${request.id}`} className="absolute top-2 right-8 text-blue-500 p-1 rounded hover:bg-blue-200 transition duration-200" >
             <PencilIcon className="w-5 h-5" />
           </Link>

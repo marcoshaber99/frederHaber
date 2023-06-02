@@ -1,8 +1,12 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const UpdateRequest = () => {
+  const navigate = useNavigate();
+
   const { id } = useParams();
   const [formValues, setFormValues] = useState({
     first_name: '',
@@ -90,17 +94,28 @@ const UpdateRequest = () => {
       );
 
       if (response.status === 200) {
-        setMessage('Scholarship request updated successfully');
+        if (status === 'draft') {
+          toast.success('Scholarship request updated and saved as a draft successfully');
+          setTimeout(() => {
+            navigate('/student-dashboard/view-requests');
+          }, 2000); // delay of 2 seconds
+        } else {
+          toast.success('Scholarship request updated successfully');
+          setTimeout(() => {
+            navigate('/student-dashboard/view-requests');
+          }, 2000); // delay of 2 seconds
+        }
       }
     } catch (error) {
       if (error.response) {
       if (error.response.data.errors) {
         setErrors(error.response.data.errors);
+        toast.error('Form errors occurred');
       } else {
-        setMessage(error.response.data.message);
+        toast.error(error.response.data.message);
       }
     } else {
-      setMessage('Error submitting scholarship request');
+      toast.error('Error updating scholarship request');
     }
   }
 };
@@ -157,6 +172,7 @@ const UpdateRequest = () => {
 
   return (
     <div className="max-w-lg mx-auto mt-10 ml-0">
+    <ToastContainer />
       <h2 className="text-2xl font-semibold mb-6">Update Scholarship Request</h2>
       <form className="space-y-4" onSubmit={handleUpdate}>
         <div className="flex flex-col">
