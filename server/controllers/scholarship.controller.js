@@ -2,10 +2,11 @@ const db = require('../config/db.config');
 const sgMail = require('@sendgrid/mail');
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 const { validateRequest } = require('./validateRequest');
+const { validateAdminRequest } = require('./validateAdminRequest');
+
 
 
 exports.createRequest = async (req, res) => {
-
   try {
     const errors = validateRequest(req.body);
 
@@ -24,8 +25,7 @@ exports.createRequest = async (req, res) => {
       course_title, 
       academic_year, 
       education_level, 
-      city, 
-      status 
+      city 
     } = req.body;
 
     const user_id = req.user.id;
@@ -40,6 +40,8 @@ exports.createRequest = async (req, res) => {
     if (!registration_number) {
       registration_number = null;
     }
+
+    const status = "submitted"; // Always set the status in server, not in client
 
     await db.query(
       'INSERT INTO scholarship_requests (user_id, first_name, last_name, sport, description, government_id, registration_number, phone_number, course_title, academic_year, education_level, city, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', 
@@ -78,6 +80,7 @@ exports.createRequest = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+
 
 exports.getRequests = async (req, res) => {
   try {
@@ -251,6 +254,66 @@ exports.getNewRequestsCount = async (req, res) => {
     const [requests] = await db.query('SELECT COUNT(*) as count FROM scholarship_requests WHERE status = "submitted"');
 
     res.status(200).json(requests[0].count);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+exports.adminReview = async (req, res) => {
+  const { requestId, ...adminReview } = req.body;
+  let { percentage, scholarshipCategory, otherScholarship, otherScholarshipPercentage, adminFullName, date, comments } = adminReview;
+
+  // Convert empty strings to null for integer fields
+  percentage = percentage !== '' ? percentage : null;
+  otherScholarshipPercentage = otherScholarshipPercentage !== '' ? otherScholarshipPercentage : null;
+
+  // Validate admin request
+  const errors = validateAdminRequest(req.body);
+  if (Object.keys(errors).length > 0) {
+    // If there are errors, send them back in the response
+    return res.status(400).json({ errors });
+  }
+
+  try {
+    await db.query(`
+      INSERT INTO reviews (request_id, percentage, scholarship_category, other_scholarship, other_scholarship_percentage, admin_full_name, date, comments)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `, [requestId, percentage, scholarshipCategory, otherScholarship, otherScholarshipPercentage, adminFullName, date, comments]);
+
+    await db.query(`
+      UPDATE scholarship_requests
+      SET status = 'REVIEWED'
+      WHERE id = ?
+    `, [requestId]);
+
+    res.json({ message: 'Review submitted' });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: 'There was a problem processing your request. Please check the form fields and try again.' });
+  }
+};
+
+
+exports.getOpenRequestsCount = async (req, res) => {
+  try {
+    const [requests] = await db.query('SELECT COUNT(*) as count FROM scholarship_requests WHERE status = "open"');
+    res.status(200).json(requests[0].count);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+exports.getOpenRequests = async (req, res) => {
+  try {
+    const [requests] = await db.query(`
+      SELECT sr.*, r.percentage, r.scholarship_category, r.other_scholarship, r.other_scholarship_percentage, r.admin_full_name, r.date, r.comments
+      FROM scholarship_requests sr
+      LEFT JOIN reviews r ON sr.id = r.request_id
+      WHERE sr.status IN ("open", "REVIEWED")
+      `);
+    res.status(200).json({ requests });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Server error' });

@@ -4,6 +4,8 @@ import React, { useCallback, useEffect, useState } from 'react';
 import ClipLoader from "react-spinners/ClipLoader";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import AdminReviewForm from './AdminReviewForm';
+
 
 const NewRequests = () => {
   const [newRequests, setNewRequests] = useState([]);
@@ -147,6 +149,9 @@ const NewRequests = () => {
                 >
                   {isLoading ? <ClipLoader color="#ffffff" loading={isLoading} css={override} size={20} /> : 'Ask for further information'}
                 </button>
+
+                <AdminReviewForm selectedRequest={selectedRequest} fetchNewRequests={fetchNewRequests} requestId={selectedRequest.id} />
+
               </div>
             </div>
           )}

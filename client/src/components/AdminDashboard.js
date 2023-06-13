@@ -7,6 +7,10 @@ import { Link, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import ClipLoader from "react-spinners/ClipLoader";
 import frederickLogo from '../images/frederick-white-logo.png';
 import NewRequests from './NewRequests';
+import OpenRequests from './OpenRequests';
+import OpenRequestsDetails from './OpenRequestsDetails';
+
+
 
 // Loader CSS override
 const override = css`
@@ -84,10 +88,10 @@ const AdminDashboard = ({ email, role }) => {
           <Link to="new-requests" className={`text-lg my-4 transition-all duration-300 transform hover:scale-105 ${isActive('new-requests') ? 'text-green-400' : 'text-white'} hover:text-green-400`}>
             New Requests {loadingNewRequestsCount ? <ClipLoader color="#ffffff" loading={loadingNewRequestsCount} css={override} size={20} /> : `(${newRequestsCount})`}
           </Link>
-          <Link to="#" className={`text-left text-lg my-4 mr-4 ${isActive('open-requests') ? 'text-green-400' : 'text-white'} hover:text-green-400`}>
+          <Link to="open-requests" className={`text-left text-lg my-4 mr-4 ${isActive('open-requests') ? 'text-green-400' : 'text-white'} hover:text-green-400`}>
             Open Requests
           </Link>
-          <Link to="#" className={`text-left text-lg my-4 mr-2 ${isActive('closed-requests') ? 'text-green-400' : 'text-white'} hover:text-green-400`}>
+          <Link to="closed-requests" className={`text-left text-lg my-4 mr-2 ${isActive('closed-requests') ? 'text-green-400' : 'text-white'} hover:text-green-400`}>
             Closed Requests
           </Link>
         </nav>
@@ -112,6 +116,9 @@ const AdminDashboard = ({ email, role }) => {
         </div>
         <Routes>
           <Route path="new-requests" element={<NewRequests />} />
+          <Route path="open-requests" element={<OpenRequests />} /> 
+          <Route path="open-requests/:id" element={<OpenRequestsDetails />} /> 
+
         </Routes>
       </div>
     </div>
