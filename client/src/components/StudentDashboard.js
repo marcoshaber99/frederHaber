@@ -67,7 +67,7 @@ const StudentDashboard = ({ email, role }) => {
 
         </nav>
       </div>
-      <div className="flex-1 p-8 md:ml-32 mr-8 overflow-y-auto">
+      <div className="flex-1 p-8 md:ml-32 overflow-y-auto">
         <div className="md:hidden">
           <button onClick={toggleMenu} className="text-blue-800">
             <FontAwesomeIcon

@@ -102,57 +102,165 @@ const AdminReviewForm = (props) => {
   };
 
 
-return (
-  <form onSubmit={handleSubmit} className="max-w-lg mx-auto my-10 space-y-4">
-    <div>
-      <label htmlFor="percentage" className="block text-sm font-medium text-gray-700">Percentage *</label>
-      <input id="percentage" type="number" name="percentage" value={formValues.percentage} onChange={handleAdminChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" required/>
+  return (
+    <div className="max-w-6xl mx-auto p-5">
+      <form onSubmit={handleSubmit} className="mx-auto space-y-4">
+        {/* Percentage Input */}
+        <div className="mb-4">
+          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="percentage">
+            Percentage *
+          </label>
+          <input 
+            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+            id="percentage" 
+            type="number" 
+            name="percentage"
+            value={formValues.percentage} 
+            onChange={handleAdminChange}
+            required
+          />
+          {errors.percentage && (
+            <p className="text-red-500 text-xs italic">{errors.percentage}</p>
+          )}
+        </div>
+  
+        {/* Scholarship Category Select */}
+        <div className="mb-4">
+          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="scholarshipCategory">
+            Scholarship Category *
+          </label>
+          <select 
+            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+            id="scholarshipCategory"
+            name="scholarshipCategory" 
+            value={formValues.scholarshipCategory} 
+            onChange={handleAdminChange}
+            required
+          >
+            {/* Options */}
+            <option value="">Select category</option>
+            <option value="A">A</option>
+            <option value="B">B</option>
+            <option value="C">C</option>
+            <option value="D">D</option>
+          </select>
+          {errors.scholarshipCategory && (
+            <p className="text-red-500 text-xs italic">{errors.scholarshipCategory}</p>
+          )}
+        </div>
+  
+        {/* Other Scholarship Select */}
+        <div className="mb-4">
+          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="otherScholarship">
+            Other Scholarship
+          </label>
+          <select 
+            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+            id="otherScholarship" 
+            name="otherScholarship" 
+            value={formValues.otherScholarship} 
+            onChange={handleAdminChange}
+          >
+            {/* Options */}
+            <option value="">Select</option>
+            <option value="YES">Yes</option>
+            <option value="NO">No</option>
+          </select>
+          {errors.otherScholarship && (
+            <p className="text-red-500 text-xs italic">{errors.otherScholarship}</p>
+          )}
+        </div>
+  
+        {/* Other Scholarship Percentage Input */}
+        {formValues.otherScholarship === 'YES' && (
+          <div className="mb-4">
+            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="otherScholarshipPercentage">
+              Other Scholarship Percentage *
+            </label>
+            <input 
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+              id="otherScholarshipPercentage" 
+              type="number" 
+              name="otherScholarshipPercentage"
+              value={formValues.otherScholarshipPercentage} 
+              onChange={handleAdminChange}
+              required
+            />
+            {errors.otherScholarshipPercentage && (
+              <p className="text-red-500 text-xs italic">{errors.otherScholarshipPercentage}</p>
+            )}
+          </div>
+        )}
+  
+        {/* Admin Full Name Input */}
+        <div className="mb-4">
+          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="adminFullName">
+            Admin Full Name *
+          </label>
+          <input 
+            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+            id="adminFullName" 
+            type="text" 
+            name="adminFullName"
+            value={formValues.adminFullName} 
+            onChange={handleAdminChange}
+            required
+          />
+          {errors.adminFullName && (
+            <p className="text-red-500 text-xs italic">{errors.adminFullName}</p>
+          )}
+        </div>
+  
+        {/* Date Input */}
+        <div className="mb-4">
+          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="date">
+            Date *
+          </label>
+          <input 
+            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+            id="date" 
+            type="date" 
+            name="date"
+            value={formValues.date} 
+            onChange={handleAdminChange}
+            required
+          />
+          {errors.date && (
+            <p className="text-red-500 text-xs italic">{errors.date}</p>
+          )}
+        </div>
+  
+        {/* Comments Textarea */}
+        <div className="mb-4">
+          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="comments">
+            Comments
+          </label>
+          <textarea 
+            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+            id="comments" 
+            name="comments"
+            value={formValues.comments} 
+            onChange={handleAdminChange}
+            rows="3"
+          />
+          {errors.comments && (
+            <p className="text-red-500 text-xs italic">{errors.comments}</p>
+          )}
+        </div>
+  
+        {/* Submit Button */}
+        <div className="flex items-center justify-between">
+          <button 
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full"
+            type="submit"
+          >
+            Submit
+          </button>
+        </div>
+      </form>
     </div>
-    <div>
-      <label htmlFor="scholarshipCategory" className="block text-sm font-medium text-gray-700">Scholarship Category *</label>
-      <select id="scholarshipCategory" name="scholarshipCategory" value={formValues.scholarshipCategory} onChange={handleAdminChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" required>
-        <option value="">Select category</option>
-        <option value="A">A</option>
-        <option value="B">B</option>
-        <option value="C">C</option>
-        <option value="D">D</option>
-      </select>
-    </div>
-    <div>
-      <label htmlFor="otherScholarship" className="block text-sm font-medium text-gray-700">Other Scholarship</label>
-      <select id="otherScholarship" name="otherScholarship" value={formValues.otherScholarship} onChange={handleAdminChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-        <option value="">Select</option>
-        <option value="YES">Yes</option>
-        <option value="NO">No</option>
-      </select>
-    </div>
-    {formValues.otherScholarship === 'YES' && (
-      <div>
-        <label htmlFor="otherScholarshipPercentage" className="block text-sm font-medium text-gray-700">Other Scholarship Percentage *</label>
-        <input id="otherScholarshipPercentage" type="number" name="otherScholarshipPercentage" value={formValues.otherScholarshipPercentage} onChange={handleAdminChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" required/>
-      </div>
-    )}
-    <div>
-      <label htmlFor="adminFullName" className="block text-sm font-medium text-gray-700">Admin Full Name *</label>
-      <input id="adminFullName" type="text" name="adminFullName" value={formValues.adminFullName} onChange={handleAdminChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" required/>
-    </div>
-    <div>
-      <label htmlFor="date" className="block text-sm font-medium text-gray-700">Date *</label>
-      <input id="date" type="date" name="date" value={formValues.date} onChange={handleAdminChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" required/>
-    </div>
-    <div>
-      <label htmlFor="comments" className="block text-sm font-medium text-gray-700">Comments</label>
-      <textarea id="comments" name="comments" value={formValues.comments} onChange={handleAdminChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" rows="3"></textarea>
-    </div>
-    <button type="submit" className="w-full px-3 py-2 text-white bg-blue-500 rounded hover:bg-blue-600">Submit</button>
-  </form>
-);
-
-
-
-
-
-
+  );
+  
 
 };
 

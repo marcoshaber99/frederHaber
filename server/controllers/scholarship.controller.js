@@ -5,7 +5,6 @@ const { validateRequest } = require('./validateRequest');
 const { validateAdminRequest } = require('./validateAdminRequest');
 
 
-
 exports.createRequest = async (req, res) => {
   try {
     const errors = validateRequest(req.body);
@@ -25,12 +24,14 @@ exports.createRequest = async (req, res) => {
       course_title, 
       academic_year, 
       education_level, 
-      city 
+      city, 
+      status // Get the status from the client-side
     } = req.body;
 
     const user_id = req.user.id;
 
-    const [existingRequests] = await db.query('SELECT * FROM scholarship_requests WHERE user_id = ? AND status = ?', [user_id, 'submitted']);
+    const [existingRequests] = await db.query('SELECT * FROM scholarship_requests WHERE user_id = ? AND (status = ? OR status = ?)', [user_id, 'submitted', 'requires_more_info']);
+
 
     if (existingRequests.length > 0) {
       return res.status(400).json({ message: 'You already have a request that is waiting for approval. Please wait until it is processed.' });
@@ -41,13 +42,12 @@ exports.createRequest = async (req, res) => {
       registration_number = null;
     }
 
-    const status = "submitted"; // Always set the status in server, not in client
-
     await db.query(
       'INSERT INTO scholarship_requests (user_id, first_name, last_name, sport, description, government_id, registration_number, phone_number, course_title, academic_year, education_level, city, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', 
       [user_id, first_name, last_name, sport, description, government_id, registration_number, phone_number, course_title, academic_year, education_level, city, status]
     );
 
+    // Only send the email if the status is 'submitted'
     if (status === 'submitted') {
       let adminEmails;
       try {
@@ -93,6 +93,7 @@ exports.getRequests = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+
 
 exports.deleteRequest = async (req, res) => {
   try {
@@ -283,7 +284,7 @@ exports.adminReview = async (req, res) => {
 
     await db.query(`
       UPDATE scholarship_requests
-      SET status = 'REVIEWED'
+      SET status = 'admin_reviewed'
       WHERE id = ?
     `, [requestId]);
 
@@ -311,7 +312,7 @@ exports.getOpenRequests = async (req, res) => {
       SELECT sr.*, r.percentage, r.scholarship_category, r.other_scholarship, r.other_scholarship_percentage, r.admin_full_name, r.date, r.comments
       FROM scholarship_requests sr
       LEFT JOIN reviews r ON sr.id = r.request_id
-      WHERE sr.status IN ("open", "REVIEWED")
+      WHERE sr.status IN ("open", "admin_reviewed")
       `);
     res.status(200).json({ requests });
   } catch (err) {
@@ -319,4 +320,21 @@ exports.getOpenRequests = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+
+exports.getLatestRequestStatus = async (req, res) => {
+  try {
+    const user_id = req.user.id; 
+    const [requests] = await db.query('SELECT * FROM scholarship_requests WHERE user_id = ? ORDER BY created_at DESC LIMIT 1', [user_id]);
+
+    if (requests.length > 0) {
+      res.status(200).json({ status: requests[0].status });
+    } else {
+      res.status(200).json({ status: 'no requests' });
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
 

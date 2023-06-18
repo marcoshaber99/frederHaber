@@ -1,9 +1,8 @@
 import axios from 'axios';
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
 
 const CreateRequest = () => {
   const navigate = useNavigate();
@@ -21,10 +20,25 @@ const CreateRequest = () => {
     education_level: '',
     city: '',
   });
-  const [message, setMessage] = useState('');
-  const [errors, setErrors] = useState({});
   const [formStatus, setFormStatus] = useState('draft');
+  const [errors, setErrors] = useState({});
+  const [message, setMessage] = useState('');
 
+  useEffect(() => {
+    const fetchLatestRequestStatus = async () => {
+      const token = localStorage.getItem('token');
+      const response = await axios.get('http://localhost:5001/api/scholarship/get-latest-request-status', {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      setFormStatus(response.data.status);
+    };
+
+    fetchLatestRequestStatus();
+  }, []);
 
   const handleChange = (e) => {
     setFormValues({ ...formValues, [e.target.name]: e.target.value });
@@ -82,13 +96,12 @@ const handleSubmit = async (e, status = 'submitted') => {
     return;
   }
 
-  if (formStatus === 'submitted') {
+  if (formStatus === 'submitted' || formStatus === 'processing') {
+    toast.error('You cannot submit a new request while your previous request is still being processed.');
     return;
   }
 
   setMessage('');
-  setFormStatus(status);
-
 
   try {
     const token = localStorage.getItem('token');
@@ -108,6 +121,7 @@ const handleSubmit = async (e, status = 'submitted') => {
         navigate('/student-dashboard/view-requests');
       }, 2000); // delay of 2 seconds
     } else {
+      setFormStatus('submitted');
       toast.success('Scholarship request created successfully');
       setTimeout(() => {
         navigate('/student-dashboard/view-requests');

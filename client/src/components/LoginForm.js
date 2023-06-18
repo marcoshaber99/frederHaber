@@ -34,7 +34,7 @@ const LoginForm = ({ setCurrentUserRole, setCurrentUserEmail }) => {
         localStorage.setItem('userRole', response.data.userRole);
         setCurrentUserRole(response.data.userRole);
         
-        navigate('/student-dashboard');
+        navigate('/student-dashboard/view-requests');
       } else if (response.data.userRole === 'admin' || response.data.userRole === 'manager') {
         if (response.data.firstLogin) {
           setShowRoleSelection(true);

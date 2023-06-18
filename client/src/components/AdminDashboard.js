@@ -84,14 +84,24 @@ const AdminDashboard = ({ email, role }) => {
           <p className="text-md text-orange-400">{role}</p>
           <p className="text-gray-100">{email}</p>
         </div>
-        <nav className="flex flex-col items-center md:justify-start py-48 md:mt-0">
-          <Link to="new-requests" className={`text-lg my-4 transition-all duration-300 transform hover:scale-105 ${isActive('new-requests') ? 'text-green-400' : 'text-white'} hover:text-green-400`}>
-            New Requests {loadingNewRequestsCount ? <ClipLoader color="#ffffff" loading={loadingNewRequestsCount} css={override} size={20} /> : `(${newRequestsCount})`}
-          </Link>
-          <Link to="open-requests" className={`text-left text-lg my-4 mr-4 ${isActive('open-requests') ? 'text-green-400' : 'text-white'} hover:text-green-400`}>
+        <nav className="flex flex-col items-center md:justify-start py-48 md:mt-0 w-full">
+        <Link to="new-requests" className={`text-lg my-4 mr-2 transition-all duration-300 transform hover:scale-105 ${isActive('new-requests') ? 'text-green-400' : 'text-white'} hover:text-green-400`}>
+  <div className="relative inline-flex items-center">
+    <span>New Requests</span>
+    {loadingNewRequestsCount 
+        ? <ClipLoader color="#ffffff" loading={loadingNewRequestsCount} css={override} size={20} /> 
+        : newRequestsCount > 0 &&
+        <div className="bg-red-500 text-white font-bold rounded-full w-6 h-6 text-xs flex items-center justify-center shadow-md absolute -top-1 -right-10">
+          {newRequestsCount}
+        </div>
+    }
+  </div>
+</Link>
+
+          <Link to="open-requests" className={`text-lg my-4 mr-2 transition-all duration-300 transform hover:scale-105 ${isActive('open-requests') ? 'text-green-400' : 'text-white'} hover:text-green-400`}>
             Open Requests
           </Link>
-          <Link to="closed-requests" className={`text-left text-lg my-4 mr-2 ${isActive('closed-requests') ? 'text-green-400' : 'text-white'} hover:text-green-400`}>
+          <Link to="closed-requests" className={`text-lg my-4  transition-all duration-300 transform hover:scale-105 ${isActive('closed-requests') ? 'text-green-400' : 'text-white'} hover:text-green-400`}>
             Closed Requests
           </Link>
         </nav>
@@ -105,7 +115,7 @@ const AdminDashboard = ({ email, role }) => {
           </button>
         </div>
       </div>
-      <div className="flex-1 p-4 md:p-8 md:ml-48 mr-8 overflow-y-auto">
+      <div className="flex-1 p-4 md:p-8 md:ml-48  overflow-y-auto">
         <div className="md:hidden mb-4">
           <button onClick={toggleMenu} className="text-blue-800">
             <FontAwesomeIcon

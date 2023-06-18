@@ -42,8 +42,13 @@ const NewRequests = () => {
   }, [fetchNewRequests]);
 
   const handleRequestSelect = (request) => {
-    setSelectedRequest(request);
+    if (selectedRequest && selectedRequest.id === request.id) {
+      setSelectedRequest(null);
+    } else {
+      setSelectedRequest(request);
+    }
   };
+  
 
   const requestMoreInfo = async () => {
     if (!selectedRequest) {
@@ -97,8 +102,9 @@ const NewRequests = () => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto mt-10 p-5">
-      <ToastContainer />
+  <div className="max-w-6xl mx-auto mt-10 p-5">
+    <ToastContainer />
+    <section className="request-list">
       <h2 className="text-2xl font-semibold mb-6">New Scholarship Requests</h2>
       {fetchingRequests ? (
         <ClipLoader color="#000000" loading={fetchingRequests} css={override} size={50} />
@@ -117,19 +123,22 @@ const NewRequests = () => {
                 ${selectedRequest && selectedRequest.id === request.id ? 'border-2 border-blue-500' : ''} overflow-auto`}
                 onClick={() => handleRequestSelect(request)}
               >
-              
-                  <h3 className="font-semibold text-lg mb-2 text-blue-500">{request.sport}</h3>
-                  <p className="text-gray-600 text-sm overflow-auto">
-                    {request.description.substring(0, 30) + (request.description.length > 30 ? "..." : "")}
-                  </p>
-                </div>
+                <h3 className="font-semibold text-lg mb-2 text-blue-500">{request.sport}</h3>
+                <p className="text-gray-600 text-sm overflow-auto">
+                  {request.description.substring(0, 30) + (request.description.length > 30 ? "..." : "")}
+                </p>
+              </div>
               ))}
             </div>
           )}
-          {selectedRequest && (
-            <div className="mt-10">
-              <h2 className="text-2xl font-semibold mb-6">Selected Request Details</h2>
-              <div className="bg-white rounded-lg p-4 shadow-md">
+        </>
+      )}
+    </section>
+
+    {selectedRequest && (
+      <section className="request-detail mt-10">
+        <h2 className="text-2xl font-semibold mb-6">Selected Request Details</h2>
+        <div className="bg-white rounded-lg p-4 shadow-md">
             <p><strong>First Name:</strong> {selectedRequest.first_name}</p>
             <p><strong>Last Name:</strong> {selectedRequest.last_name}</p>
             <p><strong>Government ID:</strong> {selectedRequest.government_id}</p>
@@ -142,23 +151,26 @@ const NewRequests = () => {
             <p><strong>Sport:</strong> {selectedRequest.sport}</p>
             <p className="whitespace-normal overflow-wrap break-all w-2/3"><strong>Description:</strong> {selectedRequest.description}</p>
             <p><strong>Status:</strong> {selectedRequest.status}</p>
-            <button 
-                  onClick={requestMoreInfo} 
-                  className="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-200 transform hover:scale-105" 
-                  disabled={isLoading}
-                >
-                  {isLoading ? <ClipLoader color="#ffffff" loading={isLoading} css={override} size={20} /> : 'Ask for further information'}
-                </button>
+          <button 
+                onClick={requestMoreInfo} 
+                className="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-200 transform hover:scale-105" 
+                disabled={isLoading}
+              >
+                {isLoading ? <ClipLoader color="#ffffff" loading={isLoading} css={override} size={20} /> : 'Ask for further information'}
+          </button>
+        </div>
+      </section>
+    )}
 
-                <AdminReviewForm selectedRequest={selectedRequest} fetchNewRequests={fetchNewRequests} requestId={selectedRequest.id} />
+    {selectedRequest && (
+      <section className="admin-form mt-10">
+        <h2 className="text-2xl font-semibold mb-6">Admin Review Form</h2>
+        <AdminReviewForm selectedRequest={selectedRequest} fetchNewRequests={fetchNewRequests} requestId={selectedRequest.id} />
+      </section>
+    )}
+  </div>
+);
 
-              </div>
-            </div>
-          )}
-        </>
-      )}
-    </div>
-  );
 };
 
 export default NewRequests;
