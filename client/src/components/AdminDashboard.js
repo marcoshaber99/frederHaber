@@ -60,7 +60,7 @@ const AdminDashboard = ({ email, role }) => {
   }, [location]);
 
   return (
-    <div className="h-screen flex flex-col md:flex-row overflow-hidden">
+    <div className="h-screen flex flex-col md:flex-row overflow-hidden bg-gray-100">
       <div
         className={`bg-blue-800 fixed inset-y-0 left-0 z-10 transform transition-transform duration-300 w-60 md:w-62 p-4 ${
           isMenuOpen ? 'translate-x-0' : '-translate-x-full'

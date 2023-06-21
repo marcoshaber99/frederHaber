@@ -6,7 +6,6 @@ import 'react-toastify/dist/ReactToastify.css';
 
 const UpdateRequest = () => {
   const navigate = useNavigate();
-
   const { id } = useParams();
   const [formValues, setFormValues] = useState({
     first_name: '',
@@ -24,6 +23,8 @@ const UpdateRequest = () => {
   });
   const [message, setMessage] = useState('');
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(null);
 
   const handleChange = (e) => {
     setFormValues({ ...formValues, [e.target.name]: e.target.value });
@@ -82,6 +83,8 @@ const UpdateRequest = () => {
 
     try {
       const token = localStorage.getItem('token');
+      console.log('Making request with id:', id);
+
       const response = await axios.put(
         `http://localhost:5001/api/scholarship/update-request/${id}`,
         { ...formValues, status },
@@ -120,55 +123,78 @@ const UpdateRequest = () => {
   }
 };
 
-  useEffect(() => {
-    const fetchRequest = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        const response = await axios.get(
-          `http://localhost:5001/api/scholarship/get-requests/${id}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        const { 
-          first_name, 
-          last_name, 
-          sport, 
-          description, 
-          government_id, 
-          registration_number, 
-          phone_number, 
-          course_title, 
-          academic_year, 
-          education_level, 
-          city,
-          status 
-        } = response.data;
-
-        setFormValues({ 
-          first_name, 
-          last_name, 
-          sport, 
-          description,
-          government_id, 
-          registration_number, 
-          phone_number, 
-          course_title, 
-          academic_year, 
-          education_level, 
-          city,
-          status 
-        });
-      } catch (error) {
-        console.error(error);
+const fetchRequest = async () => {
+  setLoading(true);
+  setFetchError(null);
+  try {
+    const token = localStorage.getItem('token');
+    const response = await axios.get(
+      `http://localhost:5001/api/scholarship/get-request/${id}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       }
-    };
+    );
 
-    fetchRequest();
-  }, [id]);
+    const {
+      first_name,
+      last_name,
+      sport,
+      description,
+      government_id,
+      registration_number,
+      phone_number,
+      course_title,
+      academic_year,
+      education_level,
+      city,
+      status,
+    } = response.data;
+
+    console.log(response.data);
+
+
+    setFormValues({
+      first_name,
+      last_name,
+      sport,
+      description,
+      government_id,
+      registration_number,
+      phone_number,
+      course_title,
+      academic_year,
+      education_level,
+      city,
+      status,
+    });
+    setLoading(false);
+  } catch (error) {
+    console.error("Error loading request: ", error);
+    setFetchError(error);
+    setLoading(false);
+  }
+};
+
+useEffect(() => {
+  console.log('Calling fetchRequest with id:', id);
+
+  fetchRequest();
+}, [id]);
+
+if (loading) {
+  return <div>Loading...</div>;
+}
+
+if (fetchError) {
+  return (
+    <div>
+      <p>Error loading request details: {fetchError.message}</p>
+      <button onClick={fetchRequest}>Retry</button>
+    </div>
+  );
+}
 
   return (
     <div className="max-w-lg mx-auto mt-10 ml-0">

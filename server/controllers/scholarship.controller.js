@@ -214,7 +214,7 @@ exports.getRequest = async (req, res) => {
 
     res.status(200).json(existingRequests[0]);
   } catch (err) {
-    console.error(err);
+    console.error('Error fetching request: ', err);
     res.status(500).json({ message: 'Server error' });
   }
 };

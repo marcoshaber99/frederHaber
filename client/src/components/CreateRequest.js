@@ -144,8 +144,10 @@ const handleSubmit = async (e, status = 'submitted') => {
 
 
   return (
-    <div className="max-w-lg mx-auto mt-10 ml-0">
-          <ToastContainer />
+    <div className="flex justify-center items-start mt-10 w-full">
+    <div className="max-w-lg w-full">
+      
+      <ToastContainer />
 
       <h2 className="text-2xl font-semibold mb-6">Create Scholarship Request</h2>
       <form className="space-y-4" onSubmit={handleSubmit}>
@@ -373,7 +375,8 @@ const handleSubmit = async (e, status = 'submitted') => {
         </p>
       )}
     </div>
-  );
+  </div>
+);
 };
 
 export default CreateRequest;
