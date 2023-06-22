@@ -1,8 +1,10 @@
-import axios from 'axios';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
+import axios from 'axios';
+
 import 'react-toastify/dist/ReactToastify.css';
+import { useRequest } from '../contexts/RequestContext';
 
 const UpdateRequest = () => {
   const navigate = useNavigate();
@@ -25,11 +27,11 @@ const UpdateRequest = () => {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState(null);
+  const { updateScholarshipRequest, fetchLatestRequestStatus } = useRequest();
 
   const handleChange = (e) => {
     setFormValues({ ...formValues, [e.target.name]: e.target.value });
   };
-
   const validateForm = () => {
     const errors = {};
 
@@ -82,46 +84,32 @@ const UpdateRequest = () => {
     setMessage('');
 
     try {
-      const token = localStorage.getItem('token');
-      console.log('Making request with id:', id);
+      const { status: responseStatus } = await updateScholarshipRequest(id, { ...formValues, status });
 
-      const response = await axios.put(
-        `http://localhost:5001/api/scholarship/update-request/${id}`,
-        { ...formValues, status },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
+      if (responseStatus === 200) {
         if (status === 'draft') {
           toast.success('Scholarship request updated and saved as a draft successfully');
-          setTimeout(() => {
-            navigate('/student-dashboard/view-requests');
-          }, 2000); // delay of 2 seconds
         } else {
           toast.success('Scholarship request updated successfully');
-          setTimeout(() => {
-            navigate('/student-dashboard/view-requests');
-          }, 2000); // delay of 2 seconds
         }
+        setTimeout(async () => {
+          await fetchLatestRequestStatus();
+          navigate('/student-dashboard/view-requests');
+        }, 2000); // delay of 2 seconds
       }
     } catch (error) {
       if (error.response) {
-      if (error.response.data.errors) {
-        setErrors(error.response.data.errors);
-        toast.error('Form errors occurred');
+        if (error.response.data.errors) {
+          setErrors(error.response.data.errors);
+          toast.error('Form errors occurred');
+        } else {
+          toast.error(error.response.data.message);
+        }
       } else {
-        toast.error(error.response.data.message);
+        toast.error('Error updating scholarship request');
       }
-    } else {
-      toast.error('Error updating scholarship request');
     }
-  }
-};
+  };
 
 const fetchRequest = async () => {
   setLoading(true);

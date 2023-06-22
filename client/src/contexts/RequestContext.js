@@ -30,10 +30,27 @@ export function RequestContextProvider({ children }) {
         }
     }, []);
 
+    const updateScholarshipRequest = useCallback(async (id, requestData) => {
+        try {
+            const token = localStorage.getItem('token');
+            const response = await axios.put(`http://localhost:5001/api/scholarship/update-request/${id}`, requestData, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            return response;
+        } catch (error) {
+            console.error('Error updating scholarship request:', error);
+            throw error; // This error can then be caught and handled in your component
+        }
+    }, []);
+
     const value = {
         latestRequestStatus,
         loadingLatestRequestStatus,
         fetchLatestRequestStatus,
+        updateScholarshipRequest, // Include updateScholarshipRequest in the value for the Provider
     };
 
     return (
@@ -42,3 +59,4 @@ export function RequestContextProvider({ children }) {
         </RequestContext.Provider>
     );
 }
+
