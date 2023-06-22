@@ -3,9 +3,11 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useRequest } from '../contexts/RequestContext';
 
 const CreateRequest = () => {
   const navigate = useNavigate();
+  const { fetchLatestRequestStatus } = useRequest();
 
   const [formValues, setFormValues] = useState({
     first_name: '',
@@ -25,20 +27,8 @@ const CreateRequest = () => {
   const [message, setMessage] = useState('');
 
   useEffect(() => {
-    const fetchLatestRequestStatus = async () => {
-      const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:5001/api/scholarship/get-latest-request-status', {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      setFormStatus(response.data.status);
-    };
-
     fetchLatestRequestStatus();
-  }, []);
+  }, [fetchLatestRequestStatus]);
 
   const handleChange = (e) => {
     setFormValues({ ...formValues, [e.target.name]: e.target.value });
@@ -87,6 +77,7 @@ const CreateRequest = () => {
 };
 
 
+
 const handleSubmit = async (e, status = 'submitted') => {
   e.preventDefault();
   const validationErrors = validateForm();
@@ -124,6 +115,7 @@ const handleSubmit = async (e, status = 'submitted') => {
       setFormStatus('submitted');
       toast.success('Scholarship request created successfully');
       setTimeout(() => {
+        fetchLatestRequestStatus();
         navigate('/student-dashboard/view-requests');
       }, 2000); // delay of 2 seconds
     }

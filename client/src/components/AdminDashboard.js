@@ -18,12 +18,14 @@ const override = css`
   margin-left: 5px;
 `;
 
-const AdminDashboard = ({ email, role }) => {
+const AdminDashboard = ({ role }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [newRequestsCount, setNewRequestsCount] = useState(null);
   const [loadingNewRequestsCount, setLoadingNewRequestsCount] = useState(false);
+  const [email, setEmail] = useState(''); 
+
 
   const fetchNewRequestsCount = useCallback(async () => {
     setLoadingNewRequestsCount(true);
@@ -46,6 +48,13 @@ const AdminDashboard = ({ email, role }) => {
   useEffect(() => {
     fetchNewRequestsCount();
   }, [fetchNewRequestsCount]);
+
+  useEffect(() => {
+    const userEmail = localStorage.getItem('userEmail');
+    if (userEmail) {
+      setEmail(userEmail);
+    }
+  }, []);
 
   const handleLogout = useCallback(() => {
     navigate('/logout');

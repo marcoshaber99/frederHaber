@@ -5,7 +5,6 @@ import ClipLoader from "react-spinners/ClipLoader";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import AdminReviewForm from './AdminReviewForm';
-import { ExclamationIcon } from '@heroicons/react/solid';
 
 
 const NewRequests = () => {

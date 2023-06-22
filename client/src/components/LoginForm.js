@@ -26,16 +26,14 @@ const LoginForm = ({ setCurrentUserRole, setCurrentUserEmail }) => {
       localStorage.setItem('token', response.data.token);
 
       if (response.data.userRole === 'student') {
-        
         localStorage.setItem('userEmail', response.data.userEmail);
-        setCurrentUserEmail(response.data.userEmail);
-
-        
         localStorage.setItem('userRole', response.data.userRole);
         setCurrentUserRole(response.data.userRole);
-        
+        window.dispatchEvent(new Event('storage')); // Add this line
         navigate('/student-dashboard/view-requests');
       } else if (response.data.userRole === 'admin' || response.data.userRole === 'manager') {
+        localStorage.setItem('userEmail', response.data.userEmail); // Add this line
+        window.dispatchEvent(new Event('storage')); // Add this line
         if (response.data.firstLogin) {
           setShowRoleSelection(true);
         } else {
@@ -44,6 +42,7 @@ const LoginForm = ({ setCurrentUserRole, setCurrentUserEmail }) => {
           navigate(response.data.userRole === 'admin' ? '/admin-dashboard' : '/manager-dashboard');
         }
       }
+      
     } catch (error) {
       if (error.response) {
         setMessage(error.response.data.message);

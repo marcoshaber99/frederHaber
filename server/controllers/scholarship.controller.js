@@ -337,4 +337,37 @@ exports.getLatestRequestStatus = async (req, res) => {
   }
 };
 
+exports.getPendingApprovalRequests = async (req, res) => {
+  try {
+    const [requests] = await db.query(`
+      SELECT sr.*, r.percentage, r.scholarship_category, r.other_scholarship, r.other_scholarship_percentage, r.admin_full_name, r.date, r.comments
+      FROM scholarship_requests sr
+      LEFT JOIN reviews r ON sr.id = r.request_id
+      WHERE sr.status = 'admin_reviewed'
+    `);
+    res.status(200).json({ requests });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+exports.getLatestPendingRequestStatus = async (req, res) => {
+  try {
+    const user_id = req.user.id; 
+    const [requests] = await db.query('SELECT * FROM scholarship_requests WHERE user_id = ? AND (status = ? OR status = ? OR status = ?) ORDER BY created_at DESC LIMIT 1', 
+    [user_id, 'submitted', 'requires_more_info', 'admin_reviewed']);
+
+    if (requests.length > 0) {
+      res.status(200).json({ status: requests[0].status });
+    } else {
+      res.status(200).json({ status: 'no requests' });
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+
 

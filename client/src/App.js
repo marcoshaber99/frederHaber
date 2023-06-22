@@ -12,6 +12,8 @@ import ManagerDashboard from './components/ManagerDashboard';
 import RegisterForm from './components/RegisterForm';
 import ResetPasswordForm from './components/ResetPasswordForm';
 import StudentDashboard from './components/StudentDashboard';
+import { RequestContextProvider } from './contexts/RequestContext'; // add this line
+
 
 const override = css`
   display: block;
@@ -80,7 +82,9 @@ useEffect(() => {
           path="/student-dashboard/*"
            element={
               currentUserRole === 'student' ? (
-                <StudentDashboard email={currentUserEmail} role={currentUserRole} />
+                <RequestContextProvider> {/* Wrap the component with RequestContextProvider */}
+                  <StudentDashboard email={currentUserEmail} role={currentUserRole} />
+                </RequestContextProvider>
               ) : (
                 <Navigate to="/login" replace />
               )
@@ -97,7 +101,7 @@ useEffect(() => {
           }
         />
         <Route
-          path="/manager-dashboard"
+          path="/manager-dashboard/*"
           element={
             currentUserRole === 'manager' ? (
               <ManagerDashboard email={currentUserEmail} role={currentUserRole} />
@@ -106,6 +110,7 @@ useEffect(() => {
             )
           }
         />
+
 
       </Routes>
     </Router>
