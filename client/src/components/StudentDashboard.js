@@ -112,9 +112,9 @@ const StudentDashboard = ({ role }) => {
           {loadingLatestRequestStatus ? null : (["admin_reviewed", "submitted", "requires_more_info"].includes(latestRequestStatus) ? (
   <animated.div
     style={scaleProps}
-    className="text-lg md:text-lg lg:text-lg my-4 mr-2 font-bold text-blue-300 transition-all duration-300 transform hover:scale-105"
+    className="text-lg md:text-lg lg:text-lg my-4 mr-2  font-bold text-blue-200 transition-all duration-300 transform hover:scale-105"
   >
-    You have a request under process.
+    Request in progress.
   </animated.div>
 ) : (
   <Link to="create-request" className={`text-lg my-4 mr-2 transition-all duration-300 transform hover:scale-105 ${isActive('create-request') ? 'text-green-400' : 'text-white'} hover:text-green-400`}>

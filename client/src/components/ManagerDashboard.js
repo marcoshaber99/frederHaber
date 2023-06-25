@@ -4,6 +4,8 @@ import React, { useState, useCallback } from 'react';
 import { useNavigate, Link, Routes, Route, useLocation } from 'react-router-dom';
 import frederickLogo from '../images/frederick-white-logo.png';
 import PendingApproval from './PendingApproval';
+import AllRequests from './AllRequests';
+
 
 const ManagerDashboard = ({ email, role }) => {
   const navigate = useNavigate();
@@ -25,10 +27,12 @@ const ManagerDashboard = ({ email, role }) => {
   return (
     <div className="h-screen flex">
       <div
-        className={`bg-blue-800 fixed inset-y-0 left-0 z-10 transform transition-transform duration-300 w-64 p-4 ${
-          isMenuOpen ? 'translate-x-0' : '-translate-x-full'
-        } md:relative md:translate-x-0`}
-      >
+          className={`bg-blue-800 fixed inset-y-0 left-0 z-10 transform transition-transform duration-300 w-64 p-4 ${
+            isMenuOpen ? 'translate-x-0' : '-translate-x-full'
+          } md:relative md:translate-x-0`}
+          style={{position: 'fixed'}}
+        >
+
         <div className="flex justify-between items-end mb-8">
           <div>
           <Link to="#">
@@ -74,7 +78,8 @@ const ManagerDashboard = ({ email, role }) => {
           </button>
         </div>
         <Routes>
-          <Route path="all-requests" element={<div>All Requests</div>} />
+        <Route path="all-requests" element={<AllRequests />} />
+
           <Route path="pending-approval" element={<PendingApproval />} />
         </Routes>
       </div>

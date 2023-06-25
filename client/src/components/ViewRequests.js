@@ -1,12 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from "react-router-dom";
-import { CheckIcon, ClockIcon, PencilIcon, TrashIcon, ExclamationIcon } from '@heroicons/react/solid';
+import { CheckIcon, ClockIcon, ExclamationIcon, PencilIcon, TrashIcon } from '@heroicons/react/solid';
 import axios from 'axios';
+import React, { useEffect, useState } from 'react';
+import { Link } from "react-router-dom";
 
 const ViewRequests = () => {
   const [requests, setRequests] = useState([]);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState(null);
+  const [selectedRequestDetails, setSelectedRequestDetails] = useState(null);
+
   
   useEffect(() => {
     const fetchRequests = async () => {
@@ -37,6 +39,14 @@ const ViewRequests = () => {
     setSelectedRequest(null);
   };
 
+  const handleRequestSelect = (request) => {
+    if (selectedRequestDetails && selectedRequestDetails.id === request.id) {
+      setSelectedRequestDetails(null);
+    } else {
+      setSelectedRequestDetails(request);
+    }
+  };
+
   const handleDelete = async (requestId) => {
     try {
       const token = localStorage.getItem('token');
@@ -54,12 +64,16 @@ const ViewRequests = () => {
 
   return (
     <div className="mt-10 ml-2">
-      <h2 className="text-2xl font-semibold mb-6">
-        View Scholarship Requests
-      </h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {requests.map((request) => (
-          <div key={request.id} className={`relative bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition duration-200 overflow-wrap break-word overflow-auto ${request.status === 'draft' ? 'bg-gray-200' : ''} hover:shadow-lg transition duration-200 transform hover:scale-105 cursor-pointer`}>
+    <h2 className="text-2xl font-semibold mb-6">
+      View Scholarship Requests
+    </h2>
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      {requests.map((request) => (
+        <div key={request.id}>
+          <div 
+            className={`relative bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition duration-200 overflow-wrap break-word overflow-auto ${request.status === 'draft' ? 'bg-gray-200' : ''} hover:shadow-lg transition duration-200 transform hover:scale-105 cursor-pointer`}
+            onClick={() => handleRequestSelect(request)}
+          >
             {request.status === 'draft' || request.status === 'requires_more_info' ? (
               <Link to={`/student-dashboard/update-request/${request.id}`} className="absolute top-2 right-8 text-blue-500 p-1 rounded hover:bg-blue-200 transition duration-200">
                 <PencilIcon className="w-5 h-5" />
@@ -94,9 +108,34 @@ const ViewRequests = () => {
                 </p>
               </div>
             )}
+            {request.status === 'approved' && (
+              <div className="flex items-center mt-4 approval-container">
+                <CheckIcon className="h-6 w-6 mr-2 text-green-600" />
+                <p className="text-green-600 text-lg font-bold approval-text">
+                  Approved
+                </p>
+              </div>
+            )}
+            {request.status === 'denied' && (
+              <div className="flex items-center mt-4 approval-container">
+                <ExclamationIcon className="h-6 w-6 mr-2 text-red-600" />
+                <p className="text-red-600 text-lg font-bold approval-text">
+                  Denied
+                </p>
+              </div>
+            )}
           </div>
-        ))}
-      </div>
+          {((request.status === 'approved' || request.status === 'denied') && request.manager_comment) && (
+              <p className="text-gray-900 text-lg font-semibold mt-2 ml-1">
+                <span className="text-gray-700">Manager's Comment:</span>
+                <span className="text-lg text-black ml-1">{request.manager_comment}</span>
+              </p>
+            )}
+
+
+        </div>
+      ))}
+    </div>
       {deleteModalOpen && (
         <div className="fixed z-10 inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
           <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
@@ -132,6 +171,29 @@ const ViewRequests = () => {
           </div>
         </div>
       )}
+
+{selectedRequestDetails && (
+      <section className="request-detail mt-10">
+        <h2 className="text-2xl font-semibold mb-6">Your Request Details</h2>
+        <div className="bg-white rounded-lg p-4 shadow-md">
+            <p><strong>First Name:</strong> {selectedRequestDetails.first_name}</p>
+            <p><strong>Last Name:</strong> {selectedRequestDetails.last_name}</p>
+            <p><strong>Government ID:</strong> {selectedRequestDetails.government_id}</p>
+            <p><strong>Registration Number:</strong> {selectedRequestDetails.registration_number}</p>
+            <p><strong>Phone Number:</strong> {selectedRequestDetails.phone_number}</p>
+            <p><strong>Course Title:</strong> {selectedRequestDetails.course_title}</p>
+            <p><strong>Academic Year:</strong> {selectedRequestDetails.academic_year}</p>
+            <p><strong>Education Level:</strong> {selectedRequestDetails.education_level}</p>
+            <p><strong>City:</strong> {selectedRequestDetails.city}</p>
+            <p><strong>Sport:</strong> {selectedRequestDetails.sport}</p>
+            <p className="whitespace-normal overflow-wrap break-all w-2/3"><strong>Description:</strong> {selectedRequestDetails.description}</p>
+
+
+            </div>
+      </section>
+    )}
+
+
     </div>
   );
 };

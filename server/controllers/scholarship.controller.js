@@ -85,7 +85,13 @@ exports.createRequest = async (req, res) => {
 exports.getRequests = async (req, res) => {
   try {
     const user_id = req.user.id; 
-    const [requests] = await db.query('SELECT * FROM scholarship_requests WHERE user_id = ?', [user_id]);
+    const [requests] = await db.query(`
+      SELECT scholarship_requests.*, reviews.manager_comment 
+      FROM scholarship_requests 
+      LEFT JOIN reviews 
+      ON scholarship_requests.id = reviews.request_id 
+      WHERE scholarship_requests.user_id = ?
+    `, [user_id]);
 
     res.status(200).json({ requests });
   } catch (err) {
@@ -93,6 +99,7 @@ exports.getRequests = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+
 
 
 exports.deleteRequest = async (req, res) => {
@@ -369,5 +376,84 @@ exports.getLatestPendingRequestStatus = async (req, res) => {
   }
 };
 
+
+
+exports.approve = async (req, res) => {
+  const { requestId, editedAdminForm, managerComment } = req.body;
+
+  // Get a new connection from the pool
+  const connection = await db.getConnection();
+  
+  try {
+    await connection.beginTransaction();
+
+    const [rows] = await connection.query(
+      `UPDATE scholarship_requests SET status = ? WHERE id = ?`,
+      ['approved', requestId]
+    );
+
+    if (rows.affectedRows !== 1) {
+      throw new Error(`Could not update status of request id ${requestId}`);
+    }
+
+    const [rows2] = await connection.query(
+      `UPDATE reviews SET percentage = ?, scholarship_category = ?, other_scholarship = ?, other_scholarship_percentage = ?, manager_comment = ? WHERE request_id = ?`,
+      [editedAdminForm.percentage, editedAdminForm.scholarship_category, editedAdminForm.other_scholarship, editedAdminForm.other_scholarship_percentage, managerComment, requestId]
+    );
+
+    if (rows2.affectedRows !== 1) {
+      throw new Error(`Could not update review for request id ${requestId}`);
+    }
+
+    await connection.commit();
+
+    res.status(200).json({ message: 'Request has been approved.' });
+  } catch (err) {
+    await connection.rollback();
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  } finally {
+    connection.release();
+  }
+};
+
+
+exports.deny = async (req, res) => {
+  const { requestId, editedAdminForm, managerComment } = req.body;
+
+  const connection = await db.getConnection();
+
+  try {
+    await connection.beginTransaction();
+
+    const [rows] = await connection.query(
+      `UPDATE scholarship_requests SET status = ? WHERE id = ?`,
+      ['denied', requestId]
+    );
+
+    if (rows.affectedRows !== 1) {
+      throw new Error(`Could not update status of request id ${requestId}`);
+    }
+
+    const [rows2] = await connection.query(
+      `UPDATE reviews SET percentage = ?, scholarship_category = ?, other_scholarship = ?, other_scholarship_percentage = ?, manager_comment = ? WHERE request_id = ?`,
+      [editedAdminForm.percentage, editedAdminForm.scholarship_category, editedAdminForm.other_scholarship, editedAdminForm.other_scholarship_percentage, managerComment, requestId]
+    );
+
+    if (rows2.affectedRows !== 1) {
+      throw new Error(`Could not update review for request id ${requestId}`);
+    }
+
+    await connection.commit();
+
+    res.status(200).json({ message: 'Request has been denied.' });
+  } catch (err) {
+    await connection.rollback();
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  } finally {
+    connection.release();
+  }
+};
 
 
