@@ -1,7 +1,8 @@
-// AllRequests.js
-import React, { useState, useEffect } from 'react';
-import { useTable } from 'react-table';
+import { IconButton, InputBase, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, TableSortLabel, TextField, Box } from '@mui/material';
 import axios from 'axios';
+import React, { useEffect, useState } from 'react';
+import { useFilters, usePagination, useSortBy, useTable } from 'react-table';
+import { Search } from '@mui/icons-material';
 
 const AllRequests = () => {
   const [data, setData] = useState([]);
@@ -17,7 +18,8 @@ const AllRequests = () => {
       });
 
       if (response.status === 200) {
-        setData(response.data);
+        setData(response.data.requests);
+        console.log(response.data.requests)
       } else {
         console.error(response);
       }
@@ -29,23 +31,59 @@ const AllRequests = () => {
   const columns = React.useMemo(
     () => [
       {
-        Header: 'Request ID',
-        accessor: 'request_id',
-      },
-      {
         Header: 'Applicant',
-        accessor: 'applicant',
+        accessor: 'user_id',
       },
       {
-        Header: 'Date Submitted',
-        accessor: 'date_submitted',
+        Header: 'Registration Number',
+        accessor: 'registration_number',
       },
       {
         Header: 'Status',
         accessor: 'status',
       },
-      // Add more columns as required
+      {
+        Header: 'Name',
+        accessor: 'first_name',
+      },
+      {
+        Header: 'Surname',
+        accessor: 'last_name',
+      },
+      {
+        Header: 'Sport',
+        accessor: 'sport',
+      },
+      {
+        Header: 'Description',
+        accessor: 'description',
+      },
     ],
+    []
+  );
+
+  const defaultColumn = React.useMemo(
+    () => ({
+      Filter: ({ column }) => {
+        return (
+          <TextField
+            value={column.filterValue || ''}
+            onChange={e => {
+              column.setFilter(e.target.value || undefined); 
+            }}
+            placeholder={`Search ${column.id}`}
+            InputProps={{
+              endAdornment: (
+                <IconButton>
+                  <Search />
+                </IconButton>
+              ),
+            }}
+          />
+        );
+      },
+      
+    }),
     []
   );
 
@@ -53,53 +91,76 @@ const AllRequests = () => {
     getTableProps,
     getTableBodyProps,
     headerGroups,
-    rows,
+    page,
+    nextPage,
+    previousPage,
+    canNextPage,
+    canPreviousPage,
+    pageOptions,
+    state: { pageIndex, pageSize },
+    setPageSize,
     prepareRow,
-  } = useTable({ columns, data });
+  } = useTable(
+    {
+      columns,
+      data,
+      initialState: { pageIndex: 0, pageSize: 10 },
+      defaultColumn,
+    },
+    useFilters,
+    useSortBy,
+    usePagination
+  );
 
   return (
-    <table {...getTableProps()} style={{ border: 'solid 1px blue' }}>
-      <thead>
-        {headerGroups.map(headerGroup => (
-          <tr {...headerGroup.getHeaderGroupProps()}>
-            {headerGroup.headers.map(column => (
-              <th
-                {...column.getHeaderProps()}
-                style={{
-                  borderBottom: 'solid 3px red',
-                  background: 'aliceblue',
-                  color: 'black',
-                  fontWeight: 'bold',
-                }}
-              >
-                {column.render('Header')}
-              </th>
+    <Paper sx={{ overflow: 'auto' }}>
+      <TableContainer sx={{ maxHeight: 440 }}>
+        <Table stickyHeader {...getTableProps()} size="small">
+          <TableHead>
+            {headerGroups.map(headerGroup => (
+              <TableRow {...headerGroup.getHeaderGroupProps()}>
+                {headerGroup.headers.map(column => (
+                  <TableCell
+                    {...column.getHeaderProps(column.getSortByToggleProps())}
+                  >
+                    {column.render('Header')}
+                    <TableSortLabel
+                      active={column.isSorted}
+                      direction={column.isSortedDesc ? 'desc' : 'asc'}
+                    />
+                    <div>{column.canFilter ? column.render('Filter') : null}</div>
+                  </TableCell>
+                ))}
+              </TableRow>
             ))}
-          </tr>
-        ))}
-      </thead>
-      <tbody {...getTableBodyProps()}>
-        {rows.map(row => {
-          prepareRow(row);
-          return (
-            <tr {...row.getRowProps()}>
-              {row.cells.map(cell => (
-                <td
-                  {...cell.getCellProps()}
-                  style={{
-                    padding: '10px',
-                    border: 'solid 1px gray',
-                    background: 'papayawhip',
-                  }}
-                >
-                  {cell.render('Cell')}
-                </td>
-              ))}
-            </tr>
-          );
-        })}
-      </tbody>
-    </table>
+          </TableHead>
+          <TableBody {...getTableBodyProps()}>
+            {page.map(row => {
+              prepareRow(row);
+              return (
+                <TableRow {...row.getRowProps()}>
+                  {row.cells.map(cell => (
+                    <TableCell {...cell.getCellProps()}>
+                      {cell.render('Cell')}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </TableContainer>
+
+      <TablePagination
+        rowsPerPageOptions={[10, 20, 30, 40, 50]}
+        component="div"
+        count={data.length}
+        rowsPerPage={pageSize}
+        page={pageIndex}
+        onPageChange={(event, newPage) => nextPage(newPage)}
+        onRowsPerPageChange={(event) => setPageSize(Number(event.target.value))}
+      />
+    </Paper>
   );
 };
 

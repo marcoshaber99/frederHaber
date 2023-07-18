@@ -456,4 +456,16 @@ exports.deny = async (req, res) => {
   }
 };
 
+// function to get all of the approved requests for a user
+exports.getApprovedRequests = async (req, res) => {
+  try {
+    const [requests] = await db.query('SELECT * FROM scholarship_requests WHERE status = ?', ['approved']);
+    res.status(200).json({ requests });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+
 

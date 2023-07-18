@@ -6,10 +6,10 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { Link, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import ClipLoader from "react-spinners/ClipLoader";
 import frederickLogo from '../images/frederick-white-logo.png';
+import AllRequests from './AllRequests';
 import NewRequests from './NewRequests';
 import OpenRequests from './OpenRequests';
 import OpenRequestsDetails from './OpenRequestsDetails';
-
 
 
 // Loader CSS override
@@ -110,7 +110,7 @@ const AdminDashboard = ({ role }) => {
           <Link to="open-requests" className={`text-lg my-4 mr-2 transition-all duration-300 transform hover:scale-105 ${isActive('open-requests') ? 'text-green-400' : 'text-white'} hover:text-green-400`}>
             Open Requests
           </Link>
-          <Link to="closed-requests" className={`text-lg my-4  transition-all duration-300 transform hover:scale-105 ${isActive('closed-requests') ? 'text-green-400' : 'text-white'} hover:text-green-400`}>
+          <Link to="all-requests" className={`text-lg my-4  transition-all duration-300 transform hover:scale-105 ${isActive('all-requests') ? 'text-green-400' : 'text-white'} hover:text-green-400`}>
             Closed Requests
           </Link>
         </nav>
@@ -137,6 +137,7 @@ const AdminDashboard = ({ role }) => {
           <Route path="new-requests" element={<NewRequests />} />
           <Route path="open-requests" element={<OpenRequests />} /> 
           <Route path="open-requests/:id" element={<OpenRequestsDetails />} /> 
+          <Route path="all-requests" element={<AllRequests />} />
 
         </Routes>
       </div>

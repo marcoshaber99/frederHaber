@@ -18,7 +18,10 @@ const {
     getLatestPendingRequestStatus,
     approve,
     deny,
+    getApprovedRequests,
+    duplicateRequest
 } = require('../controllers/scholarship.controller');
+
 
 const verifyToken = require('../middlewares/verifyToken');
 const verifyAdmin = require('../middlewares/verifyAdmin');
@@ -42,6 +45,8 @@ router.get('/get-latest-pending-request-status', verifyToken, getLatestPendingRe
 
 router.post('/approve', verifyToken, verifyManager, approve);
 router.post('/deny', verifyToken, verifyManager, deny);
+
+router.get('/all-requests', verifyToken, getApprovedRequests);
 
 
 

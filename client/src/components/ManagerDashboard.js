@@ -1,10 +1,10 @@
 import { faBars, faSignOutAlt, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React, { useState, useCallback } from 'react';
-import { useNavigate, Link, Routes, Route, useLocation } from 'react-router-dom';
+import React, { useCallback, useState } from 'react';
+import { Link, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import frederickLogo from '../images/frederick-white-logo.png';
-import PendingApproval from './PendingApproval';
 import AllRequests from './AllRequests';
+import PendingApproval from './PendingApproval';
 
 
 const ManagerDashboard = ({ email, role }) => {
@@ -52,7 +52,7 @@ const ManagerDashboard = ({ email, role }) => {
         </div>
         <nav className="flex flex-col items-center justify-center mt-44 py-14">
           <Link to="all-requests" className={`text-lg my-4 mr-2 transition-all duration-300 transform hover:scale-105 ${isActive('all-requests') ? 'text-green-400' : 'text-white'} hover:text-green-400`}>
-            View All Requests
+             All Requests
           </Link>
           <Link to="pending-approval" className={`text-lg my-4 mr-2 transition-all duration-300 transform hover:scale-105 ${isActive('pending-approval') ? 'text-green-400' : 'text-white'} hover:text-green-400`}>
             Pending Approval
@@ -78,6 +78,7 @@ const ManagerDashboard = ({ email, role }) => {
           </button>
         </div>
         <Routes>
+          
         <Route path="all-requests" element={<AllRequests />} />
 
           <Route path="pending-approval" element={<PendingApproval />} />
