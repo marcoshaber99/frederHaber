@@ -1,7 +1,7 @@
-import React, { useEffect, useState, useContext } from 'react';
+import axios from 'axios';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
-import axios from 'axios';
 
 import 'react-toastify/dist/ReactToastify.css';
 import { useRequest } from '../contexts/RequestContext';
@@ -185,7 +185,7 @@ if (fetchError) {
 }
 
   return (
-    <div className="max-w-lg mx-auto mt-10 ml-0">
+    <div className="max-w-lg mx-auto mt-10 ml-16">
     <ToastContainer />
       <h2 className="text-2xl font-semibold mb-6">Update Scholarship Request</h2>
       <form className="space-y-4" onSubmit={handleUpdate}>

@@ -1,16 +1,25 @@
 import { faBars, faSignOutAlt, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Link, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import frederickLogo from '../images/frederick-white-logo.png';
 import AllRequests from './AllRequests';
 import PendingApproval from './PendingApproval';
 
 
-const ManagerDashboard = ({ email, role }) => {
+const ManagerDashboard = ({ role }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [email, setEmail] = useState('');  // New state for email
+
+  useEffect(() => {
+    const userEmail = localStorage.getItem('userEmail');
+    if (userEmail) {
+      setEmail(userEmail);
+    }
+  }, []);
+
 
   const handleLogout = () => {
     navigate('/logout');
@@ -42,13 +51,16 @@ const ManagerDashboard = ({ email, role }) => {
               className="w-33 mb-4 mt-2"
             />
             </Link>
-            <p className="text-gray-300 text-lg px-2">{role}</p>
           </div>
           <div className="md:hidden">
             <button onClick={toggleMenu} className="text-white">
               <FontAwesomeIcon icon={faTimes} className="text-2xl" />
             </button>
           </div>
+        </div>
+        <div className="mb-8 text-center md:text-left">
+          <p className="text-md text-orange-400">{role}</p>
+          <p className="text-gray-100">{email}</p>
         </div>
         <nav className="flex flex-col items-center justify-center mt-44 py-14">
           <Link to="all-requests" className={`text-lg my-4 mr-2 transition-all duration-300 transform hover:scale-105 ${isActive('all-requests') ? 'text-green-400' : 'text-white'} hover:text-green-400`}>

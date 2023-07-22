@@ -2,13 +2,12 @@ import { css } from "@emotion/react";
 import axios from 'axios';
 import React, { useCallback, useEffect, useState } from 'react';
 import ClipLoader from "react-spinners/ClipLoader";
-import { ToastContainer, toast } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 const OpenRequests = () => {
   const [openRequests, setOpenRequests] = useState([]);
   const [selectedRequest, setSelectedRequest] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
   const [fetchingRequests, setFetchingRequests] = useState(false);
   const [fetchError, setFetchError] = useState(null);
 

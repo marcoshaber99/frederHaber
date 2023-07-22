@@ -1,5 +1,5 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
 import axios from 'axios';
+import React, { createContext, useCallback, useContext, useState } from 'react';
 
 const RequestContext = createContext();
 
@@ -15,7 +15,7 @@ export function RequestContextProvider({ children }) {
         try {
             setLoadingLatestRequestStatus(true); // start loading
             const token = localStorage.getItem('token');
-            const response = await axios.get('http://localhost:5001/api/scholarship/get-latest-pending-request-status', {
+            const response = await axios.get('http://localhost:5001/api/scholarship/get-latest-request-status', {
                 headers: {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${token}`,
@@ -39,12 +39,14 @@ export function RequestContextProvider({ children }) {
                     Authorization: `Bearer ${token}`,
                 },
             });
+            await fetchLatestRequestStatus(); 
             return response;
         } catch (error) {
             console.error('Error updating scholarship request:', error);
-            throw error; // This error can then be caught and handled in your component
+            throw error; 
         }
-    }, []);
+    }, [fetchLatestRequestStatus]); 
+
 
     const value = {
         latestRequestStatus,

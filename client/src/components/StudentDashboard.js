@@ -7,11 +7,12 @@ import { animated, useSpring } from 'react-spring';
 import React, { useCallback, useEffect, useState } from 'react';
 import { Link, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import ClipLoader from "react-spinners/ClipLoader";
-import { useRequest } from '../contexts/RequestContext'; // add this line
+import { useRequest } from '../contexts/RequestContext'; 
 import frederickLogo from '../images/frederick-white-logo.png';
 import CreateRequest from './CreateRequest';
 import UpdateRequest from './UpdateRequest';
 import ViewRequests from './ViewRequests';
+import clsx from 'clsx';  // Add this import to use the clsx utility
 
 
 // Loader CSS override
@@ -27,7 +28,8 @@ const StudentDashboard = ({ role }) => {
   const [requestsCount, setRequestsCount] = useState(null);
   const [loadingRequestsCount, setLoadingRequestsCount] = useState(false);
   const [email, setEmail] = useState('');  // New state for email
-
+  const [shouldShowInProgress, setShouldShowInProgress] = useState(false);
+  const [showCreateRequest, setShowCreateRequest] = useState(true);
 
   // Use RequestContext here
   const { latestRequestStatus, loadingLatestRequestStatus, fetchLatestRequestStatus } = useRequest();
@@ -52,8 +54,8 @@ const StudentDashboard = ({ role }) => {
 
   useEffect(() => {
     fetchRequestsCount();
-    fetchLatestRequestStatus(); // Now using fetchLatestRequestStatus from context
-  }, [fetchRequestsCount, fetchLatestRequestStatus]);
+    fetchLatestRequestStatus();
+  }, [fetchRequestsCount, fetchLatestRequestStatus, latestRequestStatus]);
 
   useEffect(() => {
     const userEmail = localStorage.getItem('userEmail');
@@ -61,6 +63,12 @@ const StudentDashboard = ({ role }) => {
       setEmail(userEmail);
     }
   }, []);
+
+  useEffect(() => {
+    const inProgressStatuses = ["admin_reviewed", "submitted", "requires_more_info"];
+    setShouldShowInProgress(inProgressStatuses.includes(latestRequestStatus));
+    setShowCreateRequest(!inProgressStatuses.includes(latestRequestStatus) && latestRequestStatus !== "approved");
+  }, [latestRequestStatus]);
 
   const handleLogout = useCallback(() => {
     navigate('/logout');
@@ -76,16 +84,18 @@ const StudentDashboard = ({ role }) => {
 
   const scaleProps = useSpring({transform: 'scale(1.05)', from: {transform: 'scale(1)'}});
 
+  // console the status of the request
+  console.log(latestRequestStatus);
 
   return (
     <div className="h-screen flex flex-col md:flex-row overflow-hidden bg-gray-100">
       <div
-        className={`bg-blue-800 fixed inset-y-0 left-0 z-10 transform transition-transform duration-300 w-60 md:w-62 p-4 ${
+        className={`bg-blue-800 shadow-md fixed inset-y-0 left-0 z-10 transform transition-transform duration-300 w-60 md:w-62 ${
           isMenuOpen ? 'translate-x-0' : '-translate-x-full'
         } md:relative md:translate-x-0`}
       >
-        <div className="flex justify-between items-center mb-8">
-        <Link to="#">
+        <div className="flex justify-between items-center mb-8 px-8 mt-12">
+          <Link to="#">
             <img
               src={frederickLogo}
               alt="Logo of Frederick University"
@@ -98,43 +108,41 @@ const StudentDashboard = ({ role }) => {
             </button>
           </div>
         </div>
-        <div className="mb-8 text-center md:text-left">
-          <p className="text-md text-orange-400">{role}</p>
-          <p className="text-gray-100">{email}</p>
+        <div className="md:text-left px-4">
+          <p className="font-semibold text-orange-400">{role}</p>
+          <p className="text-sm text-gray-100 ">{email}</p>
         </div>
         <nav className="flex flex-col items-center md:justify-start py-48 md:mt-0 w-full">
-
-          
-          <Link to="view-requests" className={`text-lg my-4 mr-2 transition-all duration-300 transform hover:scale-105 ${isActive('view-requests') ? 'text-green-400' : 'text-white'} hover:text-green-400`}>
+          <Link to="view-requests" className={`w-full text-center text-lg  py-4 transition-all duration-300 transform ${isActive('view-requests') ? 'font-bold text-white bg-blue-700' : 'text-white'}  hover:bg-blue-900 py-2 rounded-md`}>
             View Requests
           </Link>
-
-          {loadingLatestRequestStatus ? null : (["admin_reviewed", "submitted", "requires_more_info"].includes(latestRequestStatus) ? (
-  <animated.div
-    style={scaleProps}
-    className="text-lg md:text-lg lg:text-lg my-4 mr-2  font-bold text-blue-200 transition-all duration-300 transform hover:scale-105"
-  >
-    Request in progress.
-  </animated.div>
-) : (
-  <Link to="create-request" className={`text-lg my-4 mr-2 transition-all duration-300 transform hover:scale-105 ${isActive('create-request') ? 'text-green-400' : 'text-white'} hover:text-green-400`}>
-    <div className="relative inline-flex items-center">
-      <span>Create Request</span>
-      {loadingRequestsCount 
-        ? <ClipLoader color="#ffffff" loading={loadingRequestsCount} css={override} size={20} /> 
-        : requestsCount > 0 &&
-          <div className="bg-red-500 text-white font-bold rounded-full w-6 h-6 text-xs flex items-center justify-center shadow-md absolute -top-1 -right-10">
-            {requestsCount}
-          </div>
-      }
-    </div>
-  </Link>
-))}
-
+          {
+          shouldShowInProgress ? (
+            <animated.div
+              style={scaleProps}
+              className="text-lg md:text-lg lg:text-lg my-4 mr-2  font-bold text-blue-200 transition-all duration-300 transform hover:scale-105"
+            >
+              Request in progress.
+            </animated.div>
+          ) : showCreateRequest ? (
+            <Link to="create-request" className={`w-full text-center text-lg py-4 transition-all duration-300 transform ${isActive('create-request') ? 'font-bold text-white bg-blue-700' : 'text-white'} hover:bg-blue-900 py-2 rounded-md`}>
+              <div className="relative inline-flex items-center">
+                <span>Create Request</span>
+                {loadingRequestsCount 
+                  ? <ClipLoader color="#ffffff" loading={loadingRequestsCount} css={override} size={20} /> 
+                  : requestsCount > 0 &&
+                    <div className="bg-red-500 text-white font-bold rounded-full w-6 h-6 text-xs flex items-center justify-center shadow-md absolute -top-1 -right-10">
+                      {requestsCount}
+                    </div>
+                }
+              </div>
+            </Link>
+          ) : null
+        }
         </nav>
-        <div className="fixed bottom-0 left-0 w-full flex justify-center py-4 bg-blue-800 md:absolute md:bg-transparent">
+        <div className="fixed bottom-0 left-0 w-full flex justify-center py-4 bg-blue-800 md:absolute md:bg-transparent px-4">
           <button
-            className="px-10 py-8 flex items-center text-white text-xl hover:text-red-400 duration-300 transform hover:scale-105"
+            className="px-10 py-8 flex items-center text-white text-xl hover:text-red-400 font-bold duration-300 transform"
             onClick={handleLogout}
           >
             <FontAwesomeIcon icon={faSignOutAlt} className="mr-2" />
@@ -142,8 +150,12 @@ const StudentDashboard = ({ role }) => {
           </button>
         </div>
       </div>
-      <div className="flex-1 p-4 md:p-8 md:ml-48  overflow-y-auto">
-        <div className="md:hidden mb-4">
+      <div className={clsx("flex-1 p-4 md:p-8 overflow-y-auto", {
+        "md:ml-8": !isMenuOpen,
+        "md:ml-16": isMenuOpen  // Adjust the left margin to your preference when the navbar is shown
+      })}> 
+      
+      <div className="md:hidden mb-4">
           <button onClick={toggleMenu} className="text-blue-800">
             <FontAwesomeIcon
               icon={isMenuOpen ? faTimes : faBars}
@@ -159,7 +171,6 @@ const StudentDashboard = ({ role }) => {
       </div>
     </div>
   );
-
 };
 
 export default StudentDashboard;

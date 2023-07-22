@@ -118,14 +118,20 @@ exports.deleteRequest = async (req, res) => {
       return res.status(400).json({ message: 'You cannot delete a request that is waiting for approval.' });
     }
 
+    // If the request being deleted is a duplicate, update the original request
+    if (existingRequests[0].original_request_id) {
+      await db.query('UPDATE scholarship_requests SET has_been_duplicated = false, original_request_id = NULL WHERE id = ?', [existingRequests[0].original_request_id]);
+    }
+
     await db.query('DELETE FROM scholarship_requests WHERE id = ? AND user_id = ?', [requestId, user_id]);
 
-    res.status(200).json({ message: 'Scholarship request deleted successfully' });
+    res.status(200).json({ message: 'Scholarship request deleted successfully', request: existingRequests[0] });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Server error' });
   }
 };
+
 
 
 exports.updateRequest = async (req, res) => {
@@ -243,7 +249,7 @@ exports.updateRequestStatus = async (req, res) => {
     const newStatus = req.body.status;
 
     // Validate new status
-    if (!['draft', 'submitted', 'requires_more_info'].includes(newStatus)) {
+    if (!['draft', 'submitted', 'requires_more_info', 'approved'].includes(newStatus)) {
       return res.status(400).json({ message: 'Invalid status' });
     }
 
@@ -331,7 +337,11 @@ exports.getOpenRequests = async (req, res) => {
 exports.getLatestRequestStatus = async (req, res) => {
   try {
     const user_id = req.user.id; 
-    const [requests] = await db.query('SELECT * FROM scholarship_requests WHERE user_id = ? ORDER BY created_at DESC LIMIT 1', [user_id]);
+    const [requests] = await db.query(
+      'SELECT * FROM scholarship_requests WHERE user_id = ? AND (status = ? OR status = ? OR status = ? OR status = ? OR status = ?) ORDER BY created_at DESC LIMIT 1', 
+      [user_id, 'submitted', 'requires_more_info', 'admin_reviewed', 'approved', 'denied']
+    );
+    
 
     if (requests.length > 0) {
       res.status(200).json({ status: requests[0].status });
@@ -343,6 +353,7 @@ exports.getLatestRequestStatus = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+
 
 exports.getPendingApprovalRequests = async (req, res) => {
   try {
@@ -377,13 +388,11 @@ exports.getLatestPendingRequestStatus = async (req, res) => {
 };
 
 
-
 exports.approve = async (req, res) => {
   const { requestId, editedAdminForm, managerComment } = req.body;
 
-  // Get a new connection from the pool
   const connection = await db.getConnection();
-  
+
   try {
     await connection.beginTransaction();
 
@@ -405,9 +414,26 @@ exports.approve = async (req, res) => {
       throw new Error(`Could not update review for request id ${requestId}`);
     }
 
-    await connection.commit();
+    // Fetch the user_id of the request being approved
+    const [[request]] = await connection.query(
+      'SELECT * FROM scholarship_requests WHERE id = ? LIMIT 1', 
+      [requestId]
+    );
+    const userId = request.user_id;
 
-    res.status(200).json({ message: 'Request has been approved.' });
+    // Fetch the latest request status after approving a request
+    const [requests] = await connection.query(
+      'SELECT * FROM scholarship_requests WHERE user_id = ? ORDER BY created_at DESC LIMIT 1', 
+      [userId]
+    );
+
+    if (requests.length > 0) {
+      res.status(200).json({ message: 'Request has been approved.', status: requests[0].status });
+    } else {
+      throw new Error('Error fetching latest request status');
+    }
+
+    await connection.commit();
   } catch (err) {
     await connection.rollback();
     console.error(err);
@@ -416,6 +442,7 @@ exports.approve = async (req, res) => {
     connection.release();
   }
 };
+
 
 
 exports.deny = async (req, res) => {
@@ -456,7 +483,6 @@ exports.deny = async (req, res) => {
   }
 };
 
-// function to get all of the approved requests for a user
 exports.getApprovedRequests = async (req, res) => {
   try {
     const [requests] = await db.query('SELECT * FROM scholarship_requests WHERE status = ?', ['approved']);
@@ -466,6 +492,55 @@ exports.getApprovedRequests = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+
+exports.duplicateRequest = async (req, res) => {
+  try {
+    const user_id = req.user.id;
+
+    // Fetch the latest approved request for the user
+    const [approvedRequests] = await db.query('SELECT * FROM scholarship_requests WHERE user_id = ? AND status = ? ORDER BY id DESC LIMIT 1', [user_id, 'approved']);
+
+    if (approvedRequests.length === 0) {
+      return res.status(400).json({ message: 'You do not have an approved request to duplicate.' });
+    }
+
+    const approvedRequest = approvedRequests[0];
+
+    // Check if the request has been duplicated and the duplicate is not approved
+    const [duplicates] = await db.query('SELECT * FROM scholarship_requests WHERE original_request_id = ? AND status != "approved"', [approvedRequest.id]);
+    if (duplicates.length > 0) {
+      return res.status(400).json({ message: 'This request has already been duplicated for the next year.' });
+    }
+
+    // Update all other requests for this user, set original_request_id to null
+    await db.query('UPDATE scholarship_requests SET original_request_id = NULL WHERE user_id = ?', [user_id]);
+
+    // Set has_been_duplicated to true for the original request
+    await db.query('UPDATE scholarship_requests SET has_been_duplicated = true WHERE id = ?', [approvedRequest.id]);
+
+    // Remove unique fields from the existing request
+    const { id, created_at, updated_at, last_duplicated_at, ...requestToDuplicate } = approvedRequest;
+
+    // Insert the duplicated request into the database
+    await db.query(
+      'INSERT INTO scholarship_requests SET ?', 
+      { ...requestToDuplicate, user_id, status: 'draft', last_duplicated_at: new Date(), original_request_id: id }
+    );
+
+    // Fetch the new request to send it back in the response
+    const [[newRequest]] = await db.query('SELECT * FROM scholarship_requests ORDER BY id DESC LIMIT 1');
+
+    // Return also the id of the original request
+    res.status(200).json({ request: newRequest, original_request_id: id });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+
+
 
 
 

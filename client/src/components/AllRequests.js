@@ -1,4 +1,4 @@
-import { IconButton, InputBase, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, TableSortLabel, TextField, Box } from '@mui/material';
+import { IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, TableSortLabel, TextField } from '@mui/material';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { useFilters, usePagination, useSortBy, useTable } from 'react-table';
@@ -93,10 +93,6 @@ const AllRequests = () => {
     headerGroups,
     page,
     nextPage,
-    previousPage,
-    canNextPage,
-    canPreviousPage,
-    pageOptions,
     state: { pageIndex, pageSize },
     setPageSize,
     prepareRow,

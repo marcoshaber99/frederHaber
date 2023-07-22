@@ -48,6 +48,9 @@ router.post('/deny', verifyToken, verifyManager, deny);
 
 router.get('/all-requests', verifyToken, getApprovedRequests);
 
+router.post('/duplicate-request/:id', verifyToken, duplicateRequest);
+
+
 
 
 
