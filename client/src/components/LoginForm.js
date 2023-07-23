@@ -33,21 +33,28 @@ const LoginForm = ({ setCurrentUserRole, setCurrentUserEmail }) => {
         navigate('/student-dashboard/view-requests');
       } else if (response.data.userRole === 'admin' || response.data.userRole === 'manager') {
         localStorage.setItem('userEmail', response.data.userEmail); // Add this line
-        window.dispatchEvent(new Event('storage')); // Add this line
+        window.dispatchEvent(new Event('storage'));
         if (response.data.firstLogin) {
           setShowRoleSelection(true);
         } else {
           localStorage.setItem('userRole', response.data.userRole);
           setCurrentUserRole(response.data.userRole);
-          navigate(response.data.userRole === 'admin' ? '/admin-dashboard' : '/manager-dashboard');
+          navigate(response.data.userRole === 'admin' ? '/admin-dashboard/new-requests' : '/manager-dashboard/pending-approval');
         }
       }
       
     } catch (error) {
       if (error.response) {
-        setMessage(error.response.data.message);
+        // Check if the error response is an array
+        if (Array.isArray(error.response.data.errors)) {
+          // Join all the error messages into a single string
+          const validationErrors = error.response.data.errors.map(err => err.msg).join('. ');
+          setMessage(validationErrors);
+        } else {
+          setMessage(error.response.data.message);
+        }
       } else {
-        setMessage('Error logging in');
+        setMessage('Error registering user');
       }
     }
   };
@@ -55,13 +62,14 @@ const LoginForm = ({ setCurrentUserRole, setCurrentUserEmail }) => {
   return (
 
     <div className="flex flex-col min-h-screen">
-      <Link to="/">
-      <img
-      src={frederickLogo}
-      alt="Frederick University Logo"
-      className="w-48 mt-6 ml-6" 
-    />
-      </Link>
+      <Link to="#">
+          <img
+  src={frederickLogo}
+  alt="Logo of Frederick University"
+  className=" object-cover md:mt-6 ml-8"
+/>
+
+          </Link>
     
     <div className="bg-white h-2/3 w-full">
       <div className="flex justify-center">
@@ -156,4 +164,3 @@ const LoginForm = ({ setCurrentUserRole, setCurrentUserEmail }) => {
 };
 
 export default LoginForm;
-

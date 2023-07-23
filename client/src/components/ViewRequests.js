@@ -1,11 +1,10 @@
 import { CheckIcon, ClockIcon, ExclamationIcon, PencilIcon, TrashIcon } from '@heroicons/react/solid';
-import { AiFillCheckCircle, AiOutlineFileAdd } from 'react-icons/ai'; 
-import { BiDuplicate } from "react-icons/bi";
-
-
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
+import { AiFillCheckCircle } from 'react-icons/ai';
+import { BiDuplicate } from "react-icons/bi";
 import { Link } from "react-router-dom";
+import { useRequest } from '../contexts/RequestContext';
 
 const ViewRequests = () => {
   const [requests, setRequests] = useState([]);
@@ -13,9 +12,10 @@ const ViewRequests = () => {
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [selectedRequestDetails, setSelectedRequestDetails] = useState(null);
   const [duplicateModalOpen, setDuplicateModalOpen] = useState(false);
+  const { fetchLatestRequestStatus } = useRequest();
 
+  const [isDuplicateInfoModalOpen, setDuplicateInfoModalOpen] = useState(false);
 
-  
   useEffect(() => {
     const fetchRequests = async () => {
       try {
@@ -45,6 +45,18 @@ const ViewRequests = () => {
     setSelectedRequest(null);
   };
 
+  const handleDuplicateConfirmation = (requestId) => {
+    setSelectedRequest(requestId);
+    setDuplicateModalOpen(true);
+  };
+
+  const confirmDuplicate = async () => {
+    await handleDuplicate(selectedRequest);
+    setDuplicateModalOpen(false);
+    setSelectedRequest(null);
+};
+
+
   const handleRequestSelect = (request) => {
     if (selectedRequestDetails && selectedRequestDetails.id === request.id) {
       setSelectedRequestDetails(null);
@@ -56,7 +68,6 @@ const ViewRequests = () => {
   const handleDelete = async (requestId) => {
     try {
       const token = localStorage.getItem('token');
-      // Get the deleted request before it's deleted
       const deletedRequest = requests.find(request => request.id === requestId);
       await axios.delete(`http://localhost:5001/api/scholarship/delete-request/${requestId}`, {
         headers: {
@@ -64,37 +75,31 @@ const ViewRequests = () => {
           Authorization: `Bearer ${token}`,
         },
       });
-  
-      // Remove the deleted request from the state
+
       setRequests(prevRequests => {
-        // Filter the previous requests
         const updatedRequests = prevRequests.filter(request => request.id !== requestId);
-      
-        // Map through the updatedRequests array
         const finalRequests = updatedRequests.map(request => {
-          // If the request is the original of the one we just deleted, update the has_been_duplicated field
           if (request.id === deletedRequest.original_request_id) {
             return {
               ...request,
-              has_been_duplicated: false,  // Indicate that the request has not been duplicated
+              has_been_duplicated: false,
             };
           }
-          // If it's not, return the request as is
           return request;
         });
-      
-        // Return the finalRequests array as the new state
         return finalRequests;
       });
+
+      if (selectedRequestDetails && selectedRequestDetails.id === requestId) {
+        setSelectedRequestDetails(null); // If the deleted request is currently being viewed, stop viewing it
+      }
+
+      fetchLatestRequestStatus(); // Fetch the latest request status after deleting a request
     } catch (error) {
       console.error('Error deleting scholarship request:', error);
     }
   };
   
-  
-  
-  
-
   const handleDuplicate = async (requestId) => {
     try {
       const token = localStorage.getItem('token');
@@ -104,7 +109,7 @@ const ViewRequests = () => {
           Authorization: `Bearer ${token}`,
         },
       });
-  
+
       // Add the new request to the local state
       setRequests(prevRequests => {
         // Map through the previous requests
@@ -136,39 +141,42 @@ const ViewRequests = () => {
       }
     }
   };
-  
+
+  const handleDuplicateInfo = () => {
+    setDuplicateInfoModalOpen(true);
+  };
   
 
   return (
     <div className="mt-10 ml-2">
-      <h2 className="text-2xl font-semibold mb-6">View Scholarship Requests</h2>
-      {requests.length === 0 ? (
-        <p>No requests at the moment.</p>
-      ) : (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {requests.map((request) => (
-          <div key={request.id} >
-            <div 
-              className={`relative bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition duration-200 overflow-wrap break-word overflow-auto ${request.status === 'draft' ? 'bg-gray-200' : ''} 
-              ${selectedRequestDetails && selectedRequestDetails.id === request.id ? 'border-2 border-blue-500' : ''}  // Add border when selected
-              hover:shadow-lg transition duration-200 transform hover:scale-105 cursor-pointer`}
-              onClick={() => handleRequestSelect(request)}
-            >
-            {request.status === 'draft' || request.status === 'requires_more_info' ? (
-              <Link to={`/student-dashboard/update-request/${request.id}`} className="absolute top-2 right-8 text-blue-500 p-1 rounded hover:bg-blue-200 transition duration-200">
-                <PencilIcon className="w-5 h-5" />
-              </Link>
-            ) : null}
-            {request.status === 'draft' || request.status === 'requires_more_info' ? (
-              <button onClick={() => handleDeleteConfirmation(request.id)} className="absolute top-2 right-2 text-red-500 p-1 rounded hover:bg-red-200 transition duration-200">
-                <TrashIcon className="w-5 h-5" />
-              </button>
-            ) : null}
-            <h3 className="font-semibold text-xl mb-2">{request.sport}</h3>
-            <p className="text-gray-600">
-              {request.description.substring(0, 20) +
-                (request.description.length > 20 ? '...' : '')}
-            </p>
+    <h2 className="text-2xl font-semibold mb-6">View Scholarship Requests</h2>
+    {requests.length === 0 ? (
+      <p>No requests at the moment.</p>
+    ) : (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-12">
+      {requests.map((request) => (
+        <div key={request.id} >
+          <div 
+            className={`relative bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition duration-200 overflow-wrap break-word overflow-auto ${request.status === 'draft' ? 'bg-gray-200' : ''} 
+            ${selectedRequestDetails && selectedRequestDetails.id === request.id ? 'border-2 border-blue-500' : ''}  // Add border when selected
+            hover:shadow-lg transition duration-200 transform hover:scale-105 cursor-pointer`}
+            onClick={() => handleRequestSelect(request)}
+          >
+          {request.status === 'draft' || request.status === 'requires_more_info' ? (
+            <Link to={`/student-dashboard/update-request/${request.id}`} className="absolute top-2 right-8 text-blue-500 p-1 rounded hover:bg-blue-200 transition duration-200">
+              <PencilIcon className="w-5 h-5" />
+            </Link>
+          ) : null}
+          {request.status === 'draft' || request.status === 'requires_more_info' ? (
+            <button onClick={() => handleDeleteConfirmation(request.id)} className="absolute top-2 right-2 text-red-500 p-1 rounded hover:bg-red-200 transition duration-200">
+              <TrashIcon className="w-5 h-5" />
+            </button>
+          ) : null}
+          <h3 className="font-semibold text-xl mb-2">{request.sport}</h3>
+          <p className="text-gray-600">
+            {request.description.substring(0, 20) +
+              (request.description.length > 20 ? '...' : '')}
+          </p>
             {request.status === 'draft' && (
               <p className="mt-4 text-yellow-600 font-semibold">Draft</p>
             )}
@@ -191,27 +199,29 @@ const ViewRequests = () => {
             {request.status === 'approved' && (
                 <div className="flex flex-col items-start mt-4 approval-container">
                   <div className="flex items-center">
-                    <AiFillCheckCircle size={24} color="green" className="mr-2" />  {/* Use react-icons with customized color and size */}
+                    <AiFillCheckCircle size={24} color="green" className="mr-2" />
                     <p className="text-green-600 text-lg font-bold approval-text">
                      Approved! 
                     </p>
                   </div>
                   {request.has_been_duplicated ? (
                     <button 
-                      disabled 
+                      // disabled 
                       className="absolute top-2 right-2 text-gray-500 p-2 rounded hover:bg-green-200 transition duration-200 cursor-pointer"
                       title="Already Duplicated"
+                      onClick={handleDuplicateInfo}
                     >
-                      <BiDuplicate size={24} color="gray" /> 
+                      <BiDuplicate size={24} className='text-gray-400' /> 
                     </button>
                   ) : (
                     <button 
-                      onClick={() => handleDuplicate(request.id)} 
-                      className="absolute top-2 right-2 text-green-500 p-2 rounded hover:bg-green-200 transition duration-200 cursor-pointer"
+                      onClick={() => handleDuplicateConfirmation(request.id)} 
+                      className="absolute top-2 right-2 text-blue-500 p-2 rounded hover:bg-blue-200 transition duration-200 cursor-pointer"
                       title="Duplicate for Next Year"
                     >
-                      <BiDuplicate size={24} color="blue" /> 
+                      <BiDuplicate size={24} className='text-blue-800' /> 
                     </button>
+
                   )}
                 </div>
               )}
@@ -274,58 +284,96 @@ const ViewRequests = () => {
       )}
 
 
-    {duplicateModalOpen && (
-      <div className="fixed z-10 inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-        <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-          <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
-          <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-          <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-            <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-              <div className="sm:flex sm:items-start">
-                <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-green-100 sm:mx-0 sm:h-10 sm:w-10">
-                  <CheckIcon className="h-6 w-6 text-green-600" aria-hidden="true" />
-                </div>
-                <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                  <h3 className="text-lg leading-6 font-medium text-gray-900" id="modal-title">
-                    Duplicate Request
-                  </h3>
-                  <div className="mt-2">
-                    <p className="text-sm text-gray-500">
-                      Request duplicated successfully as a draft. You can now submit this request for the next year.
-                    </p>
+        {isDuplicateInfoModalOpen && (
+                <div className="fixed z-10 inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+                  <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                    <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+                    <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+                    <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                      <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                        <div className="sm:flex sm:items-start">
+                          <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 sm:mx-0 sm:h-10 sm:w-10">
+                            <BiDuplicate size={24} className='text-grey-700' />
+                          </div>
+                          <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                            <h3 className="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+                              Duplicate Request
+                            </h3>
+                            <div className="mt-2">
+                              <p className="text-sm text-gray-500">
+                                This request has already been duplicated.
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                        <button type="button" onClick={() => setDuplicateInfoModalOpen(false)} className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm">
+                          OK
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
-            <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-              <button type="button" onClick={() => setDuplicateModalOpen(false)} className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-600 text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:ml-3 sm:w-auto sm:text-sm">
-                OK
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    )}
+              )}
 
 
-      {selectedRequestDetails && (
-            <section className="request-detail mt-10">
-              <h2 className="text-2xl font-semibold mb-6">Your Request Details</h2>
-              <div className="bg-white rounded-lg p-4 shadow-md">
-                  <p><strong>First Name:</strong> {selectedRequestDetails.first_name}</p>
-                  <p><strong>Last Name:</strong> {selectedRequestDetails.last_name}</p>
-                  <p><strong>Government ID:</strong> {selectedRequestDetails.government_id}</p>
-                  <p><strong>Registration Number:</strong> {selectedRequestDetails.registration_number}</p>
-                  <p><strong>Phone Number:</strong> {selectedRequestDetails.phone_number}</p>
-                  <p><strong>Course Title:</strong> {selectedRequestDetails.course_title}</p>
-                  <p><strong>Academic Year:</strong> {selectedRequestDetails.academic_year}</p>
-                  <p><strong>Education Level:</strong> {selectedRequestDetails.education_level}</p>
-                  <p><strong>City:</strong> {selectedRequestDetails.city}</p>
-                  <p><strong>Sport:</strong> {selectedRequestDetails.sport}</p>
-                  <p className="whitespace-normal overflow-wrap break-all w-2/3"><strong>Description:</strong> {selectedRequestDetails.description}</p>
+                {duplicateModalOpen && (
+                  <div className="fixed z-10 inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+                    <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                      <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+                      <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+                      <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                        <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                          <div className="sm:flex sm:items-start">
+                            <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 sm:mx-0 sm:h-10 sm:w-10">
+                              <BiDuplicate size={24} className='text-blue-700' />
+                            </div>
+                            <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                              <h3 className="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+                                Duplicate Request
+                              </h3>
+                              <div className="mt-2">
+                                <p className="text-sm text-gray-500">
+                                  Are you sure you want to duplicate this request? It will be saved as a draft.
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                          <button type="button" onClick={confirmDuplicate} className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm">
+                            Confirm
+                          </button>
+                          <button type="button" onClick={() => setDuplicateModalOpen(false)} className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-            </section>
-          )}
+                )}
+
+
+
+                {selectedRequestDetails && (
+                      <section className="request-detail mt-10">
+                        <h2 className="text-2xl font-semibold mb-6">Your Request Details</h2>
+                        <div className="bg-white rounded-lg p-4 shadow-md">
+                            <p><strong>First Name:</strong> {selectedRequestDetails.first_name}</p>
+                            <p><strong>Last Name:</strong> {selectedRequestDetails.last_name}</p>
+                            <p><strong>Government ID:</strong> {selectedRequestDetails.government_id}</p>
+                            <p><strong>Registration Number:</strong> {selectedRequestDetails.registration_number}</p>
+                            <p><strong>Phone Number:</strong> {selectedRequestDetails.phone_number}</p>
+                            <p><strong>Course Title:</strong> {selectedRequestDetails.course_title}</p>
+                            <p><strong>Academic Year:</strong> {selectedRequestDetails.academic_year}</p>
+                            <p><strong>Education Level:</strong> {selectedRequestDetails.education_level}</p>
+                            <p><strong>City:</strong> {selectedRequestDetails.city}</p>
+                            <p><strong>Sport:</strong> {selectedRequestDetails.sport}</p>
+                            <p className="whitespace-normal overflow-wrap break-all w-2/3"><strong>Description:</strong> {selectedRequestDetails.description}</p>
+                            </div>
+                      </section>
+                    )}
     </div>
   );
 };

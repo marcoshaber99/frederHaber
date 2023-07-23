@@ -1,16 +1,18 @@
 import { css } from '@emotion/react';
-import { faBars, faSignOutAlt, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { faBars, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import axios from 'axios';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
+import { BiLogOut, BiNotification, BiTable } from 'react-icons/bi';
+import { BsFillPersonFill } from 'react-icons/bs';
+import { MdPendingActions } from 'react-icons/md';
 import { Link, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import ClipLoader from "react-spinners/ClipLoader";
+import { NewRequestCountContext } from '../contexts/RequestContext'; 
 import frederickLogo from '../images/frederick-white-logo.png';
 import AllRequests from './AllRequests';
 import NewRequests from './NewRequests';
 import OpenRequests from './OpenRequests';
 import OpenRequestsDetails from './OpenRequestsDetails';
-
 
 // Loader CSS override
 const override = css`
@@ -22,28 +24,10 @@ const AdminDashboard = ({ role }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [newRequestsCount, setNewRequestsCount] = useState(null);
-  const [loadingNewRequestsCount, setLoadingNewRequestsCount] = useState(false);
   const [email, setEmail] = useState(''); 
 
-
-  const fetchNewRequestsCount = useCallback(async () => {
-    setLoadingNewRequestsCount(true);
-    try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:5001/api/scholarship/get-new-requests-count', {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      setNewRequestsCount(response.data); // Changed this line
-    } catch (error) {
-      console.error('Error fetching new requests count:', error);
-    } finally {
-      setLoadingNewRequestsCount(false);
-    }
-}, []);
+  // updated these lines
+  const { newRequestsCount, loadingNewRequestsCount, fetchNewRequestsCount } = useContext(NewRequestCountContext);
 
   useEffect(() => {
     fetchNewRequestsCount();
@@ -67,21 +51,23 @@ const AdminDashboard = ({ role }) => {
   const isActive = useCallback((path) => {
     return location.pathname.includes(path);
   }, [location]);
+  
 
   return (
     <div className="h-screen flex flex-col md:flex-row overflow-hidden bg-gray-100">
       <div
-        className={`bg-blue-800 fixed inset-y-0 left-0 z-10 transform transition-transform duration-300 w-60 md:w-62 p-4 ${
+        className={`bg-blue-800 shadow-md fixed inset-y-0 left-0 z-10 transform transition-transform duration-300 w-60 md:w-62 ${
           isMenuOpen ? 'translate-x-0' : '-translate-x-full'
         } md:relative md:translate-x-0`}
       >
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex items-center mb-8 mt-8 ml-4">
         <Link to="#">
-            <img
+          <img
               src={frederickLogo}
               alt="Logo of Frederick University"
-              className="w-full mt-2"
+              className="w-60 h-8 object-cover md:mt-6 ml-2"
             />
+
           </Link>
           <div className="md:hidden">
             <button onClick={toggleMenu} className="text-white">
@@ -89,38 +75,54 @@ const AdminDashboard = ({ role }) => {
             </button>
           </div>
         </div>
-        <div className="mb-8 text-center md:text-left">
-          <p className="text-md text-orange-400">{role}</p>
-          <p className="text-gray-100">{email}</p>
+        <div className="md:text-left px-8">
+          <div className="relative inline-flex items-center">
+              <BsFillPersonFill className="text-white text-2xl mr-2" size={17}/>
+              <span className="font-semibold text-orange-400">{role}</span>
+            </div>
+          <p className="text-sm text-gray-100 ">{email}</p>
         </div>
         <nav className="flex flex-col items-center md:justify-start py-48 md:mt-0 w-full">
-        <Link to="new-requests" className={`text-lg my-4 mr-2 transition-all duration-300 transform hover:scale-105 ${isActive('new-requests') ? 'text-green-400' : 'text-white'} hover:text-green-400`}>
-  <div className="relative inline-flex items-center">
-    <span>New Requests</span>
-    {loadingNewRequestsCount 
-        ? <ClipLoader color="#ffffff" loading={loadingNewRequestsCount} css={override} size={20} /> 
-        : newRequestsCount > 0 &&
-        <div className="bg-red-500 text-white font-bold rounded-full w-6 h-6 text-xs flex items-center justify-center shadow-md absolute -top-1 -right-10">
-          {newRequestsCount}
-        </div>
-    }
-  </div>
-</Link>
+        <Link to="new-requests" className={`w-full text-center py-4 ${isActive('new-requests') ? 'text-white bg-blue-700' : 'text-white'}  hover:bg-blue-900 py-2 rounded-md`} >
+          <div className="relative inline-flex items-center">
+              {/* place notification icon next to new requests */}
+              <BiNotification className="text-white mr-2" size={18}/>
+              <span>New Requests</span>
+              {loadingNewRequestsCount 
+                  ? <ClipLoader color="#ffffff" loading={loadingNewRequestsCount} css={override} size={20} /> 
+                  : 
+                  <div class="w-6 inline-block">
+                      {newRequestsCount > 0 &&
+                          <span class="relative flex h-3 w-3 mb-4 ml-2">
+                              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
+                              <span class="relative inline-flex rounded-full h-3 w-3 bg-sky-200"></span>
+                          </span>
+                      }
+                  </div>
+              }
+          </div>
+      </Link>
 
-          <Link to="open-requests" className={`text-lg my-4 mr-2 transition-all duration-300 transform hover:scale-105 ${isActive('open-requests') ? 'text-green-400' : 'text-white'} hover:text-green-400`}>
-            Open Requests
+          <Link to="open-requests" className={`w-full text-center py-4 ${isActive('open-requests') ? 'text-white bg-blue-700' : 'text-white'}  hover:bg-blue-900 py-2 rounded-md`} >
+          <div className="relative inline-flex items-center mr-5">
+            <MdPendingActions className="text-white mr-2" size={18}/>
+            <span>Open Requests</span>
+            </div>
           </Link>
-          <Link to="all-requests" className={`text-lg my-4  transition-all duration-300 transform hover:scale-105 ${isActive('all-requests') ? 'text-green-400' : 'text-white'} hover:text-green-400`}>
-            Closed Requests
+          <Link to="all-requests" className={`w-full text-center py-4 ${isActive('all-requests') ? 'text-white bg-blue-700' : 'text-white'}  hover:bg-blue-900 py-2 rounded-md`} >
+          <div className="relative inline-flex items-center mr-2">
+            <BiTable className="text-white mr-2" size={18}/>
+            <span>Closed Requests</span>
+          </div>
           </Link>
         </nav>
-        <div className="fixed bottom-0 left-0 w-full flex justify-center py-4 bg-blue-800 md:absolute md:bg-transparent">
+        <div className="fixed bottom-16 w-full flex justify-center py-4 hover:bg-blue-900 rounded-md bg-blue-800 md:absolute md:bg-transparent">
           <button
-            className="px-10 py-8 flex items-center text-white text-xl hover:text-red-400 duration-300 transform hover:scale-105"
+            className="px-10 flex items-center text-white text-xl mr-5"
             onClick={handleLogout}
           >
-            <FontAwesomeIcon icon={faSignOutAlt} className="mr-2" />
-            Logout
+            <BiLogOut className="text-white mr-2" size={20}/>
+            <span>Logout</span>
           </button>
         </div>
       </div>
@@ -134,11 +136,10 @@ const AdminDashboard = ({ role }) => {
           </button>
         </div>
         <Routes>
-          <Route path="new-requests" element={<NewRequests />} />
+          <Route path="new-requests" element={<NewRequests fetchNewRequestsCount={fetchNewRequestsCount} />} />
           <Route path="open-requests" element={<OpenRequests />} /> 
           <Route path="open-requests/:id" element={<OpenRequestsDetails />} /> 
           <Route path="all-requests" element={<AllRequests />} />
-
         </Routes>
       </div>
     </div>

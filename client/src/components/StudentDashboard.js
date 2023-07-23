@@ -2,18 +2,19 @@ import { css } from '@emotion/react';
 import { faBars, faSignOutAlt, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import axios from 'axios';
+import { AiOutlineForm, AiOutlineIdcard } from 'react-icons/ai';
+import { BsFillPersonFill } from 'react-icons/bs';
 import { animated, useSpring } from 'react-spring';
 
+import clsx from 'clsx'; // Add this import to use the clsx utility
 import React, { useCallback, useEffect, useState } from 'react';
 import { Link, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import ClipLoader from "react-spinners/ClipLoader";
-import { useRequest } from '../contexts/RequestContext'; 
-import frederickLogo from '../images/frederick-white-logo.png';
+import { useRequest } from '../contexts/RequestContext';
+import frederickLogo from '../images/frederick-white-logo-1.png';
 import CreateRequest from './CreateRequest';
 import UpdateRequest from './UpdateRequest';
 import ViewRequests from './ViewRequests';
-import clsx from 'clsx';  // Add this import to use the clsx utility
-
 
 // Loader CSS override
 const override = css`
@@ -84,8 +85,6 @@ const StudentDashboard = ({ role }) => {
 
   const scaleProps = useSpring({transform: 'scale(1.05)', from: {transform: 'scale(1)'}});
 
-  // console the status of the request
-  console.log(latestRequestStatus);
 
   return (
     <div className="h-screen flex flex-col md:flex-row overflow-hidden bg-gray-100">
@@ -94,13 +93,14 @@ const StudentDashboard = ({ role }) => {
           isMenuOpen ? 'translate-x-0' : '-translate-x-full'
         } md:relative md:translate-x-0`}
       >
-        <div className="flex justify-between items-center mb-8 px-8 mt-12">
+        <div className="flex justify-between items-center mb-8 mt-12">
           <Link to="#">
-            <img
+          <img
               src={frederickLogo}
               alt="Logo of Frederick University"
-              className="w-full mt-2"
+              className="w-60 h-8 object-cover md:mt-6 ml-4"
             />
+
           </Link>
           <div className="md:hidden">
             <button onClick={toggleMenu} className="text-white">
@@ -108,13 +108,22 @@ const StudentDashboard = ({ role }) => {
             </button>
           </div>
         </div>
-        <div className="md:text-left px-4">
-          <p className="font-semibold text-orange-400">{role}</p>
+        <div className="md:text-left px-8 mt-12">
+          <div className="relative inline-flex items-center"> 
+              <BsFillPersonFill className="text-white text-2xl mr-2" size={17}/>
+              <span className="font-semibold text-orange-400">{role}</span>
+            </div>
           <p className="text-sm text-gray-100 ">{email}</p>
         </div>
         <nav className="flex flex-col items-center md:justify-start py-48 md:mt-0 w-full">
-          <Link to="view-requests" className={`w-full text-center text-lg  py-4 transition-all duration-300 transform ${isActive('view-requests') ? 'font-bold text-white bg-blue-700' : 'text-white'}  hover:bg-blue-900 py-2 rounded-md`}>
-            View Requests
+          <Link to="view-requests" className={`w-full text-center text-lg  py-4  ${isActive('view-requests') ? 'text-white bg-blue-700' : 'text-white'}  hover:bg-blue-900 py-2 rounded-md`} >
+          <div className="relative inline-flex items-center">
+
+          <AiOutlineIdcard className="text-white text-2xl mr-2" size={20}/>
+
+          <span>View Requests</span>
+            </div>
+
           </Link>
           {
           shouldShowInProgress ? (
@@ -125,8 +134,10 @@ const StudentDashboard = ({ role }) => {
               Request in progress.
             </animated.div>
           ) : showCreateRequest ? (
-            <Link to="create-request" className={`w-full text-center text-lg py-4 transition-all duration-300 transform ${isActive('create-request') ? 'font-bold text-white bg-blue-700' : 'text-white'} hover:bg-blue-900 py-2 rounded-md`}>
+            <Link to="create-request" className={`w-full text-center text-lg py-4 ${isActive('create-request') ? 'text-white bg-blue-700' : 'text-white'} hover:bg-blue-900 py-2 rounded-md`}>
               <div className="relative inline-flex items-center">
+                {/* put the icon here */}
+                <AiOutlineForm className="text-white text-2xl mr-2" size={20}/>
                 <span>Create Request</span>
                 {loadingRequestsCount 
                   ? <ClipLoader color="#ffffff" loading={loadingRequestsCount} css={override} size={20} /> 

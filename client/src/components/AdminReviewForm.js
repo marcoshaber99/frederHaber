@@ -80,6 +80,8 @@ const AdminReviewForm = (props) => {
       
 
       toast.success('Review submitted successfully');
+      props.fetchNewRequestsCount(); // Add this line
+
       setTimeout(() => {
         navigate('/admin-dashboard/open-requests');
       }, 2000); // delay of 2 seconds

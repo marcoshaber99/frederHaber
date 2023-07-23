@@ -1,24 +1,25 @@
-import { css } from "@emotion/react";
+import { css } from '@emotion/react';
+import { ExclamationIcon } from '@heroicons/react/solid';
 import axios from 'axios';
 import React, { useCallback, useEffect, useState } from 'react';
 import ClipLoader from "react-spinners/ClipLoader";
 import { ToastContainer, toast } from 'react-toastify';
+
 import 'react-toastify/dist/ReactToastify.css';
 import AdminReviewForm from './AdminReviewForm';
 
-
-const NewRequests = () => {
+const NewRequests = (props) => {
   const [newRequests, setNewRequests] = useState([]);
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [fetchingRequests, setFetchingRequests] = useState(false);
   const [fetchError, setFetchError] = useState(null);
+  const [confirmModalOpen, setConfirmModalOpen] = useState(false);
   
-
   const override = css`
-    display: inline-block;
-    margin: 0 5px;
-  `;
+  display: inline-block;
+  margin-left: 5px;
+`;
 
   const fetchNewRequests = useCallback(async () => {
     setFetchingRequests(true);
@@ -49,19 +50,19 @@ const NewRequests = () => {
       setSelectedRequest(request);
     }
   };
-  
 
-  const requestMoreInfo = async () => {
+  const handleRequestMoreInfoConfirmation = (request) => {
+    setSelectedRequest(request);
+    setConfirmModalOpen(true);
+  };
+
+  const confirmRequestMoreInfo = async () => {
     if (!selectedRequest) {
       return;
     }
 
-    const confirm = window.confirm('Are you sure you want to ask for further information?');
-    if (!confirm) {
-      return;
-    }
-
     setIsLoading(true);
+    setConfirmModalOpen(false);
 
     try {
       const token = localStorage.getItem('token');
@@ -86,6 +87,8 @@ const NewRequests = () => {
 
       setSelectedRequest(null);
       await fetchNewRequests();
+      props.fetchNewRequestsCount();
+
     } catch (error) {
       console.error('Error requesting more info:', error);
       toast.error('Error requesting more info. Please try again.', {
@@ -103,7 +106,7 @@ const NewRequests = () => {
   };
 
   return (
-  <div className="max-w-6xl mx-auto mt-10 p-5">
+    <div className="max-w-6xl mx-auto mt-10 p-5">
     <ToastContainer />
     <section className="request-list">
       <h2 className="text-2xl font-semibold mb-6">New Scholarship Requests</h2>
@@ -136,6 +139,43 @@ const NewRequests = () => {
       )}
     </section>
 
+
+    {confirmModalOpen && (
+        <div className="fixed z-10 inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+          <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+            <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+              <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <div className="sm:flex sm:items-start">
+                  <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 sm:mx-0 sm:h-10 sm:w-10">
+                    <ExclamationIcon className="h-6 w-6 text-blue-600" aria-hidden="true" />
+                  </div>
+                  <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                    <h3 className="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+                      Confirmation
+                    </h3>
+                    <div className="mt-2">
+                      <p className="text-sm text-gray-500">
+                        Are you sure you want to ask for further information?
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                <button type="button" onClick={confirmRequestMoreInfo} className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm">
+                  Yes, confirm
+                </button>
+                <button type="button" onClick={() => setConfirmModalOpen(false)} className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                  No, cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
     {selectedRequest && (
       <section className="request-detail mt-10">
         <h2 className="text-2xl font-semibold mb-6">Selected Request Details</h2>
@@ -152,13 +192,13 @@ const NewRequests = () => {
             <p><strong>Sport:</strong> {selectedRequest.sport}</p>
             <p className="whitespace-normal overflow-wrap break-all w-2/3"><strong>Description:</strong> {selectedRequest.description}</p>
             <p><strong>Status:</strong> {selectedRequest.status}</p>
-          <button 
-                onClick={requestMoreInfo} 
-                className="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-200 transform hover:scale-105" 
-                disabled={isLoading}
-              >
-                {isLoading ? <ClipLoader color="#ffffff" loading={isLoading} css={override} size={20} /> : 'Ask for further information'}
-          </button>
+            <button 
+              onClick={() => handleRequestMoreInfoConfirmation(selectedRequest)} 
+              className="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-200 transform hover:scale-105" 
+              disabled={isLoading}
+            >
+              {isLoading ? <ClipLoader color="#ffffff" loading={isLoading} css={override} size={20} /> : 'Ask for further information'}
+            </button>
         </div>
       </section>
     )}
@@ -166,7 +206,7 @@ const NewRequests = () => {
     {selectedRequest && (
       <section className="admin-form mt-10">
         <h2 className="text-2xl font-semibold mb-6">Admin Review Form</h2>
-        <AdminReviewForm selectedRequest={selectedRequest} fetchNewRequests={fetchNewRequests} requestId={selectedRequest.id} />
+        <AdminReviewForm selectedRequest={selectedRequest} fetchNewRequests={fetchNewRequests} fetchNewRequestsCount={props.fetchNewRequestsCount} requestId={selectedRequest.id} />
       </section>
     )}
   </div>
