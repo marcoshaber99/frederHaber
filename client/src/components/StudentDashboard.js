@@ -33,7 +33,7 @@ const StudentDashboard = ({ role }) => {
   const [showCreateRequest, setShowCreateRequest] = useState(true);
 
   // Use RequestContext here
-  const { latestRequestStatus, loadingLatestRequestStatus, fetchLatestRequestStatus } = useRequest();
+  const { latestRequestStatus, fetchLatestRequestStatus } = useRequest();
 
   const fetchRequestsCount = useCallback(async () => {
     setLoadingRequestsCount(true);
