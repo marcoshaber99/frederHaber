@@ -180,6 +180,8 @@ const NewRequests = (props) => {
       <section className="request-detail mt-10">
         <h2 className="text-2xl font-semibold mb-6">Selected Request Details</h2>
         <div className="bg-white rounded-lg p-4 shadow-md">
+        <div><a href={selectedRequest.file_url} target="_blank" rel="noopener noreferrer" className="mt-2 inline-block bg-blue-700 text-white px-4 py-2 mb-2 rounded">Download File</a>
+        </div>
             <p><strong>First Name:</strong> {selectedRequest.first_name}</p>
             <p><strong>Last Name:</strong> {selectedRequest.last_name}</p>
             <p><strong>Government ID:</strong> {selectedRequest.government_id}</p>
@@ -190,8 +192,9 @@ const NewRequests = (props) => {
             <p><strong>Education Level:</strong> {selectedRequest.education_level}</p>
             <p><strong>City:</strong> {selectedRequest.city}</p>
             <p><strong>Sport:</strong> {selectedRequest.sport}</p>
-            <p className="whitespace-normal overflow-wrap break-all w-2/3"><strong>Description:</strong> {selectedRequest.description}</p>
-            <p><strong>Status:</strong> {selectedRequest.status}</p>
+            <p className="whitespace-normal overflow-wrap break-all w-2/3">
+            <strong>Description:</strong> {selectedRequest.description}</p>
+
             <button 
               onClick={() => handleRequestMoreInfoConfirmation(selectedRequest)} 
               className="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-200 transform hover:scale-105" 

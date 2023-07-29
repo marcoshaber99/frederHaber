@@ -7,7 +7,7 @@ import { BsFillPersonFill } from 'react-icons/bs';
 import { MdPendingActions } from 'react-icons/md';
 import { Link, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import ClipLoader from "react-spinners/ClipLoader";
-import { NewRequestCountContext } from '../contexts/RequestContext'; 
+import { NewRequestCountContext } from '../contexts/RequestContext';
 import frederickLogo from '../images/frederick-white-logo.png';
 import AllRequests from './AllRequests';
 import NewRequests from './NewRequests';
@@ -95,7 +95,7 @@ const AdminDashboard = ({ role }) => {
                       {newRequestsCount > 0 &&
                           <span class="relative flex h-3 w-3 mb-4 ml-2">
                               <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
-                              <span class="relative inline-flex rounded-full h-3 w-3 bg-sky-200"></span>
+                              <span class="relative inline-flex rounded-full h-3 w-3 bg-green-300"></span>
                           </span>
                       }
                   </div>

@@ -147,13 +147,14 @@ const ViewRequests = () => {
   };
   
 
+
   return (
-    <div className="mt-10 ml-2">
-    <h2 className="text-2xl font-semibold mb-6">View Scholarship Requests</h2>
+    <div className="mt-6 ml-2">
+    <h2 className="text-2xl font-semibold">View Scholarship Requests</h2>
     {requests.length === 0 ? (
       <p>No requests at the moment.</p>
     ) : (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-12">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-16">
       {requests.map((request) => (
         <div key={request.id} >
           <div 
@@ -162,12 +163,12 @@ const ViewRequests = () => {
             hover:shadow-lg transition duration-200 transform hover:scale-105 cursor-pointer`}
             onClick={() => handleRequestSelect(request)}
           >
-          {request.status === 'draft' || request.status === 'requires_more_info' ? (
+          {request.status === 'draft' || request.status === 'requires_more_info' || request.status === 'denied' ? (
             <Link to={`/student-dashboard/update-request/${request.id}`} className="absolute top-2 right-8 text-blue-500 p-1 rounded hover:bg-blue-200 transition duration-200">
               <PencilIcon className="w-5 h-5" />
             </Link>
           ) : null}
-          {request.status === 'draft' || request.status === 'requires_more_info' ? (
+          {request.status === 'draft' || request.status === 'requires_more_info' || request.status === 'denied' ? (
             <button onClick={() => handleDeleteConfirmation(request.id)} className="absolute top-2 right-2 text-red-500 p-1 rounded hover:bg-red-200 transition duration-200">
               <TrashIcon className="w-5 h-5" />
             </button>
@@ -228,10 +229,13 @@ const ViewRequests = () => {
 
             {request.status === 'denied' && (
               <div className="flex items-center mt-4 approval-container">
+
                 <ExclamationIcon className="h-6 w-6 mr-2 text-red-600" />
+
                 <p className="text-red-600 text-lg font-bold approval-text">
-                  Denied
+                  Request Denied, Try Again
                 </p>
+
               </div>
             )}
           </div>
@@ -356,24 +360,33 @@ const ViewRequests = () => {
 
 
 
-                {selectedRequestDetails && (
-                      <section className="request-detail mt-10">
-                        <h2 className="text-2xl font-semibold mb-6">Your Request Details</h2>
-                        <div className="bg-white rounded-lg p-4 shadow-md">
-                            <p><strong>First Name:</strong> {selectedRequestDetails.first_name}</p>
-                            <p><strong>Last Name:</strong> {selectedRequestDetails.last_name}</p>
-                            <p><strong>Government ID:</strong> {selectedRequestDetails.government_id}</p>
-                            <p><strong>Registration Number:</strong> {selectedRequestDetails.registration_number}</p>
-                            <p><strong>Phone Number:</strong> {selectedRequestDetails.phone_number}</p>
-                            <p><strong>Course Title:</strong> {selectedRequestDetails.course_title}</p>
-                            <p><strong>Academic Year:</strong> {selectedRequestDetails.academic_year}</p>
-                            <p><strong>Education Level:</strong> {selectedRequestDetails.education_level}</p>
-                            <p><strong>City:</strong> {selectedRequestDetails.city}</p>
-                            <p><strong>Sport:</strong> {selectedRequestDetails.sport}</p>
-                            <p className="whitespace-normal overflow-wrap break-all w-2/3"><strong>Description:</strong> {selectedRequestDetails.description}</p>
-                            </div>
-                      </section>
-                    )}
+    {selectedRequestDetails && (
+        <section className="request-detail mt-10">
+          <h2 className="text-2xl font-semibold mb-6">Your Request Details</h2>
+          <div className="bg-white rounded-lg p-4 shadow-md">
+            <p><strong>First Name:</strong> {selectedRequestDetails.first_name}</p>
+            <p><strong>Last Name:</strong> {selectedRequestDetails.last_name}</p>
+            <p><strong>Government ID:</strong> {selectedRequestDetails.government_id}</p>
+            <p><strong>Registration Number:</strong> {selectedRequestDetails.registration_number}</p>
+            <p><strong>Phone Number:</strong> {selectedRequestDetails.phone_number}</p>
+            <p><strong>Course Title:</strong> {selectedRequestDetails.course_title}</p>
+            <p><strong>Academic Year:</strong> {selectedRequestDetails.academic_year}</p>
+            <p><strong>Education Level:</strong> {selectedRequestDetails.education_level}</p>
+            <p><strong>City:</strong> {selectedRequestDetails.city}</p>
+            <p><strong>Sport:</strong> {selectedRequestDetails.sport}</p>
+            <p className="whitespace-normal overflow-wrap break-all w-2/3"><strong>Description:</strong> {selectedRequestDetails.description}</p>
+            {selectedRequestDetails.file_url.endsWith('.png') && (
+              <div className="mt-4">
+                <h3 className="text-xl font-semibold mb-2">Attached File:</h3>
+                {/* insert file name here */}
+                <p><strong>File Name:</strong> {selectedRequestDetails.file_name}</p>
+                  <a href={selectedRequestDetails.file_url} target="_blank" rel="noopener noreferrer" className="mt-2 inline-block bg-blue-500 text-white px-4 py-2 rounded">Download File</a>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
     </div>
   );
 };

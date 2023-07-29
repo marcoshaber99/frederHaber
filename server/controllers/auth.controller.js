@@ -45,7 +45,7 @@ if (email.startsWith('st') && email.includes('@stud.')) {
     // Hash the password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
-    console.log("Hashed password:", hashedPassword);
+    //console.log("Hashed password:", hashedPassword);
 
     // Insert the new user
     const [result] = await db.query('INSERT INTO users (email, password, role) VALUES (?, ?, ?)', [email, hashedPassword, role]);
@@ -85,20 +85,20 @@ if (email.startsWith('st') && email.includes('@stud.')) {
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    console.log('Email:', email); 
-    console.log('Password:', password); 
+    //console.log('Email:', email); 
+    //console.log('Password:', password); 
 
     // Check if the email exists
     const [user] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
     if (user.length === 0) {
       return res.status(400).json({ message: 'Email not found' });
     }
-    console.log('User:', user[0]); 
+   // console.log('User:', user[0]); 
 
-    console.log('Submitted password:', password);
-    console.log('Stored hashed password:', user[0].password);
+    //console.log('Submitted password:', password);
+    //console.log('Stored hashed password:', user[0].password);
     const isMatch = await bcrypt.compare(password, user[0].password);
-    console.log('Is match:', isMatch); 
+    //console.log('Is match:', isMatch); 
     if (!isMatch) {
       return res.status(400).json({ message: 'Incorrect password' });
     }

@@ -97,7 +97,7 @@ const PendingApproval = () => {
   
       if (response.status === 200) {
         fetchPendingApprovalRequests();
-        navigate('/all-requests');
+        navigate('/manager-dashboard/all-requests');
       } else {
         console.error(response);
       }

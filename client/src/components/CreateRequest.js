@@ -25,6 +25,41 @@ const CreateRequest = () => {
   const [formStatus, setFormStatus] = useState('draft');
   const [errors, setErrors] = useState({});
   const [message, setMessage] = useState('');
+  const [file, setFile] = useState(null);
+
+  const handleFileChange = (e) => {
+    setFile(e.target.files[0]);
+  };
+
+  const uploadFile = async () => {
+    if (!file) {
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.post(
+        `http://localhost:5001/api/scholarship/upload`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return { 
+        fileUrl: response.data.fileUrl,
+        fileName: response.data.fileName,
+      };
+    } catch (error) {
+      toast.error('Error uploading file');
+    }
+  };
+
 
   useEffect(() => {
     fetchLatestRequestStatus();
@@ -33,6 +68,7 @@ const CreateRequest = () => {
   const handleChange = (e) => {
     setFormValues({ ...formValues, [e.target.name]: e.target.value });
   };
+  
 
   const validateForm = () => {
     const errors = {};
@@ -95,8 +131,15 @@ const handleSubmit = async (e, status = 'submitted') => {
   setMessage('');
 
   try {
+    const fileUrl = await uploadFile();
+    if (fileUrl) {
+      formValues.file_url = fileUrl.fileUrl;
+      formValues.file_name = fileUrl.fileName;
+    }
+    
+
     const token = localStorage.getItem('token');
-    const response = await axios.post(
+    await axios.post(
       `http://localhost:5001/api/scholarship/create-request`,
       { ...formValues, status },
       {
@@ -106,6 +149,8 @@ const handleSubmit = async (e, status = 'submitted') => {
         },
       }
     );
+    
+    
     if (status === 'draft') {
       toast.success('Scholarship request saved as a draft successfully');
       setTimeout(() => {
@@ -335,7 +380,19 @@ const handleSubmit = async (e, status = 'submitted') => {
           <p className="text-red-500 text-sm">{errors.description}</p>
         )}
 
-        
+
+        <div className="flex flex-col">
+          <label htmlFor="file" className="text-sm font-medium mb-1">
+            Upload File:
+          </label>
+          <input
+            type="file"
+            id="file"
+            name="file"
+            onChange={handleFileChange}
+            className="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-indigo-500"
+          />
+        </div>
 
         <div className="flex space-x-4">
         <button
@@ -372,4 +429,3 @@ const handleSubmit = async (e, status = 'submitted') => {
 };
 
 export default CreateRequest;
-

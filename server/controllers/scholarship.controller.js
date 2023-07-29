@@ -25,13 +25,14 @@ exports.createRequest = async (req, res) => {
       academic_year, 
       education_level, 
       city, 
-      status // Get the status from the client-side
+      status,  // Get the status from the client-side
+      file_url,   // Get the file URL from the client-side
+      file_name,  // Get the file name from the client-side
     } = req.body;
 
     const user_id = req.user.id;
 
     const [existingRequests] = await db.query('SELECT * FROM scholarship_requests WHERE user_id = ? AND (status = ? OR status = ?)', [user_id, 'submitted', 'requires_more_info']);
-
 
     if (existingRequests.length > 0) {
       return res.status(400).json({ message: 'You already have a request that is waiting for approval. Please wait until it is processed.' });
@@ -43,8 +44,8 @@ exports.createRequest = async (req, res) => {
     }
 
     await db.query(
-      'INSERT INTO scholarship_requests (user_id, first_name, last_name, sport, description, government_id, registration_number, phone_number, course_title, academic_year, education_level, city, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', 
-      [user_id, first_name, last_name, sport, description, government_id, registration_number, phone_number, course_title, academic_year, education_level, city, status]
+      'INSERT INTO scholarship_requests (user_id, first_name, last_name, sport, description, government_id, registration_number, phone_number, course_title, academic_year, education_level, city, status, file_url, file_name) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', 
+      [user_id, first_name, last_name, sport, description, government_id, registration_number, phone_number, course_title, academic_year, education_level, city, status, file_url, file_name]
     );
 
     // Only send the email if the status is 'submitted'
@@ -102,38 +103,6 @@ exports.getRequests = async (req, res) => {
 
 
 
-exports.deleteRequest = async (req, res) => {
-  try {
-    const requestId = req.params.id;
-    const user_id = req.user.id;
-
-    // Fetch the current request to check if it exists and belongs to the user
-    const [existingRequests] = await db.query('SELECT * FROM scholarship_requests WHERE id = ? AND user_id = ?', [requestId, user_id]);
-
-    if (existingRequests.length === 0) {
-      return res.status(404).json({ message: 'Scholarship request not found or you do not have permission to delete it' });
-    }
-
-    if (existingRequests[0].status === 'submitted') {
-      return res.status(400).json({ message: 'You cannot delete a request that is waiting for approval.' });
-    }
-
-    // If the request being deleted is a duplicate, update the original request
-    if (existingRequests[0].original_request_id) {
-      await db.query('UPDATE scholarship_requests SET has_been_duplicated = false, original_request_id = NULL WHERE id = ?', [existingRequests[0].original_request_id]);
-    }
-
-    await db.query('DELETE FROM scholarship_requests WHERE id = ? AND user_id = ?', [requestId, user_id]);
-
-    res.status(200).json({ message: 'Scholarship request deleted successfully', request: existingRequests[0] });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Server error' });
-  }
-};
-
-
-
 exports.updateRequest = async (req, res) => {
   try {
     const errors = validateRequest(req.body);
@@ -165,8 +134,9 @@ exports.updateRequest = async (req, res) => {
       return res.status(404).json({ message: 'Scholarship request not found or you do not have permission to update it' });
     }
 
-    if (existingRequests[0].status === 'submitted') {
-      return res.status(400).json({ message: 'You cannot edit a request that is waiting for approval.' });
+    // If the request was previously denied and is being resubmitted, update its status to 'submitted' instead of creating a new request
+    if (existingRequests[0].status === 'denied' && status === 'submitted') {
+      status = 'submitted';
     }
 
      // If registration_number is not provided or is an empty string, set it to null
@@ -205,7 +175,6 @@ exports.updateRequest = async (req, res) => {
 
     await db.query('UPDATE scholarship_requests SET first_name = ?, last_name = ?, sport = ?, description = ?, government_id = ?, registration_number = ?, phone_number = ?, course_title = ?, academic_year = ?, education_level = ?, city = ?, status = ? WHERE id = ? AND user_id = ?', [first_name, last_name, sport, description, government_id, registration_number, phone_number, course_title, academic_year, education_level, city, status, requestId, user_id]);
 
-
     res.status(200).json({ message: 'Scholarship request updated successfully' });
   } catch (err) {
     console.error(err);
@@ -213,12 +182,12 @@ exports.updateRequest = async (req, res) => {
   }
 };
 
+
 exports.getRequest = async (req, res) => {
   try {
     const user_id = req.user.id;
     const requestId = req.params.id;
 
-    // Fetch the specific request to check if it exists and belongs to the user
     const [existingRequests] = await db.query('SELECT * FROM scholarship_requests WHERE id = ? AND user_id = ?', [requestId, user_id]);
 
     if (existingRequests.length === 0) {
@@ -228,6 +197,41 @@ exports.getRequest = async (req, res) => {
     res.status(200).json(existingRequests[0]);
   } catch (err) {
     console.error('Error fetching request: ', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+
+exports.deleteRequest = async (req, res) => {
+  try {
+    const requestId = req.params.id;
+    const user_id = req.user.id;
+
+    // Fetch the current request to check if it exists and belongs to the user
+    const [existingRequests] = await db.query('SELECT * FROM scholarship_requests WHERE id = ? AND user_id = ?', [requestId, user_id]);
+
+    if (existingRequests.length === 0) {
+      return res.status(404).json({ message: 'Scholarship request not found or you do not have permission to delete it' });
+    }
+
+    if (existingRequests[0].status === 'submitted') {
+      return res.status(400).json({ message: 'You cannot delete a request that is waiting for approval.' });
+    }
+
+    // If the request being deleted is a duplicate, update the original request
+    if (existingRequests[0].original_request_id) {
+      await db.query('UPDATE scholarship_requests SET has_been_duplicated = false, original_request_id = NULL WHERE id = ?', [existingRequests[0].original_request_id]);
+    }
+
+    // Delete related reviews
+    await db.query('DELETE FROM reviews WHERE request_id = ?', [requestId]);
+
+    // Delete the request
+    await db.query('DELETE FROM scholarship_requests WHERE id = ? AND user_id = ?', [requestId, user_id]);
+
+    res.status(200).json({ message: 'Scholarship request deleted successfully', request: existingRequests[0] });
+  } catch (err) {
+    console.error(err);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -290,10 +294,23 @@ exports.adminReview = async (req, res) => {
   }
 
   try {
-    await db.query(`
-      INSERT INTO reviews (request_id, percentage, scholarship_category, other_scholarship, other_scholarship_percentage, admin_full_name, date, comments)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    `, [requestId, percentage, scholarshipCategory, otherScholarship, otherScholarshipPercentage, adminFullName, date, comments]);
+    // Check if a review already exists for this request
+    const [existingReviews] = await db.query('SELECT * FROM reviews WHERE request_id = ?', [requestId]);
+
+    if (existingReviews.length > 0) {
+      // Update existing review
+      await db.query(`
+        UPDATE reviews 
+        SET percentage = ?, scholarship_category = ?, other_scholarship = ?, other_scholarship_percentage = ?, admin_full_name = ?, date = ?, comments = ?
+        WHERE request_id = ?
+      `, [percentage, scholarshipCategory, otherScholarship, otherScholarshipPercentage, adminFullName, date, comments, requestId]);
+    } else {
+      // Insert new review
+      await db.query(`
+        INSERT INTO reviews (request_id, percentage, scholarship_category, other_scholarship, other_scholarship_percentage, admin_full_name, date, comments)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      `, [requestId, percentage, scholarshipCategory, otherScholarship, otherScholarshipPercentage, adminFullName, date, comments]);
+    }
 
     await db.query(`
       UPDATE scholarship_requests
@@ -307,6 +324,7 @@ exports.adminReview = async (req, res) => {
     res.status(500).json({ error: 'There was a problem processing your request. Please check the form fields and try again.' });
   }
 };
+
 
 
 exports.getOpenRequestsCount = async (req, res) => {
@@ -538,9 +556,3 @@ exports.duplicateRequest = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
-
-
-
-
-
-

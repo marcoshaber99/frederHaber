@@ -415,6 +415,3 @@ if (fetchError) {
 };
 
 export default UpdateRequest;
-
-
- 

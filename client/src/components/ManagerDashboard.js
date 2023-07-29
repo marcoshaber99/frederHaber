@@ -42,13 +42,14 @@ const ManagerDashboard = ({ role }) => {
           isMenuOpen ? 'translate-x-0' : '-translate-x-full'
         } md:relative md:translate-x-0`}
       >
-        <div className="flex justify-between items-center mb-8 px-8 mt-12">
+        <div className="flex justify-between items-center mb-8 mt-8">
           <Link to="#">
-            <img
+          <img
               src={frederickLogo}
               alt="Logo of Frederick University"
-              className="w-full mt-2"
+              className="w-60 h-8 object-cover md:mt-6 ml-4"
             />
+
           </Link>
           <div className="md:hidden">
             <button onClick={toggleMenu} className="text-white">
@@ -57,7 +58,7 @@ const ManagerDashboard = ({ role }) => {
           </div>
         </div>
         <div className="md:text-left px-8">
-          <div className="relative inline-flex items-center">
+          <div className="relative inline-flex items-center"> 
               <BsFillPersonFill className="text-white text-2xl mr-2" size={17}/>
               <span className="font-semibold text-orange-400">{role}</span>
             </div>

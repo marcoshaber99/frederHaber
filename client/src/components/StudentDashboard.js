@@ -16,7 +16,6 @@ import CreateRequest from './CreateRequest';
 import UpdateRequest from './UpdateRequest';
 import ViewRequests from './ViewRequests';
 
-// Loader CSS override
 const override = css`
   display: inline-block;
   margin-left: 5px;
@@ -32,7 +31,6 @@ const StudentDashboard = ({ role }) => {
   const [shouldShowInProgress, setShouldShowInProgress] = useState(false);
   const [showCreateRequest, setShowCreateRequest] = useState(true);
 
-  // Use RequestContext here
   const { latestRequestStatus, fetchLatestRequestStatus } = useRequest();
 
   const fetchRequestsCount = useCallback(async () => {
@@ -93,7 +91,7 @@ const StudentDashboard = ({ role }) => {
           isMenuOpen ? 'translate-x-0' : '-translate-x-full'
         } md:relative md:translate-x-0`}
       >
-        <div className="flex justify-between items-center mb-8 mt-12">
+        <div className="flex justify-between items-center mb-8 mt-8">
           <Link to="#">
           <img
               src={frederickLogo}
@@ -108,7 +106,7 @@ const StudentDashboard = ({ role }) => {
             </button>
           </div>
         </div>
-        <div className="md:text-left px-8 mt-12">
+        <div className="md:text-left px-8">
           <div className="relative inline-flex items-center"> 
               <BsFillPersonFill className="text-white text-2xl mr-2" size={17}/>
               <span className="font-semibold text-orange-400">{role}</span>
@@ -163,7 +161,7 @@ const StudentDashboard = ({ role }) => {
       </div>
       <div className={clsx("flex-1 p-4 md:p-8 overflow-y-auto", {
         "md:ml-8": !isMenuOpen,
-        "md:ml-16": isMenuOpen  // Adjust the left margin to your preference when the navbar is shown
+        "md:ml-16": isMenuOpen
       })}> 
       
       <div className="md:hidden mb-4">
