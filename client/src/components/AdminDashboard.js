@@ -1,4 +1,5 @@
 import { css } from '@emotion/react';
+import clsx from 'clsx';
 import { faBars, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
@@ -9,6 +10,7 @@ import { Link, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import ClipLoader from "react-spinners/ClipLoader";
 import { NewRequestCountContext } from '../contexts/RequestContext';
 import frederickLogo from '../images/frederick-white-logo.png';
+
 import AllRequests from './AllRequests';
 import NewRequests from './NewRequests';
 import OpenRequests from './OpenRequests';
@@ -83,7 +85,7 @@ const AdminDashboard = ({ role }) => {
           <p className="text-sm text-gray-100 ">{email}</p>
         </div>
         <nav className="flex flex-col items-center md:justify-start py-48 md:mt-0 w-full">
-        <Link to="new-requests" className={`w-full text-center py-4 ${isActive('new-requests') ? 'text-white bg-blue-700' : 'text-white'}  hover:bg-blue-900 py-2 rounded-md`} >
+        <Link to="new-requests" className={`w-full text-center py-4 ${isActive('new-requests') ? 'text-white bg-blue-700' : 'text-white'} hover:bg-blue-900 py-2 rounded-md`} >
           <div className="relative inline-flex items-center">
               {/* place notification icon next to new requests */}
               <BiNotification className="text-white mr-2" size={18}/>
@@ -126,8 +128,11 @@ const AdminDashboard = ({ role }) => {
           </button>
         </div>
       </div>
-      <div className="flex-1 p-4 md:p-8 md:ml-48  overflow-y-auto">
-        <div className="md:hidden mb-4">
+      <div className={clsx("flex-1 p-4 md:p-8 overflow-y-auto", {
+              "md:ml-8": !isMenuOpen,
+              "md:ml-16": isMenuOpen 
+            })}>
+       <div className="md:hidden mb-4">
           <button onClick={toggleMenu} className="text-blue-800">
             <FontAwesomeIcon
               icon={isMenuOpen ? faTimes : faBars}

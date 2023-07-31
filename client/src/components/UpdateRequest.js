@@ -27,11 +27,17 @@ const UpdateRequest = () => {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState(null);
+  const [file, setFile] = useState(null); // Added file state
   const { updateScholarshipRequest, fetchLatestRequestStatus } = useRequest();
 
   const handleChange = (e) => {
     setFormValues({ ...formValues, [e.target.name]: e.target.value });
   };
+
+  const handleFileChange = (e) => {
+    setFile(e.target.files[0]); // File handling function
+  };
+
   const validateForm = () => {
     const errors = {};
 
@@ -68,6 +74,11 @@ const UpdateRequest = () => {
     if (!formValues.city || formValues.city === 'Select city') {
       errors.city = 'City is required';
     }
+    //file upload
+    if (!file) {
+      errors.file = 'File is required';
+    }
+    
 
     return errors;
   };
@@ -83,8 +94,18 @@ const UpdateRequest = () => {
 
     setMessage('');
 
+    const formData = new FormData();
+    // Append the form values
+    for (const key in formValues) {
+      formData.append(key, formValues[key]);
+    }
+    // Append the status
+    formData.append('status', status);
+    // Append the file
+    formData.append('file', file);
+
     try {
-      const { status: responseStatus } = await updateScholarshipRequest(id, { ...formValues, status });
+      const { status: responseStatus } = await updateScholarshipRequest(id, formData);
 
       if (responseStatus === 200) {
         if (status === 'draft') {
@@ -381,6 +402,25 @@ if (fetchError) {
         {errors.description && (
           <p className="text-red-500 text-sm">{errors.description}</p>
         )}
+
+
+
+<div className="flex flex-col">
+  <label htmlFor="file" className="text-sm font-medium mb-1">
+    Upload File:
+  </label>
+  <input
+    id="file"
+    name="file"
+    type="file"
+    accept=".pdf,.png,.jpg"
+    onChange={handleFileChange}
+  />
+</div>
+{errors.file && (
+  <p className="text-red-500 text-sm">{errors.file}</p>
+)}
+
 
         <div className="flex space-x-4">
           <button

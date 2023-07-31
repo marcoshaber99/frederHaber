@@ -8,7 +8,6 @@ import { useRequest } from '../contexts/RequestContext';
 const CreateRequest = () => {
   const navigate = useNavigate();
   const { fetchLatestRequestStatus } = useRequest();
-
   const [formValues, setFormValues] = useState({
     first_name: '',
     last_name: '',
@@ -26,39 +25,6 @@ const CreateRequest = () => {
   const [errors, setErrors] = useState({});
   const [message, setMessage] = useState('');
   const [file, setFile] = useState(null);
-
-  const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
-  };
-
-  const uploadFile = async () => {
-    if (!file) {
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append('file', file);
-
-    try {
-      const token = localStorage.getItem('token');
-      const response = await axios.post(
-        `http://localhost:5001/api/scholarship/upload`,
-        formData,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      return { 
-        fileUrl: response.data.fileUrl,
-        fileName: response.data.fileName,
-      };
-    } catch (error) {
-      toast.error('Error uploading file');
-    }
-  };
 
 
   useEffect(() => {
@@ -131,20 +97,23 @@ const handleSubmit = async (e, status = 'submitted') => {
   setMessage('');
 
   try {
-    const fileUrl = await uploadFile();
-    if (fileUrl) {
-      formValues.file_url = fileUrl.fileUrl;
-      formValues.file_name = fileUrl.fileName;
-    }
-    
-
     const token = localStorage.getItem('token');
+    const formData = new FormData();
+    // Append the form values
+    for (const key in formValues) {
+      formData.append(key, formValues[key]);
+    }
+    // Append the status
+    formData.append('status', status);
+    // Append the file
+    formData.append('file', file);
+
     await axios.post(
       `http://localhost:5001/api/scholarship/create-request`,
-      { ...formValues, status },
+      formData,
       {
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'multipart/form-data',
           Authorization: `Bearer ${token}`,
         },
       }
@@ -178,10 +147,12 @@ const handleSubmit = async (e, status = 'submitted') => {
   }
 };
 
-
+const handleFileChange = (e) => {
+  setFile(e.target.files[0]);
+};
 
   return (
-    <div className="flex justify-center items-start mt-10 w-full">
+    <div className="flex justify-center items-start mt-8 w-full">
     <div className="max-w-lg w-full">
       
       <ToastContainer />
@@ -327,72 +298,72 @@ const handleSubmit = async (e, status = 'submitted') => {
                       {errors.education_level && (
                         <p className="text-red-500 text-sm">{errors.education_level}</p>
                       )}
-         <div className="flex flex-col">
-          <label htmlFor="city" className="text-sm font-medium mb-1">
-            City:
-          </label>
-          <select
-            id="city"
-            name="city"
-            value={formValues.city}
-            onChange={handleChange}
-            className="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-indigo-500"
-          >
-            <option value="">Select city</option>
-            <option value="Limassol">Limassol</option>
-            <option value="Nicosia">Nicosia</option>
-          </select>
-        </div>
-        {errors.city && (
-          <p className="text-red-500 text-sm">{errors.city}</p>
-        )}
+            <div className="flex flex-col">
+              <label htmlFor="city" className="text-sm font-medium mb-1">
+                City:
+              </label>
+              <select
+                id="city"
+                name="city"
+                value={formValues.city}
+                onChange={handleChange}
+                className="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-indigo-500"
+              >
+                <option value="">Select city</option>
+                <option value="Limassol">Limassol</option>
+                <option value="Nicosia">Nicosia</option>
+              </select>
+            </div>
+            {errors.city && (
+              <p className="text-red-500 text-sm">{errors.city}</p>
+            )}
 
-        <div className="flex flex-col">
-        <label htmlFor="sport" className="text-sm font-medium mb-1">
-            Sport:
-          </label>
-          <input
-            type="text"
-            id="sport"
-            name="sport"
-            value={formValues.sport}
-            onChange={handleChange}
-            className="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-indigo-500"
-          />
-        </div>
-        {errors.sport && (
-          <p className="text-red-500 text-sm">{errors.sport}</p>
-        )}
+            <div className="flex flex-col">
+            <label htmlFor="sport" className="text-sm font-medium mb-1">
+                Sport:
+              </label>
+              <input
+                type="text"
+                id="sport"
+                name="sport"
+                value={formValues.sport}
+                onChange={handleChange}
+                className="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-indigo-500"
+              />
+            </div>
+            {errors.sport && (
+              <p className="text-red-500 text-sm">{errors.sport}</p>
+            )}
 
-        <div className="flex flex-col">
-          <label htmlFor="description" className="text-sm font-medium mb-1">
-            Description:
-          </label>
-          <textarea
-            id="description"
-            name="description"
-            value={formValues.description}
-            onChange={handleChange}
-            className="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-indigo-500 h-32"
-          />
-        </div>
-        {errors.description && (
-          <p className="text-red-500 text-sm">{errors.description}</p>
-        )}
+            <div className="flex flex-col">
+              <label htmlFor="description" className="text-sm font-medium mb-1">
+                Description:
+              </label>
+              <textarea
+                id="description"
+                name="description"
+                value={formValues.description}
+                onChange={handleChange}
+                className="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-indigo-500 h-32"
+              />
+            </div>
+            {errors.description && (
+              <p className="text-red-500 text-sm">{errors.description}</p>
+            )}
 
+            <div className="flex flex-col">
+                <label htmlFor="file" className="text-sm font-medium mb-1">
+                  Upload File:
+                </label>
+                <input
+                  id="file"
+                  name="file"
+                  type="file"
+                  accept=".pdf,.png,.jpg"
+                  onChange={handleFileChange}
+                />
+              </div>
 
-        <div className="flex flex-col">
-          <label htmlFor="file" className="text-sm font-medium mb-1">
-            Upload File:
-          </label>
-          <input
-            type="file"
-            id="file"
-            name="file"
-            onChange={handleFileChange}
-            className="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-indigo-500"
-          />
-        </div>
 
         <div className="flex space-x-4">
         <button

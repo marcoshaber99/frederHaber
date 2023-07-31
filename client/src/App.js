@@ -107,7 +107,9 @@ useEffect(() => {
           path="/manager-dashboard/*"
           element={
             currentUserRole === 'manager' ? (
-              <ManagerDashboard email={currentUserEmail} role={currentUserRole} />
+              <RequestContextProvider> {/* Wrap the component with RequestContextProvider */}
+                <ManagerDashboard email={currentUserEmail} role={currentUserRole} />
+              </RequestContextProvider>
             ) : (
               <Navigate to="/login" replace />
             )

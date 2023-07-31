@@ -3,6 +3,8 @@ import React, { createContext, useCallback, useContext, useState, useEffect } fr
 
 const RequestContext = createContext();
 export const NewRequestCountContext = createContext(); // New context
+export const PendingApprovalCountContext = createContext();
+
 
 export function useRequest() {
     return useContext(RequestContext);
@@ -13,6 +15,9 @@ export function RequestContextProvider({ children }) {
     const [loadingLatestRequestStatus, setLoadingLatestRequestStatus] = useState(true);
     const [newRequestsCount, setNewRequestsCount] = useState(null); // New state
     const [loadingNewRequestsCount, setLoadingNewRequestsCount] = useState(false);
+    const [pendingApprovalsCount, setPendingApprovalsCount] = useState(null);
+    const [loadingPendingApprovalsCount, setLoadingPendingApprovalsCount] = useState(false);
+
 
     const fetchLatestRequestStatus = useCallback(async () => {
         try {
@@ -35,20 +40,20 @@ export function RequestContextProvider({ children }) {
 
     const updateScholarshipRequest = useCallback(async (id, requestData) => {
         try {
-            const token = localStorage.getItem('token');
-            const response = await axios.put(`http://localhost:5001/api/scholarship/update-request/${id}`, requestData, {
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-            await fetchLatestRequestStatus(); 
-            return response;
+          const token = localStorage.getItem('token');
+          const response = await axios.put(`http://localhost:5001/api/scholarship/update-request/${id}`, requestData, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          await fetchLatestRequestStatus(); 
+          return response;
         } catch (error) {
-            console.error('Error updating scholarship request:', error);
-            throw error; 
+          console.error('Error updating scholarship request:', error);
+          throw error; 
         }
-    }, [fetchLatestRequestStatus]); 
+      }, [fetchLatestRequestStatus]); 
+      
 
     const fetchNewRequestsCount = useCallback(async () => {
         setLoadingNewRequestsCount(true);
@@ -67,10 +72,32 @@ export function RequestContextProvider({ children }) {
             setLoadingNewRequestsCount(false);
         }
     }, []);
+    const fetchPendingApprovalsCount = useCallback(async () => {
+        setLoadingPendingApprovalsCount(true);
+        try {
+            const token = localStorage.getItem('token');
+            const response = await axios.get('http://localhost:5001/api/scholarship/get-pending-approvals-count', {
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            setPendingApprovalsCount(response.data);
+        } catch (error) {
+            console.error('Error fetching pending approvals count:', error);
+        } finally {
+            setLoadingPendingApprovalsCount(false);
+        }
+    }, []);
+
 
     useEffect(() => {
         fetchNewRequestsCount();
     }, [fetchNewRequestsCount]);
+
+    useEffect(() => {
+        fetchPendingApprovalsCount();
+    }, [fetchPendingApprovalsCount]);
 
 
     const value = {
@@ -81,13 +108,18 @@ export function RequestContextProvider({ children }) {
         newRequestsCount,
         loadingNewRequestsCount,
         fetchNewRequestsCount, 
+        pendingApprovalsCount,
+        loadingPendingApprovalsCount,
+        fetchPendingApprovalsCount
     };
 
     return (
         <NewRequestCountContext.Provider value={{ newRequestsCount, loadingNewRequestsCount, fetchNewRequestsCount }}>
-            <RequestContext.Provider value={value}>
-                {children}
-            </RequestContext.Provider>
+            <PendingApprovalCountContext.Provider value={{ pendingApprovalsCount, loadingPendingApprovalsCount, fetchPendingApprovalsCount }}>
+                <RequestContext.Provider value={value}>
+                    {children}
+                </RequestContext.Provider>
+            </PendingApprovalCountContext.Provider>
         </NewRequestCountContext.Provider>
     );
 }

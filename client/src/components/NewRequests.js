@@ -105,6 +105,25 @@ const NewRequests = (props) => {
     setIsLoading(false);
   };
 
+  const downloadFile = async (key) => {
+    try {
+      const token = localStorage.getItem('token');  // Retrieve the token from local storage
+      const response = await axios.get(`http://localhost:5001/api/scholarship/get-presigned-url/${key}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,  // Add the Authorization header
+        },
+      });
+      const presignedUrl = response.data.presignedUrl;
+  
+      window.location.href = presignedUrl;
+    } catch (err) {
+      console.error(err);
+      // Display a user-friendly message to inform the user that the file could not be downloaded
+      alert('Failed to download file. Please try again later.');
+    }
+  };
+
   return (
     <div className="max-w-6xl mx-auto mt-10 p-5">
     <ToastContainer />
@@ -180,8 +199,6 @@ const NewRequests = (props) => {
       <section className="request-detail mt-10">
         <h2 className="text-2xl font-semibold mb-6">Selected Request Details</h2>
         <div className="bg-white rounded-lg p-4 shadow-md">
-        <div><a href={selectedRequest.file_url} target="_blank" rel="noopener noreferrer" className="mt-2 inline-block bg-blue-700 text-white px-4 py-2 mb-2 rounded">Download File</a>
-        </div>
             <p><strong>First Name:</strong> {selectedRequest.first_name}</p>
             <p><strong>Last Name:</strong> {selectedRequest.last_name}</p>
             <p><strong>Government ID:</strong> {selectedRequest.government_id}</p>
@@ -194,6 +211,15 @@ const NewRequests = (props) => {
             <p><strong>Sport:</strong> {selectedRequest.sport}</p>
             <p className="whitespace-normal overflow-wrap break-all w-2/3">
             <strong>Description:</strong> {selectedRequest.description}</p>
+
+            {selectedRequest.file_url && (
+                <p>
+                  <strong>Attached File:</strong> 
+                  <button onClick={() => downloadFile(selectedRequest.file_key)}>
+                    Download File
+                  </button>
+                </p>
+              )}
 
             <button 
               onClick={() => handleRequestMoreInfoConfirmation(selectedRequest)} 

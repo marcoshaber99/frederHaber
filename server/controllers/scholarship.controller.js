@@ -1,9 +1,20 @@
 const db = require('../config/db.config');
 const sgMail = require('@sendgrid/mail');
+const { S3Client, GetObjectCommand, PutObjectCommand, DeleteObjectCommand } = require('@aws-sdk/client-s3');
+const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
+
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
 const { validateRequest } = require('./validateRequest');
 const { validateAdminRequest } = require('./validateAdminRequest');
 
+const s3 = new S3Client({
+  region: 'eu-north-1',
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  },
+});
 
 exports.createRequest = async (req, res) => {
   try {
@@ -25,12 +36,27 @@ exports.createRequest = async (req, res) => {
       academic_year, 
       education_level, 
       city, 
-      status,  // Get the status from the client-side
-      file_url,   // Get the file URL from the client-side
-      file_name,  // Get the file name from the client-side
+      status // Get the status from the client-side
     } = req.body;
 
     const user_id = req.user.id;
+
+    // Get the file from the request
+    const file = req.file;
+    let file_url = null;
+    let file_key = null; // Initialize the file key
+    if (file) {
+      const Key = Date.now().toString(); // Save the key
+      const params = {
+        Bucket: 'frederickscholarships',
+        Key,
+        Body: file.buffer
+      };
+      await s3.send(new PutObjectCommand(params));
+      // Construct the file URL
+      file_url = `https://${params.Bucket}.s3.eu-north-1.amazonaws.com/${Key}`;
+      file_key = Key; // Save the key for database storage
+    }
 
     const [existingRequests] = await db.query('SELECT * FROM scholarship_requests WHERE user_id = ? AND (status = ? OR status = ?)', [user_id, 'submitted', 'requires_more_info']);
 
@@ -44,8 +70,8 @@ exports.createRequest = async (req, res) => {
     }
 
     await db.query(
-      'INSERT INTO scholarship_requests (user_id, first_name, last_name, sport, description, government_id, registration_number, phone_number, course_title, academic_year, education_level, city, status, file_url, file_name) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', 
-      [user_id, first_name, last_name, sport, description, government_id, registration_number, phone_number, course_title, academic_year, education_level, city, status, file_url, file_name]
+      'INSERT INTO scholarship_requests (user_id, first_name, last_name, sport, description, government_id, registration_number, phone_number, course_title, academic_year, education_level, city, status, file_url, file_key) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', 
+      [user_id, first_name, last_name, sport, description, government_id, registration_number, phone_number, course_title, academic_year, education_level, city, status, file_url, file_key]
     );
 
     // Only send the email if the status is 'submitted'
@@ -78,7 +104,36 @@ exports.createRequest = async (req, res) => {
     res.status(201).json({ message: 'Scholarship request created successfully' });
   } catch (err) {
     console.error(err);
+    if (err.code === 'LIMIT_FILE_SIZE') {
+      return res.status(400).json({ message: 'File size is too large. Maximum size allowed is 2MB' });
+    }
+    if (err.code === 'ERR_MULTER_INVALID_FILE_EXTENSION') {
+      return res.status(400).json({ message: 'Invalid file type. Only jpg, png, and pdf files are allowed' });
+    }
+    if (err.message === 'Missing credentials in config') {
+      return res.status(500).json({ message: 'Missing AWS credentials' });
+    }
+    if (err.code === 'NoSuchBucket') {
+      return res.status(500).json({ message: 'The specified bucket does not exist' });
+    }
     res.status(500).json({ message: 'Server error' });
+  }
+};
+
+exports.generatePresignedUrl = async (req, res) => {
+  try {
+    const command = new GetObjectCommand({
+      Bucket: 'frederickscholarships',
+      Key: req.params.key,
+    });
+
+    // Generate the pre-signed URL
+    const signedUrl = await getSignedUrl(s3, command, { expiresIn: 3600 }); // URL expires in 1 hour
+
+    res.status(200).json({ presignedUrl: signedUrl });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Failed to generate presigned URL' });
   }
 };
 
@@ -122,8 +177,7 @@ exports.updateRequest = async (req, res) => {
       course_title, 
       academic_year, 
       education_level, 
-      city, 
-      status 
+      city
     } = req.body;
     const user_id = req.user.id;
     const requestId = req.params.id;
@@ -134,15 +188,41 @@ exports.updateRequest = async (req, res) => {
       return res.status(404).json({ message: 'Scholarship request not found or you do not have permission to update it' });
     }
 
-    // If the request was previously denied and is being resubmitted, update its status to 'submitted' instead of creating a new request
-    if (existingRequests[0].status === 'denied' && status === 'submitted') {
-      status = 'submitted';
-    }
 
-     // If registration_number is not provided or is an empty string, set it to null
-     if (!registration_number) {
+    // If registration_number is not provided or is an empty string, set it to null
+    if (!registration_number) {
       registration_number = null;
     }
+
+    // Get the file from the request
+    const file = req.file;
+    let file_url = null;
+    let file_key = null; // Initialize the file key
+    if (file) {
+      // Delete the old file from S3
+      if (existingRequests[0].file_key) {
+        const deleteParams = {
+          Bucket: 'frederickscholarships',
+          Key: existingRequests[0].file_key
+        };
+        await s3.send(new DeleteObjectCommand(deleteParams));
+      }
+
+      // Upload the new file to S3
+      const Key = Date.now().toString(); // Save the key
+      const params = {
+        Bucket: 'frederickscholarships',
+        Key,
+        Body: file.buffer
+      };
+      await s3.send(new PutObjectCommand(params));
+      // Construct the file URL
+      file_url = `https://${params.Bucket}.s3.eu-north-1.amazonaws.com/${Key}`;
+      file_key = Key; // Save the key for database storage
+    }
+
+    const status = 'submitted';
+
 
     if ((existingRequests[0].status === 'draft' || existingRequests[0].status === 'requires_more_info') && status === 'submitted') {
       // Get all admins' emails from the database
@@ -173,7 +253,8 @@ exports.updateRequest = async (req, res) => {
       }
     }
 
-    await db.query('UPDATE scholarship_requests SET first_name = ?, last_name = ?, sport = ?, description = ?, government_id = ?, registration_number = ?, phone_number = ?, course_title = ?, academic_year = ?, education_level = ?, city = ?, status = ? WHERE id = ? AND user_id = ?', [first_name, last_name, sport, description, government_id, registration_number, phone_number, course_title, academic_year, education_level, city, status, requestId, user_id]);
+    await db.query('UPDATE scholarship_requests SET first_name = ?, last_name = ?, sport = ?, description = ?, government_id = ?, registration_number = ?, phone_number = ?, course_title = ?, academic_year = ?, education_level = ?, city = ?, status = ?, file_url = ?, file_key = ? WHERE id = ? AND user_id = ?', [first_name, last_name, sport, description, government_id, registration_number, phone_number, course_title, academic_year, education_level, city, status, file_url, file_key, requestId, user_id]);
+
 
     res.status(200).json({ message: 'Scholarship request updated successfully' });
   } catch (err) {
@@ -277,6 +358,18 @@ exports.getNewRequestsCount = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+
+exports.getPendingApprovalsCount = async (req, res) => {
+  try {
+    const [requests] = await db.query('SELECT COUNT(*) as count FROM scholarship_requests WHERE status = "admin_reviewed"');
+
+    res.status(200).json(requests[0].count);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
 
 exports.adminReview = async (req, res) => {
   const { requestId, ...adminReview } = req.body;

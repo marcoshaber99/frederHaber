@@ -1,9 +1,11 @@
 import { css } from '@emotion/react';
-import { faBars, faSignOutAlt, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { faBars, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import axios from 'axios';
 import { AiOutlineForm, AiOutlineIdcard } from 'react-icons/ai';
+import { BiLogOut } from 'react-icons/bi';
 import { BsFillPersonFill } from 'react-icons/bs';
+
 import { animated, useSpring } from 'react-spring';
 
 import clsx from 'clsx'; // Add this import to use the clsx utility
@@ -92,7 +94,7 @@ const StudentDashboard = ({ role }) => {
         } md:relative md:translate-x-0`}
       >
         <div className="flex justify-between items-center mb-8 mt-8">
-          <Link to="#">
+          <Link to="view-requests">
           <img
               src={frederickLogo}
               alt="Logo of Frederick University"
@@ -100,11 +102,17 @@ const StudentDashboard = ({ role }) => {
             />
 
           </Link>
+
           <div className="md:hidden">
-            <button onClick={toggleMenu} className="text-white">
+            <button 
+              onClick={toggleMenu} 
+              className="text-white p-2 rounded-full hover:text-red-500 transition-colors duration-200"
+              style={{ lineHeight: 0 }} // Adjusts alignment
+            >
               <FontAwesomeIcon icon={faTimes} className="text-2xl" />
             </button>
           </div>
+
         </div>
         <div className="md:text-left px-8">
           <div className="relative inline-flex items-center"> 
@@ -114,10 +122,10 @@ const StudentDashboard = ({ role }) => {
           <p className="text-sm text-gray-100 ">{email}</p>
         </div>
         <nav className="flex flex-col items-center md:justify-start py-48 md:mt-0 w-full">
-          <Link to="view-requests" className={`w-full text-center text-lg  py-4  ${isActive('view-requests') ? 'text-white bg-blue-700' : 'text-white'}  hover:bg-blue-900 py-2 rounded-md`} >
-          <div className="relative inline-flex items-center">
+          <Link to="view-requests" className={`w-full text-center py-4  ${isActive('view-requests') ? 'text-white bg-blue-700' : 'text-white'}  hover:bg-blue-900 py-2 rounded-md`} >
+          <div className="relative inline-flex items-center mr-3">
 
-          <AiOutlineIdcard className="text-white text-2xl mr-2" size={20}/>
+          <AiOutlineIdcard className="text-white mr-2" size={18}/>
 
           <span>View Requests</span>
             </div>
@@ -132,10 +140,10 @@ const StudentDashboard = ({ role }) => {
               Request in progress.
             </animated.div>
           ) : showCreateRequest ? (
-            <Link to="create-request" className={`w-full text-center text-lg py-4 ${isActive('create-request') ? 'text-white bg-blue-700' : 'text-white'} hover:bg-blue-900 py-2 rounded-md`}>
-              <div className="relative inline-flex items-center">
+            <Link to="create-request" className={`w-full text-center py-4 ${isActive('create-request') ? 'text-white bg-blue-700' : 'text-white'} hover:bg-blue-900 py-2 rounded-md`}>
+              <div className="relative inline-flex items-center mr-2">
                 {/* put the icon here */}
-                <AiOutlineForm className="text-white text-2xl mr-2" size={20}/>
+                <AiOutlineForm className="text-white mr-2" size={18}/>
                 <span>Create Request</span>
                 {loadingRequestsCount 
                   ? <ClipLoader color="#ffffff" loading={loadingRequestsCount} css={override} size={20} /> 
@@ -149,13 +157,13 @@ const StudentDashboard = ({ role }) => {
           ) : null
         }
         </nav>
-        <div className="fixed bottom-0 left-0 w-full flex justify-center py-4 bg-blue-800 md:absolute md:bg-transparent px-4">
+        <div className="fixed bottom-16 w-full flex justify-center py-4 hover:bg-blue-900 rounded-md bg-blue-800 md:absolute md:bg-transparent">
           <button
-            className="px-10 py-8 flex items-center text-white text-xl hover:text-red-400 font-bold duration-300 transform"
+            className="px-10 flex items-center text-white text-xl mr-5"
             onClick={handleLogout}
           >
-            <FontAwesomeIcon icon={faSignOutAlt} className="mr-2" />
-            Logout
+            <BiLogOut className="text-white mr-2" size={20}/>
+            <span>Logout</span>
           </button>
         </div>
       </div>
@@ -163,6 +171,7 @@ const StudentDashboard = ({ role }) => {
         "md:ml-8": !isMenuOpen,
         "md:ml-16": isMenuOpen
       })}> 
+      
       
       <div className="md:hidden mb-4">
           <button onClick={toggleMenu} className="text-blue-800">
