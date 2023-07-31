@@ -136,7 +136,7 @@ const ManagerDashboard = ({ role }) => {
           </button>
         </div>
         <Routes>
-          <Route path="all-requests" element={<AllRequests />} />
+          <Route path="all-requests" element={<AllRequests role={role} />} />
           <Route path="pending-approval" element={<PendingApproval fetchPendingApprovalsCount={fetchPendingApprovalsCount} />} />
         </Routes>
       </div>

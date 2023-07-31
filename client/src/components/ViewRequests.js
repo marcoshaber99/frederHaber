@@ -5,6 +5,7 @@ import { AiFillCheckCircle } from 'react-icons/ai';
 import { BiDuplicate } from "react-icons/bi";
 import { Link } from "react-router-dom";
 import { useRequest } from '../contexts/RequestContext';
+import {FiDownload} from 'react-icons/fi';
 
 const ViewRequests = () => {
   const [requests, setRequests] = useState([]);
@@ -13,6 +14,8 @@ const ViewRequests = () => {
   const [selectedRequestDetails, setSelectedRequestDetails] = useState(null);
   const [duplicateModalOpen, setDuplicateModalOpen] = useState(false);
   const { fetchLatestRequestStatus } = useRequest();
+  const [lastDeletedRequest, setLastDeletedRequest] = useState(null);
+
 
   const [isDuplicateInfoModalOpen, setDuplicateInfoModalOpen] = useState(false);
 
@@ -394,13 +397,16 @@ const ViewRequests = () => {
             <p><strong>Sport:</strong> {selectedRequestDetails.sport}</p>
             <p className="whitespace-normal overflow-wrap break-all w-2/3"><strong>Description:</strong> {selectedRequestDetails.description}</p>
             {selectedRequestDetails.file_url && (
-                <p>
-                  <strong>Attached File:</strong> 
-                  <button onClick={() => downloadFile(selectedRequestDetails.file_key)}>
-                    Download File
-                  </button>
-                </p>
-              )}
+              <div className="mt-2">
+                <button 
+                  onClick={() => downloadFile(selectedRequestDetails.file_key)} 
+                  className="flex items-center justify-center gap-2 px-4 py-2 text-white font-semibold bg-blue-800 rounded-lg focus:outline-none hover:bg-blue-600"
+                >
+                  <FiDownload className="w-4 h-4" />
+                  Your Attached File
+                </button>
+              </div>
+            )}
           </div>
         </section>
       )}

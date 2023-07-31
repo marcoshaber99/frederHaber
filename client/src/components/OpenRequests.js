@@ -1,6 +1,7 @@
 import { css } from "@emotion/react";
 import axios from 'axios';
 import React, { useCallback, useEffect, useState } from 'react';
+import { FiDownload } from "react-icons/fi";
 import ClipLoader from "react-spinners/ClipLoader";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -40,6 +41,25 @@ const OpenRequests = () => {
 
   const handleRequestSelect = (request) => {
     setSelectedRequest(request);
+  };
+
+  const downloadFile = async (key) => {
+    try {
+      const token = localStorage.getItem('token');  // Retrieve the token from local storage
+      const response = await axios.get(`http://localhost:5001/api/scholarship/get-presigned-url/${key}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,  // Add the Authorization header
+        },
+      });
+      const presignedUrl = response.data.presignedUrl;
+  
+      window.location.href = presignedUrl;
+    } catch (err) {
+      console.error(err);
+      // Display a user-friendly message to inform the user that the file could not be downloaded
+      alert('Failed to download file. Please try again later.');
+    }
   };
 
   return (
@@ -84,6 +104,22 @@ const OpenRequests = () => {
       <p><strong>Course Title:</strong> {selectedRequest.course_title}</p>
       <p><strong>Sport:</strong> {selectedRequest.sport}</p>
       <p><strong>Description:</strong> {selectedRequest.description}</p>
+      <div className="flex flex-col mt-4">
+
+      <p><strong>Attached File: </strong></p>
+            {selectedRequest.file_url && (
+              <div className="mt-2">
+                <button 
+                  onClick={() => downloadFile(selectedRequest.file_key)} 
+                  className="flex items-center justify-center gap-2 px-4 py-2 text-white font-semibold bg-blue-800 rounded-md focus:outline-none hover:bg-blue-600"
+                >
+                  <FiDownload className="w-4 h-4" />
+                  Download File
+                </button>
+              </div>
+            )}
+            </div>
+
       {selectedRequest.admin_full_name && (
         <div div className="mt-10 mb-10">
           <h3 className="font-semibold text-lg mb-2 text-blue-500">Admin's Review</h3>

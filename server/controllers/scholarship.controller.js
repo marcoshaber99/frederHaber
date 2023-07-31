@@ -317,6 +317,36 @@ exports.deleteRequest = async (req, res) => {
   }
 };
 
+exports.managerDeleteRequest = async (req, res) => {
+  try {
+    const requestId = req.params.id;
+
+    // Fetch the current request to check if it is a duplicate
+    const [existingRequests] = await db.query('SELECT * FROM scholarship_requests WHERE id = ?', [requestId]);
+
+    if (existingRequests.length === 0) {
+      return res.status(404).json({ message: 'Scholarship request not found' });
+    }
+
+    // If the request being deleted is a duplicate, update the original request
+    if (existingRequests[0].original_request_id) {
+      await db.query('UPDATE scholarship_requests SET has_been_duplicated = false WHERE id = ?', [existingRequests[0].original_request_id]);
+    }
+
+    // Delete related reviews
+    await db.query('DELETE FROM reviews WHERE request_id = ?', [requestId]);
+
+    // Delete the request
+    await db.query('DELETE FROM scholarship_requests WHERE id = ?', [requestId]);
+
+    res.status(200).json({ message: 'Request deleted successfully' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+
 exports.getNewRequests = async (req, res) => {
   try {
     const [requests] = await db.query('SELECT * FROM scholarship_requests WHERE status = "submitted"');

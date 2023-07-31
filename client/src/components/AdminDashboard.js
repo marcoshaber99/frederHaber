@@ -1,7 +1,7 @@
 import { css } from '@emotion/react';
-import clsx from 'clsx';
 import { faBars, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import clsx from 'clsx';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { BiLogOut, BiNotification, BiTable } from 'react-icons/bi';
 import { BsFillPersonFill } from 'react-icons/bs';
@@ -86,7 +86,7 @@ const AdminDashboard = ({ role }) => {
         </div>
         <nav className="flex flex-col items-center md:justify-start py-48 md:mt-0 w-full">
         <Link to="new-requests" className={`w-full text-center py-4 ${isActive('new-requests') ? 'text-white bg-blue-700' : 'text-white'} hover:bg-blue-900 py-2 rounded-md`} >
-          <div className="relative inline-flex items-center">
+          <div className="relative inline-flex items-center mr-3">
               {/* place notification icon next to new requests */}
               <BiNotification className="text-white mr-2" size={18}/>
               <span>New Requests</span>
@@ -106,15 +106,15 @@ const AdminDashboard = ({ role }) => {
       </Link>
 
           <Link to="open-requests" className={`w-full text-center py-4 ${isActive('open-requests') ? 'text-white bg-blue-700' : 'text-white'}  hover:bg-blue-900 py-2 rounded-md`} >
-          <div className="relative inline-flex items-center mr-5">
+          <div className="relative inline-flex items-center mr-8">
             <MdPendingActions className="text-white mr-2" size={18}/>
             <span>Open Requests</span>
             </div>
           </Link>
           <Link to="all-requests" className={`w-full text-center py-4 ${isActive('all-requests') ? 'text-white bg-blue-700' : 'text-white'}  hover:bg-blue-900 py-2 rounded-md`} >
-          <div className="relative inline-flex items-center mr-2">
+          <div className="relative inline-flex items-center">
             <BiTable className="text-white mr-2" size={18}/>
-            <span>Closed Requests</span>
+            <span>Approved Requests</span>
           </div>
           </Link>
         </nav>
@@ -144,7 +144,7 @@ const AdminDashboard = ({ role }) => {
           <Route path="new-requests" element={<NewRequests fetchNewRequestsCount={fetchNewRequestsCount} />} />
           <Route path="open-requests" element={<OpenRequests />} /> 
           <Route path="open-requests/:id" element={<OpenRequestsDetails />} /> 
-          <Route path="all-requests" element={<AllRequests />} />
+          <Route path="all-requests" element={<AllRequests role={role} />} />
         </Routes>
       </div>
     </div>

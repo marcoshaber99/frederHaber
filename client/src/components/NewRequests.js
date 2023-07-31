@@ -2,9 +2,9 @@ import { css } from '@emotion/react';
 import { ExclamationIcon } from '@heroicons/react/solid';
 import axios from 'axios';
 import React, { useCallback, useEffect, useState } from 'react';
+import { FiDownload } from 'react-icons/fi';
 import ClipLoader from "react-spinners/ClipLoader";
 import { ToastContainer, toast } from 'react-toastify';
-
 import 'react-toastify/dist/ReactToastify.css';
 import AdminReviewForm from './AdminReviewForm';
 
@@ -211,19 +211,24 @@ const NewRequests = (props) => {
             <p><strong>Sport:</strong> {selectedRequest.sport}</p>
             <p className="whitespace-normal overflow-wrap break-all w-2/3">
             <strong>Description:</strong> {selectedRequest.description}</p>
-
+       <div className="flex flex-col mt-4">
+      <p><strong>Attached File: </strong></p>
             {selectedRequest.file_url && (
-                <p>
-                  <strong>Attached File:</strong> 
-                  <button onClick={() => downloadFile(selectedRequest.file_key)}>
-                    Download File
-                  </button>
-                </p>
-              )}
+              <div className="mt-2">
+                <button 
+                  onClick={() => downloadFile(selectedRequest.file_key)} 
+                  className="flex items-center justify-center gap-2 px-4 py-2 text-white font-semibold bg-blue-800 rounded-md focus:outline-none hover:bg-blue-600"
+                >
+                  <FiDownload className="w-4 h-4" />
+                  Download File
+                </button>
+              </div>
+            )}
+            </div>
 
             <button 
               onClick={() => handleRequestMoreInfoConfirmation(selectedRequest)} 
-              className="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-200 transform hover:scale-105" 
+              className="mt-12 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-200 transform hover:scale-105" 
               disabled={isLoading}
             >
               {isLoading ? <ClipLoader color="#ffffff" loading={isLoading} css={override} size={20} /> : 'Ask for further information'}

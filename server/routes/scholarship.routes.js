@@ -23,7 +23,8 @@ const {
     deny,
     getApprovedRequests,
     duplicateRequest, 
-    generatePresignedUrl
+    generatePresignedUrl,
+    managerDeleteRequest
 } = require('../controllers/scholarship.controller');
 
 const verifyToken = require('../middlewares/verifyToken');
@@ -56,6 +57,9 @@ router.post('/duplicate-request/:id', verifyToken, duplicateRequest);
 
 
 router.get('/get-presigned-url/:key', verifyToken, generatePresignedUrl);
+
+router.delete('/manager-delete-request/:id', verifyToken, verifyManager, managerDeleteRequest);
+
 
 
 module.exports = router;

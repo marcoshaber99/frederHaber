@@ -188,7 +188,7 @@ const PendingApproval = (props) => {
     <div className="bg-white rounded-lg p-4 shadow-md">
       <div className="space-y-6">
         <div>
-          <h3 className="font-semibold text-lg mb-2 text-blue-500">Student's Information</h3>
+          <h3 className="font-bold text-xl mb-2 text-red-600">Student's Information</h3>
           <div className="space-y-2">
             <p><strong>First Name:</strong> {selectedRequest.first_name}</p>
             <p><strong>Last Name:</strong> {selectedRequest.last_name}</p>
@@ -198,22 +198,25 @@ const PendingApproval = (props) => {
             <p><strong>Course Title:</strong> {selectedRequest.course_title}</p>
             <p><strong>Sport:</strong> {selectedRequest.sport}</p>
             <p><strong>Description:</strong> {selectedRequest.description}</p>
+       <div className="flex flex-col mt-4">
+      <p><strong>Attached File: </strong></p>
             {selectedRequest.file_url && (
               <div className="mt-2">
                 <button 
                   onClick={() => downloadFile(selectedRequest.file_key)} 
-                  className="flex items-center justify-center gap-2 px-4 py-2 text-white font-semibold bg-blue-800 rounded-lg focus:outline-none hover:bg-blue-600"
+                  className="flex items-center justify-center gap-2 px-4 py-2 text-white font-semibold bg-blue-800 rounded-md focus:outline-none hover:bg-blue-600"
                 >
                   <FiDownload className="w-4 h-4" />
-                  Download Attached File
+                  Download File
                 </button>
               </div>
             )}
+            </div>
           </div>
         </div>
         {selectedRequest.admin_full_name && (
-          <div>
-            <h3 className="font-semibold text-lg mb-2 text-blue-500">Admin's Review</h3>
+          <div className="mt-2">
+            <h3 className="font-bold text-xl mb-2 text-red-600">Admin's Review</h3>
             <div className="space-y-2">
               <div className="flex flex-col">
                 <label className="text-sm font-medium mb-1">Admin Full Name:</label>
@@ -267,7 +270,7 @@ const PendingApproval = (props) => {
           </div>
         )}
         <div>
-          <h3 className="font-semibold text-lg mb-2 text-blue-500">Manager's Review</h3>
+          <h3 className="font-bold text-xl mb-2 text-red-600">Manager's Review</h3>
           <textarea
             value={managerComment}
             onChange={e => setManagerComment(e.target.value)}
