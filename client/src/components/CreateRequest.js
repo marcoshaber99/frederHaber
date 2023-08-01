@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { useEffect, useState } from 'react';
+import { Oval } from 'react-loader-spinner';
 import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -25,6 +26,8 @@ const CreateRequest = () => {
   const [errors, setErrors] = useState({});
   const [message, setMessage] = useState('');
   const [file, setFile] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+
 
 
   useEffect(() => {
@@ -95,6 +98,8 @@ const handleSubmit = async (e, status = 'submitted') => {
   }
 
   setMessage('');
+  setIsLoading(true); // set loading state to true
+
 
   try {
     const token = localStorage.getItem('token');
@@ -145,6 +150,9 @@ const handleSubmit = async (e, status = 'submitted') => {
       toast.error('Error submitting scholarship request');
     }
   }
+  finally {
+    setIsLoading(false); // set loading state back to false
+  }
 };
 
 const handleFileChange = (e) => {
@@ -154,7 +162,7 @@ const handleFileChange = (e) => {
   return (
     <div className="flex justify-center items-start mt-8 w-full">
     <div className="max-w-lg w-full">
-      
+    
       <ToastContainer />
 
       <h2 className="text-2xl font-semibold mb-6">Create Scholarship Request</h2>
@@ -363,25 +371,35 @@ const handleFileChange = (e) => {
                   onChange={handleFileChange}
                 />
               </div>
+              <div className="flex space-x-4">
+                  <div className="relative flex items-center">
+                    <div 
+                      className={`absolute left-[-40px] flex items-center ${isLoading ? 'visible' : 'invisible'}`}>
+                      <Oval type="Puff" color="#0000FF" height={30} width={30} />
+                    </div>
+                    <button
+                      type="submit"
+                      onClick={(e) => handleSubmit(e, 'submitted')}
+                      className="bg-blue-700 text-white px-6 py-2 rounded hover:bg-blue-900 transition duration-200"
+                      disabled={formStatus === 'submitted' || isLoading} // disable the button while loading
+                    >
+                      {isLoading ? 'Submitting...' : 'Submit'}
+                    </button>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={(e) => handleSubmit(e, 'draft')}
+                    className="bg-gray-600 text-white px-6 py-2 rounded hover:bg-gray-800 transition duration-200"
+                  >
+                    Save as Draft
+                  </button>
+                </div>
 
 
-        <div className="flex space-x-4">
-        <button
-            type="submit"
-            onClick={(e) => handleSubmit(e, 'submitted')}
-            className="bg-blue-700 text-white px-6 py-2 rounded hover:bg-blue-900 transition duration-200"
-            disabled={formStatus === 'submitted'}
-          >
-            Submit
-          </button>
-          <button
-            type="button"
-            onClick={(e) => handleSubmit(e, 'draft')}
-            className="bg-gray-600 text-white px-6 py-2 rounded hover:bg-gray-800 transition duration-200"
-          >
-            Save as Draft
-          </button>
-        </div>
+
+
+
+
       </form>
       {message && (
         <p

@@ -195,57 +195,60 @@ const NewRequests = (props) => {
         </div>
       )}
 
-    {selectedRequest && (
-      <section className="request-detail mt-10">
-        <h2 className="text-2xl font-semibold mb-6">Selected Request Details</h2>
-        <div className="bg-white rounded-lg p-4 shadow-md">
-            <p><strong>First Name:</strong> {selectedRequest.first_name}</p>
-            <p><strong>Last Name:</strong> {selectedRequest.last_name}</p>
-            <p><strong>Government ID:</strong> {selectedRequest.government_id}</p>
-            <p><strong>Registration Number:</strong> {selectedRequest.registration_number}</p>
-            <p><strong>Phone Number:</strong> {selectedRequest.phone_number}</p>
-            <p><strong>Course Title:</strong> {selectedRequest.course_title}</p>
-            <p><strong>Academic Year:</strong> {selectedRequest.academic_year}</p>
-            <p><strong>Education Level:</strong> {selectedRequest.education_level}</p>
-            <p><strong>City:</strong> {selectedRequest.city}</p>
-            <p><strong>Sport:</strong> {selectedRequest.sport}</p>
-            <p className="whitespace-normal overflow-wrap break-all w-2/3">
-            <strong>Description:</strong> {selectedRequest.description}</p>
-       <div className="flex flex-col mt-4">
-      <p><strong>Attached File: </strong></p>
-            {selectedRequest.file_url && (
-              <div className="mt-2">
-                <button 
-                  onClick={() => downloadFile(selectedRequest.file_key)} 
-                  className="flex items-center justify-center gap-2 px-4 py-2 text-white font-semibold bg-blue-800 rounded-md focus:outline-none hover:bg-blue-600"
-                >
-                  <FiDownload className="w-4 h-4" />
-                  Download File
-                </button>
+{selectedRequest && (
+        <div className="mt-10">
+          <h2 className="text-2xl font-semibold mb-6">Selected Request Details</h2>
+          <div className="bg-white rounded-lg p-4 shadow-md">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="bg-white p-4 rounded-lg shadow-md">
+                <p><strong>First Name:</strong> {selectedRequest.first_name}</p>
+                <p><strong>Last Name:</strong> {selectedRequest.last_name}</p>
+                <p><strong>Government ID:</strong> {selectedRequest.government_id}</p>
+                <p><strong>Registration Number:</strong> {selectedRequest.registration_number}</p>
+                <p><strong>Phone Number:</strong> {selectedRequest.phone_number}</p>
+                <p><strong>Course Title:</strong> {selectedRequest.course_title}</p>
               </div>
-            )}
+              <div className="bg-white p-4 rounded-lg shadow-md">
+                <p><strong>Academic Year:</strong> {selectedRequest.academic_year}</p>
+                <p><strong>Education Level:</strong> {selectedRequest.education_level}</p>
+                <p><strong>City:</strong> {selectedRequest.city}</p>
+                <p><strong>Sport:</strong> {selectedRequest.sport}</p>
+                <p><strong>Description:</strong> {selectedRequest.description}</p>
+              </div>
             </div>
-
+            <div className="flex flex-col mt-4 ml-4">
+              <p><strong>Attached File: </strong></p>
+              {selectedRequest.file_url && (
+                <div className="mt-2">
+                  <button 
+                    onClick={() => downloadFile(selectedRequest.file_key)} 
+                    className="flex items-center justify-center gap-2 px-4 py-2 text-white font-semibold bg-blue-800 rounded-md focus:outline-none hover:bg-blue-600"
+                  >
+                    <FiDownload className="w-4 h-4" />
+                    Download File
+                  </button>
+                </div>
+               )}
+            </div>
             <button 
               onClick={() => handleRequestMoreInfoConfirmation(selectedRequest)} 
-              className="mt-12 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-200 transform hover:scale-105" 
+              className="mt-12 ml-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-200 transform hover:scale-105" 
               disabled={isLoading}
             >
               {isLoading ? <ClipLoader color="#ffffff" loading={isLoading} css={override} size={20} /> : 'Ask for further information'}
             </button>
+          </div>
         </div>
-      </section>
-    )}
+      )}
 
-    {selectedRequest && (
-      <section className="admin-form mt-10">
-        <h2 className="text-2xl font-semibold mb-6">Admin Review Form</h2>
-        <AdminReviewForm selectedRequest={selectedRequest} fetchNewRequests={fetchNewRequests} fetchNewRequestsCount={props.fetchNewRequestsCount} requestId={selectedRequest.id} />
-      </section>
-    )}
-  </div>
-);
-
+      {selectedRequest && (
+        <section className="admin-form mt-10">
+          <h2 className="text-2xl font-semibold mb-6">Admin Review Form</h2>
+          <AdminReviewForm selectedRequest={selectedRequest} fetchNewRequests={fetchNewRequests} fetchNewRequestsCount={props.fetchNewRequestsCount} requestId={selectedRequest.id} />
+        </section>
+      )}
+    </div>
+  );
 };
 
 export default NewRequests;

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 
@@ -132,7 +132,7 @@ const UpdateRequest = () => {
     }
   };
 
-const fetchRequest = async () => {
+const fetchRequest = useCallback(async () => {
   setLoading(true);
   setFetchError(null);
   try {
@@ -184,13 +184,12 @@ const fetchRequest = async () => {
     setFetchError(error);
     setLoading(false);
   }
-};
+}, [id]);
 
 useEffect(() => {
   console.log('Calling fetchRequest with id:', id);
-
   fetchRequest();
-}, [id]);
+}, [id, fetchRequest]);
 
 if (loading) {
   return <div>Loading...</div>;

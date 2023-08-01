@@ -1,11 +1,11 @@
-import { Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, List, ListItem, ListItemText, Pagination, TextField, Tooltip, Typography, useMediaQuery, useTheme } from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, IconButton, List, ListItem, ListItemText, Pagination, TextField, Tooltip, Typography, useMediaQuery, useTheme } from '@mui/material';
 import MuiAlert from '@mui/material/Alert';
 import Snackbar from '@mui/material/Snackbar';
 import { DataGrid, GridOverlay, GridToolbar } from '@mui/x-data-grid';
 import axios from 'axios';
 import { debounce } from 'lodash';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -73,20 +73,66 @@ const useFetchData = (url, token) => {
   return { data, loading, error, fetchData };
 };
 
-const SmallScreenView = ({ data }) => {
+const SmallScreenView = ({ data, openDeleteDialog }) => {
+  const [searchText, setSearchText] = useState("");
+  const [filteredData, setFilteredData] = useState(data);
+
+  useEffect(() => {
+    if (!searchText) {
+      setFilteredData(data);
+      return;
+    }
+
+    const lowercasedFilter = searchText.toLowerCase();
+    const filtered = data.filter(item => {
+      return Object.keys(item).some(key =>
+        item[key] && item[key].toString().toLowerCase().includes(lowercasedFilter)
+      );
+    });
+
+    setFilteredData(filtered);
+  }, [searchText, data]);
+
   return (
-    <List>
-      {data.map((item, index) => (
-        <ListItem key={index}>
-          <ListItemText
-            primary={`${item.first_name} ${item.last_name}`}
-            secondary={`User ID: ${item.user_id}, Reg. Num.: ${item.registration_number}, Gov. ID: ${item.government_id}, Sport: ${item.sport}, Campus: ${item.city}, Ed. Level: ${item.education_level}`}
+    <Box>
+      {data.length > 0 ? (
+        <>
+          <TextField
+            id="search-bar"
+            label="Search by any field..."
+            variant="outlined"
+            sx={{ marginBottom: 2 }}
+            value={searchText}
+            onChange={(event) => setSearchText(event.target.value)}
+            className="rounded-lg shadow-md"
           />
-        </ListItem>
-      ))}
-    </List>
+          <List>
+            {filteredData.map((item, index) => (
+              <ListItem key={index}>
+                <ListItemText
+                  primary={`${item.first_name} ${item.last_name}`}
+                  secondary={`User ID: ${item.user_id}, Reg. Num.: ${item.registration_number}, Gov. ID: ${item.government_id}, Sport: ${item.sport}, Campus: ${item.city}, Ed. Level: ${item.education_level}`}
+                />
+                <IconButton 
+                  color="error" 
+                  onClick={() => openDeleteDialog(item.id)}
+                >
+                  <DeleteIcon />
+                </IconButton>
+              </ListItem>
+            ))}
+          </List>
+        </>
+      ) : (
+        <Typography variant="h6" align="center" color="textSecondary">
+          No records found..
+        </Typography>
+      )}
+    </Box>
   );
 };
+
+
 
 const AllRequests = ({role}) => {
   console.log('Role in AllRequests:', role); // Debug role value
@@ -177,8 +223,9 @@ const AllRequests = ({role}) => {
     const baseColumns = [
       {
         field: 'user_id',
-        headerName: 'Applicant',
-        flex: 1,
+      headerName: 'Applicant',
+      flex: 1,
+      minWidth: 100,
         resizable: true,
         sortable: true,
         hide: isSmallScreen,
@@ -192,6 +239,7 @@ const AllRequests = ({role}) => {
         field: 'registration_number',
         headerName: 'Reg. Num.',
         flex: 1,
+        minWidth: 100,
         resizable: true,
         sortable: true,
         renderCell: (params) => (
@@ -204,6 +252,7 @@ const AllRequests = ({role}) => {
         field: 'first_name',
         headerName: 'Name',
         flex: 1,
+        minWidth: 100,
         resizable: true,
         sortable: true,
       },
@@ -211,6 +260,7 @@ const AllRequests = ({role}) => {
         field: 'last_name',
         headerName: 'Surname',
         flex: 1,
+        minWidth: 100,
         resizable: true,
         sortable: true,
       },
@@ -218,6 +268,7 @@ const AllRequests = ({role}) => {
         field: 'government_id',
         headerName: 'Gov. ID',
         flex: 1,
+        minWidth: 100,
         resizable: true,
         sortable: true,
         renderCell: (params) => (
@@ -230,6 +281,7 @@ const AllRequests = ({role}) => {
         field: 'sport',
         headerName: 'Sport',
         flex: 1,
+        minWidth: 100,
         resizable: true,
         sortable: true,
       },
@@ -237,6 +289,7 @@ const AllRequests = ({role}) => {
         field: 'city',
         headerName: 'Campus',
         flex: 1,
+        minWidth: 100,
         resizable: true,
         sortable: true,
       },
@@ -244,6 +297,7 @@ const AllRequests = ({role}) => {
         field: 'education_level',
         headerName: 'Ed. Level',
         flex: 1,
+        minWidth: 100,
         resizable: true,
         sortable: true,
         renderCell: (params) => (
@@ -255,16 +309,18 @@ const AllRequests = ({role}) => {
     ];
 
     const actionColumn = {
-      field: 'action',
-      headerName: 'Action',
       flex: 1,
       sortable: false,
       renderCell: (params) => (
-        <Button variant="outlined" color="error" onClick={() => openDeleteDialog(params.row.id)}>
-          Delete
-        </Button>
+        <IconButton 
+          color="error" 
+          onClick={() => openDeleteDialog(params.row.id)}
+        >
+          <DeleteIcon />
+        </IconButton>
       ),
     };
+    
 
     return role === 'admin' ? baseColumns : [...baseColumns, actionColumn];
   }, [role, isSmallScreen]);
@@ -281,8 +337,8 @@ const AllRequests = ({role}) => {
           <Button variant="contained" color="primary" onClick={fetchData}>Retry</Button>
         </>
       ) : isSmallScreen ? (
-        <SmallScreenView data={filteredData} />
-      ) : (
+        <SmallScreenView data={isSearchTriggered ? filteredData : data} openDeleteDialog={openDeleteDialog} />
+        ) : (
         <Box sx={{ height: 400, width: '100%' }}>
           <TextField
             id="search-bar"

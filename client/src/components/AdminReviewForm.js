@@ -1,7 +1,7 @@
 import axios from 'axios';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 const AdminReviewForm = (props) => {
@@ -17,7 +17,7 @@ const AdminReviewForm = (props) => {
     comments: '',
   });
   const [errors, setErrors] = useState({});
-  const [requestId, setRequestId] = useState(props.requestId);
+  const { requestId } = props;
 
 
   const handleAdminChange = (e) => {
@@ -67,7 +67,7 @@ const AdminReviewForm = (props) => {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.post(
+      await axios.post(
         `http://localhost:5001/api/scholarship/admin-review`,
         { ...formValues, requestId },
         {
@@ -87,20 +87,22 @@ const AdminReviewForm = (props) => {
       }, 2000); // delay of 2 seconds
 
     } catch (error) {
-      console.log(error.response.data.errors)
       if (error.response) {
-        if (error.response.data.errors) {
-          setErrors(error.response.data.errors);
-          toast.error('Form errors occurred');
-        } else {
-          toast.error(error.response.data.message);
-        }
+
+        console.log(error.response.data);
+        console.log(error.response.status);
+        console.log(error.response.headers);
+        // You can add a custom message for this error or use the one from server
+        toast.error(`Error: ${error.response.data.message}`);
       } else if (error.request) {
+        console.log(error.request);
         toast.error('Network error');
       } else {
-        toast.error('An unknown error occurred');
+        console.log('Error', error.message);
+        toast.error(`An unknown error occurred: ${error.message}`);
       }
     }
+    
   };
 
 

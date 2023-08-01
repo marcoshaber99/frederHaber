@@ -1,11 +1,13 @@
-import { CheckIcon, ClockIcon, ExclamationIcon, PencilIcon, TrashIcon } from '@heroicons/react/solid';
+import { Dialog, Transition } from '@headlessui/react';
+import { CheckIcon, ClockIcon, ExclamationIcon, PencilIcon, TrashIcon, XIcon } from '@heroicons/react/solid';
 import axios from 'axios';
-import React, { useEffect, useState } from 'react';
+import { format } from 'date-fns';
+import React, { Fragment, useEffect, useState } from 'react';
 import { AiFillCheckCircle } from 'react-icons/ai';
 import { BiDuplicate } from "react-icons/bi";
+import { FiDownload } from 'react-icons/fi';
 import { Link } from "react-router-dom";
 import { useRequest } from '../contexts/RequestContext';
-import {FiDownload} from 'react-icons/fi';
 
 const ViewRequests = () => {
   const [requests, setRequests] = useState([]);
@@ -14,10 +16,9 @@ const ViewRequests = () => {
   const [selectedRequestDetails, setSelectedRequestDetails] = useState(null);
   const [duplicateModalOpen, setDuplicateModalOpen] = useState(false);
   const { fetchLatestRequestStatus } = useRequest();
-  const [lastDeletedRequest, setLastDeletedRequest] = useState(null);
-
 
   const [isDuplicateInfoModalOpen, setDuplicateInfoModalOpen] = useState(false);
+  const [detailsModalOpen, setDetailsModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchRequests = async () => {
@@ -57,8 +58,7 @@ const ViewRequests = () => {
     await handleDuplicate(selectedRequest);
     setDuplicateModalOpen(false);
     setSelectedRequest(null);
-};
-
+  };
 
   const handleRequestSelect = (request) => {
     if (selectedRequestDetails && selectedRequestDetails.id === request.id) {
@@ -66,6 +66,11 @@ const ViewRequests = () => {
     } else {
       setSelectedRequestDetails(request);
     }
+  };
+
+  const openDetailsModal = (request) => {
+    setSelectedRequestDetails(request);
+    setDetailsModalOpen(true);
   };
 
   const handleDelete = async (requestId) => {
@@ -167,32 +172,56 @@ const ViewRequests = () => {
       alert('Failed to download file. Please try again later.');
     }
   };
+
+  function statusColorClass(status) {
+    switch(status) {
+        case 'draft':
+            return 'border-yellow-500';
+        case 'submitted':
+            return 'border-blue-500/75';
+        case 'admin_reviewed':
+            return 'border-green-500/75';
+        case 'approved':
+            return 'border-green-600/50';
+        case 'denied':
+            return 'border-red-500/50';
+        default:
+            return '';
+    }
+}
   
   
   return (
     <div className="mt-6 ml-2">
-    <h2 className="text-2xl font-semibold">View Scholarship Requests</h2>
+    <h2 className="text-2xl font-semibold">Your Requests</h2>
     {requests.length === 0 ? (
       <p>No requests at the moment.</p>
     ) : (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-16">
       {requests.map((request) => (
-        <div key={request.id} >
-          <div 
-            className={`relative bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition duration-200 overflow-wrap break-word overflow-auto ${request.status === 'draft' ? 'bg-gray-200' : ''} 
-            ${selectedRequestDetails && selectedRequestDetails.id === request.id ? 'border-2 border-blue-500' : ''}  // Add border when selected
+        <div key={request.id} onClick={() => openDetailsModal(request)}>
+        <div 
+            className={`relative bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition duration-200 overflow-wrap break-word overflow-auto ${statusColorClass(request.status)} ${selectedRequestDetails && selectedRequestDetails.id === request.id ? 'border-2 border-blue-500' : ''}
             hover:shadow-lg transition duration-200 transform hover:scale-105 cursor-pointer`}
             onClick={() => handleRequestSelect(request)}
           >
+
           {request.status === 'draft' || request.status === 'requires_more_info' || request.status === 'denied' ? (
             <Link to={`/student-dashboard/update-request/${request.id}`} className="absolute top-2 right-8 text-blue-500 p-1 rounded hover:bg-blue-200 transition duration-200">
               <PencilIcon className="w-5 h-5" />
             </Link>
           ) : null}
           {request.status === 'draft' || request.status === 'requires_more_info' || request.status === 'denied' ? (
-            <button onClick={() => handleDeleteConfirmation(request.id)} className="absolute top-2 right-2 text-red-500 p-1 rounded hover:bg-red-200 transition duration-200">
-              <TrashIcon className="w-5 h-5" />
-            </button>
+           <button 
+           onClick={(event) => {
+             event.stopPropagation();
+             handleDeleteConfirmation(request.id);
+           }} 
+           className="absolute top-2 right-2 text-red-500 p-1 rounded hover:bg-red-200 transition duration-200"
+         >
+           <TrashIcon className="w-5 h-5" />
+         </button>
+         
           ) : null}
           <h3 className="font-semibold text-xl mb-2">{request.sport}</h3>
           <p className="text-gray-600">
@@ -228,21 +257,27 @@ const ViewRequests = () => {
                   </div>
                   {request.has_been_duplicated ? (
                     <button 
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      handleDuplicateInfo( request.id);
+                    }} 
                       // disabled 
                       className="absolute top-2 right-2 text-gray-500 p-2 rounded hover:bg-green-200 transition duration-200 cursor-pointer"
                       title="Already Duplicated"
-                      onClick={handleDuplicateInfo}
                     >
                       <BiDuplicate size={24} className='text-gray-400' /> 
                     </button>
                   ) : (
                     <button 
-                      onClick={() => handleDuplicateConfirmation(request.id)} 
-                      className="absolute top-2 right-2 text-blue-500 p-2 rounded hover:bg-blue-200 transition duration-200 cursor-pointer"
-                      title="Duplicate for Next Year"
-                    >
-                      <BiDuplicate size={24} className='text-blue-800' /> 
-                    </button>
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      handleDuplicateConfirmation(request.id);
+                    }} 
+                    className="absolute top-2 right-2 text-blue-500 p-2 rounded hover:bg-blue-200 transition duration-200 cursor-pointer"
+                    title="Duplicate for Next Year"
+                  >
+                    <BiDuplicate size={24} className='text-blue-800' /> 
+                  </button>
 
                   )}
                 </div>
@@ -272,6 +307,8 @@ const ViewRequests = () => {
       ))}
     </div>
       )}
+
+      
       {deleteModalOpen && (
         <div className="fixed z-10 inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
           <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
@@ -379,40 +416,85 @@ const ViewRequests = () => {
           </div>
         )}
 
+<Transition.Root show={detailsModalOpen} as={Fragment}>
+  <Dialog as="div" className="fixed z-10 inset-0 overflow-y-auto" onClose={setDeleteModalOpen}>
+    <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+      <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+      <Transition.Child as={Fragment}>
+        <Dialog.Overlay className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
+      </Transition.Child>
+      <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+      <Transition.Child
+        as={Fragment}
+        enter="ease-out duration-300"
+        enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+        enterTo="opacity-100 translate-y-0 sm:scale-100"
+        leave="ease-in duration-200"
+        leaveFrom="opacity-100 translate-y-0 sm:scale-100"
+        leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+      >
+                <div className="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full sm:p-6">
 
-
-    {selectedRequestDetails && (
-        <section className="request-detail mt-10">
-          <h2 className="text-2xl font-semibold mb-6">Your Request Details</h2>
-          <div className="bg-white rounded-lg p-4 shadow-md">
-            <p><strong>First Name:</strong> {selectedRequestDetails.first_name}</p>
-            <p><strong>Last Name:</strong> {selectedRequestDetails.last_name}</p>
-            <p><strong>Government ID:</strong> {selectedRequestDetails.government_id}</p>
-            <p><strong>Registration Number:</strong> {selectedRequestDetails.registration_number}</p>
-            <p><strong>Phone Number:</strong> {selectedRequestDetails.phone_number}</p>
-            <p><strong>Course Title:</strong> {selectedRequestDetails.course_title}</p>
-            <p><strong>Academic Year:</strong> {selectedRequestDetails.academic_year}</p>
-            <p><strong>Education Level:</strong> {selectedRequestDetails.education_level}</p>
-            <p><strong>City:</strong> {selectedRequestDetails.city}</p>
-            <p><strong>Sport:</strong> {selectedRequestDetails.sport}</p>
-            <p className="whitespace-normal overflow-wrap break-all w-2/3"><strong>Description:</strong> {selectedRequestDetails.description}</p>
-            {selectedRequestDetails.file_url && (
-              <div className="mt-2">
-                <button 
-                  onClick={() => downloadFile(selectedRequestDetails.file_key)} 
-                  className="flex items-center justify-center gap-2 px-4 py-2 text-white font-semibold bg-blue-800 rounded-lg focus:outline-none hover:bg-blue-600"
-                >
-                  <FiDownload className="w-4 h-4" />
-                  Your Attached File
-                </button>
-              </div>
-            )}
+          <div className="hidden sm:block absolute top-0 right-0 pt-4 pr-4">
+            <button
+              type="button"
+              className="bg-white rounded-md text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              onClick={() => setDetailsModalOpen(false)}
+            >
+              <span className="sr-only">Close</span>
+              <XIcon className="h-6 w-6" aria-hidden="true" />
+            </button>
           </div>
-        </section>
-      )}
+          <div>
+          {selectedRequestDetails && (
+  <section className="request-detail mt-10">
+    <h2 className="text-center text-2xl text-blue-800 font-semibold mb-6">Your Request Details</h2>
+    <div className="bg-white rounded-lg p-8 shadow-md">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div className="bg-white p-4 rounded-lg shadow-md space-y-4">
+          <p className="text-lg mb-1"><strong>First Name:</strong> {selectedRequestDetails.first_name}</p>
+          <p className="text-lg mb-1"><strong>Last Name:</strong> {selectedRequestDetails.last_name}</p>
+          <p className="text-lg mb-1"><strong>Government ID:</strong> {selectedRequestDetails.government_id}</p>
+          <p className="text-lg mb-1"><strong>Registration Number:</strong> {selectedRequestDetails.registration_number}</p>
+        </div>
+        <div className="bg-white p-4 rounded-lg shadow-md space-y-4">
+          <p className="text-lg mb-1"><strong>Phone Number:</strong> {selectedRequestDetails.phone_number}</p>
+          <p className="text-lg mb-1"><strong>Course Title:</strong> {selectedRequestDetails.course_title}</p>
+          <p className="text-lg mb-1"><strong>Sport:</strong> {selectedRequestDetails.sport}</p>
+          <p className="text-lg mb-1"><strong>Description:</strong> {selectedRequestDetails.description}</p>
+          <p className="text-lg mb-1"><strong>Date:</strong> {format(new Date(selectedRequestDetails.created_at), 'MMMM dd, yyyy')}</p>
+        </div>
+      </div>
+      <div className="flex flex-col mt-4 ml-4 space-y-2">
+        <p className="text-lg mb-1"><strong>Attached File: </strong></p>
+        {selectedRequestDetails.file_url && (
+          <div>
+            <button 
+              onClick={() => downloadFile(selectedRequestDetails.file_key)} 
+              className="flex items-center justify-center gap-2 px-4 py-2 text-white font-semibold bg-blue-800 rounded-md focus:outline-none hover:bg-blue-600"
+            >
+              <FiDownload className="w-4 h-4" />
+              Download File
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  </section>
+)}
+
+          </div>
+        </div>
+      </Transition.Child>
+    </div>
+  </Dialog>
+</Transition.Root>
 
     </div>
   );
 };
+
+
+
 
 export default ViewRequests;
