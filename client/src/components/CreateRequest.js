@@ -4,7 +4,9 @@ import { Oval } from 'react-loader-spinner';
 import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { translations, useLanguage } from '../contexts/LanguageContext';
 import { useRequest } from '../contexts/RequestContext';
+
 
 const CreateRequest = () => {
   const navigate = useNavigate();
@@ -28,6 +30,9 @@ const CreateRequest = () => {
   const [file, setFile] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
+  const { language, toggleLanguage } = useLanguage();
+  const [isToggled, setIsToggled] = useState(language === 'en' ? false : true);
+  
 
 
   useEffect(() => {
@@ -43,44 +48,56 @@ const CreateRequest = () => {
     const errors = {};
 
     if (!formValues.first_name) {
-      errors.first_name = 'First name is required';
+      errors.first_name = `${translations[language].firstName} ${translations[language].isRequired}`;
     }
     if (!formValues.last_name) {
-      errors.last_name = 'Last name is required';
+      errors.last_name = `${translations[language].lastName} ${translations[language].isRequired}`;
     }
     if (!formValues.sport) {
-      errors.sport = 'Sport is required';
+      errors.sport = `${translations[language].sport} ${translations[language].isRequired}`;
     }
     if (!formValues.description || formValues.description.length > 200) {
-      errors.description = 'Description is required and should not be more than 200 characters';
+      errors.description = `${translations[language].description} ${translations[language].isRequired} & ${translations[language].maxLength.replace('{length}', '200')}`;
     }
 
     if (!formValues.government_id || isNaN(formValues.government_id)) {
-      errors.government_id = 'Government ID is required and should be a numeric value';
+      errors.government_id = `${translations[language].governmentId} ${translations[language].isRequired} & ${translations[language].shouldBeNumeric}`;
     }
-    if (formValues.registration_number && (isNaN(formValues.registration_number) || formValues.registration_number.toString().length !== 5)) {
-      errors.registration_number = 'Registration number should be a 5 digit numeric value';
+    if (formValues.registration_number && (isNaN(formValues.registration_number))) {
+      errors.registration_number = `${translations[language].registrationNumber} ${translations[language].shouldBeNumeric}`;
     }
     
     if (!formValues.phone_number || isNaN(formValues.phone_number)) {
-      errors.phone_number = 'Phone number is required and should be a numeric value';
+      errors.phone_number = `${translations[language].phoneNumber} ${translations[language].isRequired} & ${translations[language].shouldBeNumeric}`;
     }
     if (!formValues.course_title || formValues.course_title.length > 55) {
-      errors.course_title = 'Course title is required and should not be more than 55 characters';
+      errors.course_title = `${translations[language].courseTitle} ${translations[language].isRequired} & ${translations[language].maxLength.replace('{length}', '55')}`;
     }
     if (!formValues.academic_year || isNaN(formValues.academic_year) || formValues.academic_year < 1 || formValues.academic_year > 4) {
-      errors.academic_year = 'Academic year is required and should be a numeric value between 1 and 4';
+      errors.academic_year = `${translations[language].academicYear} ${translations[language].isRequired} & ${translations[language].betweenNumeric.replace('{min}', '1').replace('{max}', '4')}`;
     }
     if (!formValues.education_level || formValues.education_level === 'Select education level') {
-      errors.education_level = 'Education level is required';
+      errors.education_level = `${translations[language].educationLevel} ${translations[language].isRequired}`;
     }
     if (!formValues.city || formValues.city === 'Select city') {
-      errors.city = 'City is required';
+      errors.city = `${translations[language].city} ${translations[language].isRequired}`;
     }
 
     return errors;
 };
 
+const ToggleButton = ({ isToggled, onToggle }) => {
+  return (
+    <div onClick={onToggle} className="cursor-pointer w-12 h-6 flex items-center bg-gray-300 rounded-full p-1 duration-300 ease-in-out">
+      <div className={`bg-white w-5 h-5 rounded-full shadow-md transform duration-300 ease-in-out ${isToggled ? 'translate-x-6' : ''}`}></div>
+    </div>
+  );
+};
+
+const handleToggle = () => {
+  setIsToggled(!isToggled);
+  toggleLanguage();
+};
 
 
 const handleSubmit = async (e, status = 'submitted') => {
@@ -159,17 +176,24 @@ const handleFileChange = (e) => {
   setFile(e.target.files[0]);
 };
 
+
+
+
   return (
     <div className="flex justify-center items-start mt-8 w-full">
     <div className="max-w-lg w-full">
     
       <ToastContainer />
 
+      
       <h2 className="text-2xl font-semibold mb-6">Create Scholarship Request</h2>
+      <ToggleButton isToggled={isToggled} onToggle={handleToggle} />
+
+
       <form className="space-y-4" onSubmit={handleSubmit}>
         <div className="flex flex-col">
           <label htmlFor="first_name" className="text-sm font-medium mb-1">
-            First Name:
+          {translations[language].firstName}:
           </label>
           <input
             type="text"
@@ -186,7 +210,7 @@ const handleFileChange = (e) => {
 
         <div className="flex flex-col">
           <label htmlFor="last_name" className="text-sm font-medium mb-1">
-            Last Name:
+          {translations[language].lastName}:
           </label>
           <input
             type="text"
@@ -204,7 +228,7 @@ const handleFileChange = (e) => {
         {/* For Government ID */}
         <div className="flex flex-col">
           <label htmlFor="government_id" className="text-sm font-medium mb-1">
-            Government ID:
+            {translations[language].governmentId}
           </label>
           <input
             type="text"
@@ -221,7 +245,7 @@ const handleFileChange = (e) => {
 
         <div className="flex flex-col">
           <label htmlFor="registration_number" className="text-sm font-medium mb-1">
-            Registration Number:
+            {translations[language].registrationNumber}:
           </label>
           <input
             type="text"
@@ -238,7 +262,7 @@ const handleFileChange = (e) => {
 
           <div className="flex flex-col">
           <label htmlFor="phone_number" className="text-sm font-medium mb-1">
-            Phone Number:
+            {translations[language].phoneNumber}:
           </label>
           <input
             type="tel"
@@ -255,7 +279,7 @@ const handleFileChange = (e) => {
 
           <div className="flex flex-col">
             <label htmlFor="course_title" className="text-sm font-medium mb-1">
-              Course Title:
+              {translations[language].courseTitle}
             </label>
             <input
               type="text"
@@ -272,7 +296,7 @@ const handleFileChange = (e) => {
 
             <div className="flex flex-col">
               <label htmlFor="academic_year" className="text-sm font-medium mb-1">
-                Academic Year:
+                {translations[language].academicYear}
               </label>
               <input
                 type="number"
@@ -289,7 +313,7 @@ const handleFileChange = (e) => {
 
               <div className="flex flex-col">
                         <label htmlFor="education_level" className="text-sm font-medium mb-1">
-                          Education Level:
+                          {translations[language].educationLevel}
                         </label>
                         <select
                           id="education_level"
@@ -298,9 +322,9 @@ const handleFileChange = (e) => {
                           onChange={handleChange}
                           className="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-indigo-500"
                         >
-                          <option value="">Select education level</option>
-                          <option value="undergraduate">Undergraduate</option>
-                          <option value="postgraduate">Postgraduate</option>
+                          <option value="">{translations[language].selectEducationLevel}</option>
+                          <option value="undergraduate">{translations[language].undergraduate}</option>
+                          <option value="postgraduate">{translations[language].postgraduate}</option>
                         </select>
                       </div>
                       {errors.education_level && (
@@ -308,7 +332,7 @@ const handleFileChange = (e) => {
                       )}
             <div className="flex flex-col">
               <label htmlFor="city" className="text-sm font-medium mb-1">
-                City:
+                {translations[language].city}
               </label>
               <select
                 id="city"
@@ -317,9 +341,9 @@ const handleFileChange = (e) => {
                 onChange={handleChange}
                 className="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-indigo-500"
               >
-                <option value="">Select city</option>
-                <option value="Limassol">Limassol</option>
-                <option value="Nicosia">Nicosia</option>
+                <option value="">{translations[language].selectCity}</option>
+                <option value="Limassol">{translations[language].Limassol}</option>
+                <option value="Nicosia">{translations[language].Nicosia}</option>
               </select>
             </div>
             {errors.city && (
@@ -328,7 +352,7 @@ const handleFileChange = (e) => {
 
             <div className="flex flex-col">
             <label htmlFor="sport" className="text-sm font-medium mb-1">
-                Sport:
+              {translations[language].sport}
               </label>
               <input
                 type="text"
@@ -345,7 +369,7 @@ const handleFileChange = (e) => {
 
             <div className="flex flex-col">
               <label htmlFor="description" className="text-sm font-medium mb-1">
-                Description:
+                {translations[language].description}
               </label>
               <textarea
                 id="description"
@@ -361,7 +385,7 @@ const handleFileChange = (e) => {
 
             <div className="flex flex-col">
                 <label htmlFor="file" className="text-sm font-medium mb-1">
-                  Upload File:
+                  {translations[language].uploadFile}
                 </label>
                 <input
                   id="file"
@@ -383,7 +407,7 @@ const handleFileChange = (e) => {
                       className="bg-blue-700 text-white px-6 py-2 rounded hover:bg-blue-900 transition duration-200"
                       disabled={formStatus === 'submitted' || isLoading} // disable the button while loading
                     >
-                      {isLoading ? 'Submitting...' : 'Submit'}
+                      {isLoading ?  `${translations[language].submit}...` : `${translations[language].submit}`}
                     </button>
                   </div>
                   <button
@@ -391,14 +415,9 @@ const handleFileChange = (e) => {
                     onClick={(e) => handleSubmit(e, 'draft')}
                     className="bg-gray-600 text-white px-6 py-2 rounded hover:bg-gray-800 transition duration-200"
                   >
-                    Save as Draft
+                    {translations[language].saveAsDraft}
                   </button>
                 </div>
-
-
-
-
-
 
       </form>
       {message && (

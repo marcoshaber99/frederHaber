@@ -18,6 +18,9 @@ import CreateRequest from './CreateRequest';
 import UpdateRequest from './UpdateRequest';
 import ViewRequests from './ViewRequests';
 
+import { useLanguage } from '../contexts/LanguageContext';
+
+
 const override = css`
   display: inline-block;
   margin-left: 5px;
@@ -34,6 +37,10 @@ const StudentDashboard = ({ role }) => {
   const [showCreateRequest, setShowCreateRequest] = useState(true);
 
   const { latestRequestStatus, fetchLatestRequestStatus } = useRequest();
+  const { toggleLanguage } = useLanguage();
+
+
+
 
   const fetchRequestsCount = useCallback(async () => {
     setLoadingRequestsCount(true);
@@ -87,6 +94,7 @@ const StudentDashboard = ({ role }) => {
 
 
   return (
+
     <div className="h-screen flex flex-col md:flex-row overflow-hidden bg-gray-100">
       <div
         className={`bg-blue-800 shadow-md fixed inset-y-0 left-0 z-10 transform transition-transform duration-300 w-60 md:w-62 ${
@@ -165,6 +173,9 @@ const StudentDashboard = ({ role }) => {
             <BiLogOut className="text-white mr-2" size={20}/>
             <span>Logout</span>
           </button>
+
+          {/* <button onClick={toggleLanguage}>Switch Language</button> */}
+
         </div>
       </div>
       <div className={clsx("flex-1 p-4 md:p-8 overflow-y-auto", {
@@ -188,6 +199,7 @@ const StudentDashboard = ({ role }) => {
         </Routes>
       </div>
     </div>
+
   );
 };
 

@@ -20,13 +20,11 @@ exports.validateRequest = (requestBody) => {
     }
   
     if (requestBody.registration_number && requestBody.registration_number !== '') {
-        if (!/^\d{5}$/.test(requestBody.registration_number)) {
-          errors.registration_number = 'Registration number should be a 5 digit numeric value';
+        if (!/^\d+$/.test(requestBody.registration_number)) {
+          errors.registration_number = 'Registration number should be a numeric value';
         }
     }
     
-      
-  
     if (!requestBody.phone_number || !/^\d+$/.test(requestBody.phone_number)) {
       errors.phone_number = 'Phone number is required and should only contain numbers';
     }

@@ -56,8 +56,8 @@ const UpdateRequest = () => {
     if (!formValues.government_id || isNaN(formValues.government_id)) {
       errors.government_id = 'Government ID is required and should be a numeric value';
     }
-     if (formValues.registration_number && (isNaN(formValues.registration_number) || formValues.registration_number.toString().length !== 5)) {
-      errors.registration_number = 'Registration number should be a 5 digit numeric value';
+     if (formValues.registration_number && (isNaN(formValues.registration_number))) {
+      errors.registration_number = 'Registration number should be a numeric value';
     }
     if (!formValues.phone_number || isNaN(formValues.phone_number)) {
       errors.phone_number = 'Phone number is required and should be a numeric value';

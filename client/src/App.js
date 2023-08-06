@@ -13,6 +13,7 @@ import RegisterForm from './components/RegisterForm';
 import ResetPasswordForm from './components/ResetPasswordForm';
 import StudentDashboard from './components/StudentDashboard';
 import { RequestContextProvider } from './contexts/RequestContext'; // add this line
+import { LanguageProvider } from './contexts/LanguageContext';
 
 
 const override = css`
@@ -61,6 +62,8 @@ useEffect(() => {
   }
 
   return (
+    <LanguageProvider>
+
     <Router>
       <Routes>
         <Route path="/" element={<LoginForm setCurrentUserRole={setCurrentUserRole} setCurrentUserEmail={setCurrentUserEmail} />} />
@@ -119,6 +122,8 @@ useEffect(() => {
 
       </Routes>
     </Router>
+    </LanguageProvider>
+
   );
 };
 
