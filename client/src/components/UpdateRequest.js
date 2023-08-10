@@ -1,5 +1,6 @@
 import axios from 'axios';
 import React, { useCallback, useEffect, useState } from 'react';
+import { Oval } from 'react-loader-spinner'; // Import the Oval component
 import { useNavigate, useParams } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 
@@ -29,6 +30,7 @@ const UpdateRequest = () => {
   const [fetchError, setFetchError] = useState(null);
   const [file, setFile] = useState(null); // Added file state
   const { updateScholarshipRequest, fetchLatestRequestStatus } = useRequest();
+  const [isLoading, setIsLoading] = useState(false); // Add isLoading state
 
   const handleChange = (e) => {
     setFormValues({ ...formValues, [e.target.name]: e.target.value });
@@ -95,14 +97,18 @@ const UpdateRequest = () => {
     setMessage('');
 
     const formData = new FormData();
+    // Update the status field with the new status value
+    formValues.status = status;
     // Append the form values
     for (const key in formValues) {
       formData.append(key, formValues[key]);
     }
-    // Append the status
-    formData.append('status', status);
+
     // Append the file
     formData.append('file', file);
+
+    setIsLoading(true); // Set loading state to true before the API call
+
 
     try {
       const { status: responseStatus } = await updateScholarshipRequest(id, formData);
@@ -129,6 +135,8 @@ const UpdateRequest = () => {
       } else {
         toast.error('Error updating scholarship request');
       }
+    }finally {
+      setIsLoading(false); // Set loading state back to false after the API call
     }
   };
 
@@ -404,31 +412,38 @@ if (fetchError) {
 
 
 
-<div className="flex flex-col">
-  <label htmlFor="file" className="text-sm font-medium mb-1">
-    Upload File:
-  </label>
-  <input
-    id="file"
-    name="file"
-    type="file"
-    accept=".pdf,.png,.jpg"
-    onChange={handleFileChange}
-  />
-</div>
-{errors.file && (
-  <p className="text-red-500 text-sm">{errors.file}</p>
-)}
+        <div className="flex flex-col">
+          <label htmlFor="file" className="text-sm font-medium mb-1">
+            Upload File:
+          </label>
+          <input
+            id="file"
+            name="file"
+            type="file"
+            accept=".pdf,.png,.jpg"
+            onChange={handleFileChange}
+          />
+        </div>
+        {errors.file && (
+          <p className="text-red-500 text-sm">{errors.file}</p>
+        )}
 
 
-        <div className="flex space-x-4">
-          <button
-            type="submit"
-            onClick={(e) => handleUpdate(e, 'submitted')}
-            className="bg-blue-700 text-white px-6 py-2 rounded hover:bg-blue-900 transition duration-200"
-          >
-            Submit
-          </button>
+<div className="flex space-x-4">
+          <div className="relative flex items-center">
+            <div 
+              className={`absolute left-[-40px] flex items-center ${isLoading ? 'visible' : 'invisible'}`}>
+              <Oval type="Puff" color="#0000FF" height={30} width={30} />
+            </div>
+            <button
+              type="submit"
+              onClick={(e) => handleUpdate(e, 'submitted')}
+              className="bg-blue-700 text-white px-6 py-2 rounded hover:bg-blue-900 transition duration-200"
+              disabled={isLoading} // Disable the button while loading
+            >
+              {isLoading ? 'Submitting...' : 'Submit'}
+            </button>
+          </div>
           <button
             type="button"
             onClick={(e) => handleUpdate(e, 'draft')}

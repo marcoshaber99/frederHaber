@@ -8,6 +8,7 @@ import { translations, useLanguage } from '../contexts/LanguageContext';
 import { useRequest } from '../contexts/RequestContext';
 
 
+
 const CreateRequest = () => {
   const navigate = useNavigate();
   const { fetchLatestRequestStatus } = useRequest();
@@ -83,16 +84,39 @@ const CreateRequest = () => {
       errors.city = `${translations[language].city} ${translations[language].isRequired}`;
     }
 
+      //file upload
+      if (!file) {
+        errors.file = 'File is required';
+      }
+
     return errors;
 };
 
+
+
 const ToggleButton = ({ isToggled, onToggle }) => {
   return (
-    <div onClick={onToggle} className="cursor-pointer w-12 h-6 flex items-center bg-gray-300 rounded-full p-1 duration-300 ease-in-out">
-      <div className={`bg-white w-5 h-5 rounded-full shadow-md transform duration-300 ease-in-out ${isToggled ? 'translate-x-6' : ''}`}></div>
+    <div className="flex items-center space-x-2 cursor-pointer">
+      <span className="text-sm font-bold text-gray-700 align-middle">EN</span>
+      <div
+        onClick={onToggle}
+        className={`relative flex items-center w-16 h-8 rounded-full transition-all duration-300 ease-in-out ${isToggled ? 'bg-green-400' : 'bg-gray-300'}`}
+      >
+        <div
+          className={`absolute w-8 h-8 rounded-full bg-white shadow-md transition-all duration-300 ease-in-out transform scale-100 ${isToggled ? 'translate-x-8 scale-110' : 'translate-x-0 scale-100'}`}
+        />
+        <div
+          className={`absolute w-full h-full rounded-full transition-all duration-300 ease-in-out ${isToggled ? 'bg-green-300 opacity-50' : 'opacity-0'}`}
+        />
+      </div>
+      <span className="text-sm font-bold text-gray-700 align-middle">GR</span>
     </div>
   );
 };
+
+
+
+
 
 const handleToggle = () => {
   setIsToggled(!isToggled);
@@ -185,9 +209,11 @@ const handleFileChange = (e) => {
     
       <ToastContainer />
 
-      
-      <h2 className="text-2xl font-semibold mb-6">Create Scholarship Request</h2>
-      <ToggleButton isToggled={isToggled} onToggle={handleToggle} />
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-semibold">Create Scholarship Request</h2>
+        <ToggleButton isToggled={isToggled} onToggle={handleToggle} />
+      </div>
+
 
 
       <form className="space-y-4" onSubmit={handleSubmit}>
@@ -395,6 +421,9 @@ const handleFileChange = (e) => {
                   onChange={handleFileChange}
                 />
               </div>
+              {errors.file && (
+                <p className="text-red-500 text-sm">{errors.file}</p>
+              )}
               <div className="flex space-x-4">
                   <div className="relative flex items-center">
                     <div 

@@ -1,11 +1,11 @@
 import { css } from "@emotion/react";
 import axios from 'axios';
+import { format } from 'date-fns';
 import React, { useCallback, useEffect, useState } from 'react';
 import { FiDownload } from "react-icons/fi";
 import ClipLoader from "react-spinners/ClipLoader";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { format } from 'date-fns';
 
 const OpenRequests = () => {
   const [openRequests, setOpenRequests] = useState([]);
@@ -22,7 +22,7 @@ const OpenRequests = () => {
     setFetchingRequests(true);
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:5001/api/scholarship/get-open-requests', {  // Update this with correct URL
+      const response = await axios.get('http://localhost:5001/api/scholarship/get-open-requests', {  
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
@@ -127,7 +127,7 @@ const OpenRequests = () => {
             </div>
             {selectedRequest.admin_full_name && (
               <div className="mt-10 mb-10 bg-gray-100 p-4 rounded-lg">
-                <h3 className="font-semibold text-lg mb-2 text-blue-500">Admin's Review</h3>
+                <h3 className="font-semibold text-lg mb-2 text-blue-500">Your Review</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="bg-white p-4 rounded-lg shadow-md">
                     <p><strong>Admin Full Name:</strong> {selectedRequest.admin_full_name}</p>
@@ -152,6 +152,11 @@ const OpenRequests = () => {
                   <div className="bg-white p-4 rounded-lg shadow-md">
                     <p><strong>Date:</strong> {format(new Date(selectedRequest.created_at), 'MMMM dd, yyyy')}</p>
                   </div>
+
+                  <div className="bg-white p-4 rounded-lg shadow-md">
+                    <p><strong>Signature:</strong> {selectedRequest.signature}</p>
+                  </div>
+
                 </div>
               </div>
             )}

@@ -222,20 +222,6 @@ const AllRequests = ({role}) => {
   const columns = useMemo(() => {
     const baseColumns = [
       {
-        field: 'user_id',
-      headerName: 'Applicant',
-      flex: 1,
-      minWidth: 100,
-        resizable: true,
-        sortable: true,
-        hide: isSmallScreen,
-        renderCell: (params) => (
-          <Tooltip title={params.value.toString()}>
-            <span>{params.value}</span>
-          </Tooltip>
-        ),
-      },
-      {
         field: 'registration_number',
         headerName: 'Reg. Num.',
         flex: 1,

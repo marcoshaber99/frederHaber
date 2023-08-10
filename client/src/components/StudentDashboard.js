@@ -173,9 +173,6 @@ const StudentDashboard = ({ role }) => {
             <BiLogOut className="text-white mr-2" size={20}/>
             <span>Logout</span>
           </button>
-
-          {/* <button onClick={toggleLanguage}>Switch Language</button> */}
-
         </div>
       </div>
       <div className={clsx("flex-1 p-4 md:p-8 overflow-y-auto", {

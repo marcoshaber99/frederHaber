@@ -21,12 +21,13 @@ const AdminReviewForm = (props) => {
 
 
   const handleAdminChange = (e) => {
+    const { name, value } = e.target;
     setFormValues({
       ...formValues,
-      [e.target.name]: e.target.value,
+      [name]: value,
+      signature: name === 'adminFullName' ? value : formValues.signature,
     });
   };
-  
 
   const validateForm = () => {
     const errors = {};
@@ -92,7 +93,7 @@ const AdminReviewForm = (props) => {
         console.log(error.response.data);
         console.log(error.response.status);
         console.log(error.response.headers);
-        // You can add a custom message for this error or use the one from server
+
         toast.error(`Error: ${error.response.data.message}`);
       } else if (error.request) {
         console.log(error.request);
@@ -118,6 +119,7 @@ const AdminReviewForm = (props) => {
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
             id="percentage" 
             type="number" 
+            step="any" // Allow floating-point values
             name="percentage"
             value={formValues.percentage} 
             onChange={handleAdminChange}
@@ -232,6 +234,20 @@ const AdminReviewForm = (props) => {
           {errors.date && (
             <p className="text-red-500 text-xs italic">{errors.date}</p>
           )}
+        </div>
+
+        {/* Signature Input */}
+        <div className="mb-4">
+          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="signature">
+            Signature
+          </label>
+          <input 
+            readOnly // Make this input read-only
+            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+            id="signature" 
+            type="text" 
+            value={formValues.signature || ''} // Display the signature field
+          />
         </div>
   
         {/* Comments Textarea */}

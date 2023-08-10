@@ -55,10 +55,18 @@ const PendingApproval = (props) => {
   };
   
   const updateField = (field, value) => {
-    setEditedRequest(prevState => ({
-      ...prevState,
-      [field]: value,
-    }));
+    if (field === 'other_scholarship' && value === 'no') {
+      setEditedRequest(prevState => ({
+        ...prevState,
+        [field]: value,
+        other_scholarship_percentage: '', // Remove the percentage if "no" is selected
+      }));
+    } else {
+      setEditedRequest(prevState => ({
+        ...prevState,
+        [field]: value,
+      }));
+    }
   };
 
   const handleDenyConfirmation = () => {
@@ -218,7 +226,7 @@ const PendingApproval = (props) => {
 
                 {selectedRequest.admin_full_name && (
                   <div>
-                  <h3 className=" mt-10 font-bold text-xl mb-2 text-red-600">Admin's Review</h3>
+                  <h3 className=" mt-10 font-bold text-xl mb-2 text-blue-600">Admin's Review</h3>
 
                  <div className="mt-3 mb-10 bg-gray-100 p-4 rounded-lg">
                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -254,25 +262,27 @@ const PendingApproval = (props) => {
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-medium mb-1">Other Scholarship:</label>
-                        <input 
-                          type="text"
+                        <select
                           value={editedRequest.other_scholarship || ''}
                           onChange={e => updateField('other_scholarship', e.target.value)}
                           className="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-indigo-500"
-                        />
-                      </div>
-                      <div className="flex flex-col">
-                        <label className="text-sm font-medium mb-1">Other Scholarship Percentage:</label>
-                        <select 
-                          value={editedRequest.other_scholarship_percentage || ''}
-                          onChange={e => updateField('other_scholarship_percentage', e.target.value)}
-                          className="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-indigo-500"
                         >
-                          <option value="">Select</option>
                           <option value="YES">Yes</option>
                           <option value="NO">No</option>
                         </select>
                       </div>
+                      {editedRequest.other_scholarship === 'YES' && (
+                          <div className="flex flex-col">
+                            <label className="text-sm font-medium mb-1">Other Scholarship Percentage:</label>
+                            <input 
+                              type="number"
+                              step="0.1" // Allow floating-point numbers
+                              value={editedRequest.other_scholarship_percentage || ''}
+                              onChange={e => updateField('other_scholarship_percentage', parseFloat(e.target.value))}
+                              className="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-indigo-500"
+                            />
+                          </div>
+                        )}
                       <div className="flex flex-col">
                         <label className="text-sm font-medium mb-1">Admin's Comments:</label>
                         <p className="border border-gray-300 px-3 py-2 rounded">{selectedRequest.comments}</p>
@@ -288,7 +298,7 @@ const PendingApproval = (props) => {
                   </div>
                 )}
                 <div>
-                  <h3 className="font-bold text-xl mb-2 text-red-600">Manager's Review</h3>
+                  <h3 className="font-bold text-xl mb-2 text-blue-600">Your Review</h3>
                   <textarea
                     value={managerComment}
                     onChange={e => setManagerComment(e.target.value)}

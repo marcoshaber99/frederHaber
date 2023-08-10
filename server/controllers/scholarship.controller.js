@@ -221,7 +221,7 @@ exports.updateRequest = async (req, res) => {
       file_key = Key; // Save the key for database storage
     }
 
-    const status = 'submitted';
+    const status = req.body.status;
 
 
     if ((existingRequests[0].status === 'draft' || existingRequests[0].status === 'requires_more_info') && status === 'submitted') {
@@ -252,6 +252,9 @@ exports.updateRequest = async (req, res) => {
         return res.status(500).json({ message: 'Server error while sending notification emails' });
       }
     }
+
+    console.log("Status:", status);
+
 
     await db.query('UPDATE scholarship_requests SET first_name = ?, last_name = ?, sport = ?, description = ?, government_id = ?, registration_number = ?, phone_number = ?, course_title = ?, academic_year = ?, education_level = ?, city = ?, status = ?, file_url = ?, file_key = ? WHERE id = ? AND user_id = ?', [first_name, last_name, sport, description, government_id, registration_number, phone_number, course_title, academic_year, education_level, city, status, file_url, file_key, requestId, user_id]);
 
@@ -409,6 +412,9 @@ exports.adminReview = async (req, res) => {
   percentage = percentage !== '' ? percentage : null;
   otherScholarshipPercentage = otherScholarshipPercentage !== '' ? otherScholarshipPercentage : null;
 
+  // Signature is the same as admin full name
+  const signature = adminFullName;
+
   // Validate admin request
   const errors = validateAdminRequest(req.body);
   if (Object.keys(errors).length > 0) {
@@ -424,15 +430,15 @@ exports.adminReview = async (req, res) => {
       // Update existing review
       await db.query(`
         UPDATE reviews 
-        SET percentage = ?, scholarship_category = ?, other_scholarship = ?, other_scholarship_percentage = ?, admin_full_name = ?, date = ?, comments = ?
+        SET percentage = ?, scholarship_category = ?, other_scholarship = ?, other_scholarship_percentage = ?, admin_full_name = ?, signature = ?, date = ?, comments = ?
         WHERE request_id = ?
-      `, [percentage, scholarshipCategory, otherScholarship, otherScholarshipPercentage, adminFullName, date, comments, requestId]);
+      `, [percentage, scholarshipCategory, otherScholarship, otherScholarshipPercentage, adminFullName, signature, date, comments, requestId]);
     } else {
       // Insert new review
       await db.query(`
-        INSERT INTO reviews (request_id, percentage, scholarship_category, other_scholarship, other_scholarship_percentage, admin_full_name, date, comments)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-      `, [requestId, percentage, scholarshipCategory, otherScholarship, otherScholarshipPercentage, adminFullName, date, comments]);
+        INSERT INTO reviews (request_id, percentage, scholarship_category, other_scholarship, other_scholarship_percentage, admin_full_name, signature, date, comments)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `, [requestId, percentage, scholarshipCategory, otherScholarship, otherScholarshipPercentage, adminFullName, signature, date, comments]);
     }
 
     await db.query(`
@@ -463,7 +469,7 @@ exports.getOpenRequestsCount = async (req, res) => {
 exports.getOpenRequests = async (req, res) => {
   try {
     const [requests] = await db.query(`
-      SELECT sr.*, r.percentage, r.scholarship_category, r.other_scholarship, r.other_scholarship_percentage, r.admin_full_name, r.date, r.comments
+      SELECT sr.*, r.percentage, r.scholarship_category, r.other_scholarship, r.other_scholarship_percentage, r.admin_full_name, r.date, r.comments, r.signature
       FROM scholarship_requests sr
       LEFT JOIN reviews r ON sr.id = r.request_id
       WHERE sr.status IN ("open", "admin_reviewed")
