@@ -4,15 +4,17 @@ import { Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, Di
 import MuiAlert from '@mui/material/Alert';
 import Snackbar from '@mui/material/Snackbar';
 import { styled } from '@mui/system';
-
 import { DataGrid, GridOverlay, GridToolbar } from '@mui/x-data-grid';
 import axios from 'axios';
 import { debounce } from 'lodash';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
+
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
 }
+
+
 function CustomLoadingOverlay() {
   return (
     <GridOverlay>
@@ -75,94 +77,9 @@ const useFetchData = (url, token) => {
 
   return { data, loading, error, fetchData };
 };
-const SmallScreenView = ({ data, openDeleteDialog }) => {
-  const [searchText, setSearchText] = useState("");
-  const [filteredData, setFilteredData] = useState(data);
-
-  const handleClearSearch = () => {
-    setSearchText('');
-    setFilteredData(data);
-  };
-
-  useEffect(() => {
-    if (!searchText) {
-      setFilteredData(data);
-      return;
-    }
-
-    const lowercasedFilter = searchText.toLowerCase();
-    const filtered = data.filter(item => {
-      return Object.keys(item).some(key =>
-        item[key] && item[key].toString().toLowerCase().includes(lowercasedFilter)
-      );
-    });
-
-    setFilteredData(filtered);
-  }, [searchText, data]);
-
-  return (
-    <div className="flex flex-col">
-      <div className="flex items-center mt-4">
-        <TextField
-          id="search-bar"
-          label="Search by any field..."
-          variant="outlined"
-          value={searchText}
-          onChange={(event) => setSearchText(event.target.value)}
-          className="rounded-lg shadow-md w-full"
-          InputProps={{
-            endAdornment: searchText && (
-              <InputAdornment position="end">
-                <IconButton onClick={handleClearSearch}>
-                  <ClearIcon />
-                </IconButton>
-              </InputAdornment>
-            ),
-          }}
-        />
-      </div>
-      <div className="overflow-y-scroll h-60 mt-2 w-full pr-2"> {/* Scrollable content with Tailwind classes */}
-        {filteredData.length > 0 ? (
-          <List>
-            {filteredData.map((item, index) => (
-              <ListItem key={index} sx={{ padding: 2 }}>
-                <ListItemText
-                  primary={
-                    <>
-                      <Typography variant="h6">{`${item.first_name} ${item.last_name}`}</Typography>
-                      <Typography variant="body2">{`Registration Num.: ${item.registration_number}`}</Typography>
-                      <Typography variant="body2">{`Gov. ID: ${item.government_id}`}</Typography>
-                      <Typography variant="body2">{`Sport: ${item.sport}`}</Typography>
-                      <Typography variant="body2">{`Campus: ${item.city}`}</Typography>
-                      <Typography variant="body2">{`Educational Level: ${item.education_level}`}</Typography>
-                      <Typography variant="body2">{`Percentage: ${item.percentage}`}</Typography>
-                      <Typography variant="body2">{`Category: ${item.scholarship_category}`}</Typography>
-                      <Typography variant="body2">{`Other Scholarship: ${item.other_scholarship}`}</Typography>
-                      <Typography variant="body2">{`Other Scholarship %: ${item.other_scholarship_percentage}`}</Typography>
-                      <Typography variant="body2">{`Manager's Comments: ${item.manager_comment}`}</Typography>
-                    </>
-                  }
-                />
-                <IconButton color="error" onClick={() => openDeleteDialog(item.id)}>
-                  <DeleteIcon />
-                </IconButton>
-              </ListItem>
-            ))}
-          </List>
-        ) : (
-          <Typography variant="h6" align="center" color="textSecondary">
-            No records found..
-          </Typography>
-        )}
-      </div>
-    </div>
-  );
-};
 
 
 const AllRequests = ({role}) => {
-  console.log('Role in AllRequests:', role); // Debug role value
-
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
 
@@ -177,7 +94,68 @@ const AllRequests = ({role}) => {
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
   const [isSearchTriggered, setIsSearchTriggered] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
 
+  const renderList = () => (
+    <List>
+      {(isSearchTriggered ? filteredData : data).map((item) => (
+        <ListItem
+          key={item.id}
+          button
+          onClick={() => setSelectedItem(item)}
+          className="hover:bg-gray-100 transition duration-150 ease-in-out"
+        >
+          <ListItemText
+            primary={`${item.first_name} ${item.last_name}`}
+            secondary={`Reg. Num: ${item.registration_number}`}
+            className="border-b border-gray-400 pb-2"
+          />
+          {role !== 'admin' && (
+            <IconButton
+              color="error"
+              onClick={(event) => {
+                event.stopPropagation();
+                openDeleteDialog(item.id);
+              }}
+            >
+              <DeleteIcon />
+            </IconButton>
+          )}
+        </ListItem>
+      ))}
+    </List>
+  );
+  
+  
+
+  const renderDetailsModal = () => (
+    <Dialog open={!!selectedItem} onClose={() => setSelectedItem(null)} fullWidth>
+      <DialogTitle>{`${selectedItem?.first_name} ${selectedItem?.last_name}`}</DialogTitle>
+      <DialogContent>
+        <Typography variant="body1"><strong>Reg. Num:</strong> {selectedItem?.registration_number}</Typography>
+        <Typography variant="body1"><strong>Gov. ID:</strong> {selectedItem?.government_id}</Typography>
+        <Typography variant="body1"><strong>Sport:</strong> {selectedItem?.sport}</Typography>
+        <Typography variant="body1"><strong>Campus:</strong> {selectedItem?.city}</Typography>
+        <Typography variant="body1"><strong>Ed. Level:</strong> {selectedItem?.education_level}</Typography>
+        <Typography variant="body1"><strong>Percentage:</strong> {selectedItem?.percentage}</Typography>
+        <Typography variant="body1"><strong>Category:</strong> {selectedItem?.scholarship_category}</Typography>
+        {selectedItem?.other_scholarship === 'YES' && (
+          <>
+            <Typography variant="body1"><strong>Other Scholarship:</strong> {selectedItem?.other_scholarship}</Typography>
+            <Typography variant="body1"><strong>Other Scholarship %:</strong> {selectedItem?.other_scholarship_percentage || '-'}</Typography>
+          </>
+        )}
+        <Typography variant="body1"><strong>Manager's Comments:</strong> {selectedItem?.manager_comment || '-'}</Typography>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={() => setSelectedItem(null)} color="primary">
+          Close
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+  
+  
 
   const openDeleteDialog = (id) => {
     setSelectedRow(id);
@@ -400,7 +378,8 @@ const AllRequests = ({role}) => {
     
 
     return role === 'admin' ? baseColumns : [...baseColumns, actionColumn];
-  }, [role, isSmallScreen]);
+  }, [role]);
+
 
   return (
     <Box sx={{ height: 500, width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }} className="p-6 bg-gray-100">
@@ -413,12 +392,10 @@ const AllRequests = ({role}) => {
           </Snackbar>
           <Button variant="contained" color="primary" onClick={fetchData}>Retry</Button>
         </>
-      ) : isSmallScreen ? (
-        <SmallScreenView data={isSearchTriggered ? filteredData : data} openDeleteDialog={openDeleteDialog} />
-        ) : (
-        <Box sx={{ height: 400, width: '100%' }}>
+      ) : (
+        <div className="h-[400px] w-full">
 
-        <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: 2, maxWidth: '80%'}}> 
+      <div className="flex items-center mb-2 ml-2 max-w-[95%]">
         <TextField
           id="search-bar"
           label="Search by any field..."
@@ -426,7 +403,7 @@ const AllRequests = ({role}) => {
           value={searchText}
           onChange={(event) => setSearchText(event.target.value)}
           className="rounded-lg shadow-md"
-          sx={{ flex: 1, maxWidth: '70%' }}
+          sx={{ flex: 1, maxWidth: '100%' }} // Updated maxWidth to 100%
           InputProps={{
             endAdornment: searchText && (
               <InputAdornment position="end">
@@ -437,24 +414,37 @@ const AllRequests = ({role}) => {
             ),
           }}
         />
-        </Box>
+        </div>
 
-        <StyledDataGrid
-      className="bg-white rounded-lg"
-      rows={isSearchTriggered ? filteredData : data}
-      columns={columns}
-      pageSize={pageSize}
-      page={page}
-      onPageChange={(newPage) => setPage(newPage)}
-      rowsPerPageOptions={[5, 10, 20]}
-      checkboxSelection
-      disableSelectionOnClick
-      pagination
-      loading={loading}
-      slots={{
-        NoRowsOverlay: CustomNoRowsOverlay,
-        LoadingOverlay: CustomLoadingOverlay,
-      }}
+        {isSmallScreen ? (
+          <>
+          {renderList()}
+          {renderDetailsModal()}
+          <Pagination
+            count={Math.ceil(filteredData.length / pageSize)}
+            page={page + 1}
+            onChange={(_, newPage) => setPage(newPage - 1)}
+            onChangeRowsPerPage={handlePageSizeChange}
+            // ...
+          />
+        </>          
+        ) : (
+            <StyledDataGrid
+              className="bg-white rounded-lg"
+              rows={isSearchTriggered ? filteredData : data}
+              columns={columns}
+              pageSize={pageSize}
+              page={page}
+              onPageChange={(newPage) => setPage(newPage)}
+              rowsPerPageOptions={[5, 10, 20]}
+              checkboxSelection
+              disableSelectionOnClick
+              pagination
+              loading={loading}
+              slots={{
+                NoRowsOverlay: CustomNoRowsOverlay,
+                LoadingOverlay: CustomLoadingOverlay,
+              }}
             slotProps={{
               toolbar: GridToolbar,
               pagination: () => (
@@ -468,32 +458,34 @@ const AllRequests = ({role}) => {
               ),
             }}
           />
-  
-        </Box>
+          )}
+
+        </div>
       )}
   
   <Dialog
-        open={openDialog}
-        onClose={closeDeleteDialog}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
-        <DialogTitle id="alert-dialog-title">{"Delete Confirmation"}</DialogTitle>
-        <DialogContent>
-          <DialogContentText id="alert-dialog-description">
-            Are you sure you want to delete this record? Please note that this action is irreversible and will permanently remove the data.
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={closeDeleteDialog}>Cancel</Button>
-          <Button onClick={() => handleDelete(selectedRow)} color="error">Delete</Button>
-        </DialogActions>
-      </Dialog>
-  
-    </Box>
+    open={openDialog}
+    onClose={closeDeleteDialog}
+    aria-labelledby="alert-dialog-title"
+    aria-describedby="alert-dialog-description"
+  >
+    <DialogTitle id="alert-dialog-title">{'Delete Request?'}</DialogTitle>
+    <DialogContent>
+      <DialogContentText id="alert-dialog-description">
+        Are you sure you want to delete this request? This action cannot be undone.
+      </DialogContentText>
+    </DialogContent>
+    <DialogActions>
+      <Button onClick={closeDeleteDialog} color="primary">
+        Cancel
+      </Button>
+      <Button onClick={handleDelete} color="primary" autoFocus>
+        Delete
+      </Button>
+    </DialogActions>
+  </Dialog>
+</Box>
   );
-  
-  
 };
 
 export default AllRequests;

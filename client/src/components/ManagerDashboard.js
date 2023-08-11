@@ -123,10 +123,15 @@ const ManagerDashboard = ({ role }) => {
           </button>
         </div>
       </div>
-      <div className={clsx("flex-1 p-4 md:p-8 overflow-y-auto", {
-              "md:ml-8": !isMenuOpen,
-              "md:ml-16": isMenuOpen 
-            })}> 
+      <div className={clsx(
+  "flex-1 p-4 md:p-8 overflow-y-auto h-full min-h-screen",
+  {
+    "md:ml-8": !isMenuOpen,
+    "md:ml-16": isMenuOpen,
+  }
+)}
+>
+
         <div className="md:hidden mb-4">
           <button onClick={toggleMenu} className="text-blue-800">
             <FontAwesomeIcon

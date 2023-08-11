@@ -62,21 +62,21 @@ const AdminDashboard = ({ role }) => {
           isMenuOpen ? 'translate-x-0' : '-translate-x-full'
         } md:relative md:translate-x-0`}
       >
-        <div className="flex items-center mb-8 mt-8 ml-4">
-        <Link to="#">
-          <img
-              src={frederickLogo}
-              alt="Logo of Frederick University"
-              className="w-60 h-8 object-cover md:mt-6 ml-2"
-            />
-
-          </Link>
-          <div className="md:hidden">
-            <button onClick={toggleMenu} className="text-white">
-              <FontAwesomeIcon icon={faTimes} className="text-2xl" />
-            </button>
+          <div className="flex items-center mb-8 mt-8 ml-2">
+            <Link to="#">
+              <img
+                  src={frederickLogo}
+                  alt="Logo of Frederick University"
+                  className={`${isMenuOpen ? "w-50" : "w-60"} h-8 object-cover md:mt-6 ml-2`}
+                />
+            </Link>
+            <div className="md:hidden">
+              <button onClick={toggleMenu} className="text-white">
+                <FontAwesomeIcon icon={faTimes} className="text-2xl mr-3 mt-1" />
+              </button>
+            </div>
           </div>
-        </div>
+
         <div className="md:text-left px-8">
           <div className="relative inline-flex items-center">
               <BsFillPersonFill className="text-white text-2xl mr-2" size={17}/>
