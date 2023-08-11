@@ -412,6 +412,10 @@ exports.adminReview = async (req, res) => {
   percentage = percentage !== '' ? percentage : null;
   otherScholarshipPercentage = otherScholarshipPercentage !== '' ? otherScholarshipPercentage : null;
 
+
+  comments = comments !== '' ? comments : null;
+
+
   // Signature is the same as admin full name
   const signature = adminFullName;
 
@@ -632,13 +636,20 @@ exports.deny = async (req, res) => {
 
 exports.getApprovedRequests = async (req, res) => {
   try {
-    const [requests] = await db.query('SELECT * FROM scholarship_requests WHERE status = ?', ['approved']);
+    const query = `
+      SELECT scholarship_requests.*, reviews.percentage, reviews.scholarship_category, reviews.other_scholarship, reviews.manager_comment, reviews.other_scholarship_percentage
+      FROM scholarship_requests
+      LEFT JOIN reviews ON scholarship_requests.id = reviews.request_id
+      WHERE status = 'approved';
+    `;
+    const [requests] = await db.query(query);
     res.status(200).json({ requests });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Server error' });
   }
 };
+
 
 exports.duplicateRequest = async (req, res) => {
   try {

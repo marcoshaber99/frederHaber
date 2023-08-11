@@ -50,9 +50,10 @@ const AdminReviewForm = (props) => {
     if (!formValues.date || isNaN(Date.parse(formValues.date))) {
       errors.date = 'Date is required and should be a valid date';
     }
-    if (!formValues.comments || formValues.comments.length > 500) {
-      errors.comments = 'Comments are required and should not be more than 500 characters';
+    if (formValues.comments && formValues.comments.length > 500) {
+      errors.comments = 'Comments should not be more than 500 characters';
     }
+    
 
     return errors;
   };

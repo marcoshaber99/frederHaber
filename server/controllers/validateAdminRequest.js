@@ -19,8 +19,8 @@ exports.validateAdminRequest = (requestBody) => {
   if (!requestBody.date || isNaN(Date.parse(requestBody.date))) {
     errors.date = 'Date is required and should be a valid date';
   }
-  if (!requestBody.comments || requestBody.comments.length > 500) {
-    errors.comments = 'Comments are required and should not be more than 500 characters';
+  if (requestBody.comments && requestBody.comments.length > 500) {
+    errors.comments = 'Comments should not be more than 500 characters';
   }
   
   return errors;
