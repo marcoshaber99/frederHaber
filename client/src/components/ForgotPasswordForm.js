@@ -1,5 +1,6 @@
 import axios from 'axios';
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import frederickLogo from '../images/frederick-university-logo.png';
 
 const ForgotPasswordForm = () => {
@@ -24,11 +25,15 @@ const ForgotPasswordForm = () => {
 
   return (
     <div className="flex flex-col min-h-screen">
-     <img
-      src={frederickLogo}
-      alt="Frederick University Logo"
-      className="w-48 mt-6 ml-6" 
-    />
+      {/* direct user to login form when clicking the logo */}
+        <Link to="/">
+                  <img
+          src={frederickLogo}
+          alt="Logo of Frederick University"
+          className=" object-cover md:mt-6 ml-8"
+        />
+
+          </Link>
       <div className="bg-white h-2/3 w-full">
         <div className="flex justify-center">
           <div className="bg-white py-12 px-16 rounded-lg shadow-xl mt-12 w-96">

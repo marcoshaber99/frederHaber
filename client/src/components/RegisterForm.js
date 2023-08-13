@@ -2,6 +2,7 @@ import axios from 'axios';
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import frederickLogo from '../images/frederick-university-logo.png';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
 const RegisterForm = () => {
   const [email, setEmail] = useState('');
@@ -10,6 +11,8 @@ const RegisterForm = () => {
   const [message, setMessage] = useState('');
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
 
   const validateInput = () => {
     let valid = true;
@@ -42,11 +45,17 @@ const RegisterForm = () => {
       return;
     }
 
-    try {
+    setIsLoading(true);
+
+
+    try 
+    {
       const response = await axios.post('http://localhost:5001/api/auth/register', { email, password });
       setMessage(response.data.message);
-    } catch (error) {
-      if (error.response) {
+    } catch (error)
+    {
+      if (error.response)
+      {
         // Check if the error response is an array
         if (Array.isArray(error.response.data.errors)) {
           // Join all the error messages into a single string
@@ -58,6 +67,8 @@ const RegisterForm = () => {
       } else {
         setMessage('Error registering user');
       }
+    }finally {
+      setIsLoading(false);
     }
   };
 
@@ -98,38 +109,39 @@ const RegisterForm = () => {
                 {emailError && <div className="text-red-500">{emailError}</div>}
               </div>
               <div>
-      <label htmlFor="password" className="block text-gray-700 font-semibold py-2">
-        Password
-      </label>
-      <div className="relative">
-        <input
-          type={showPassword ? 'text' : 'password'}
-          placeholder="Enter password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          className="w-full px-3 py-2 mb-4 placeholder-gray-500 border border-gray-300 rounded-md focus:outline-none focus:border-blue-400"
-        />
-        <button
-          type="button"
-          onClick={() => setShowPassword(!showPassword)}
-          className="absolute right-3 top-3 text-gray-500"
-        >
-          {showPassword ? (
-            <i className="fas fa-eye-slash"></i>
-          ) : (
-            <i className="fas fa-eye"></i>
-          )}
-        </button>
+              <label htmlFor="password" className="block text-gray-700 font-semibold py-2">
+          Password
+        </label>
+        <div className="relative">
+          <input
+            type={showPassword ? 'text' : 'password'}
+            placeholder="Enter password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            className="w-full px-3 py-2 mb-4 placeholder-gray-500 border border-gray-300 rounded-md focus:outline-none focus:border-blue-400"
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-3 top-3 text-gray-500"
+          >
+            {showPassword ? (
+              <FaEyeSlash /> 
+            ) : (
+              <FaEye /> 
+            )}
+          </button>
+        </div>
+        {passwordError && <div className="text-red-500">{passwordError}</div>}
       </div>
-      {passwordError && <div className="text-red-500">{passwordError}</div>}
-    </div>
-                <button
-                  type="submit"
-                  className="w-full py-2 bg-blue-700 text-white font-semibold rounded-md hover:bg-blue-800 transition duration-200"
-                >
-                  Register
-                </button>
+      <button
+            type="submit"
+            className="w-full py-2 bg-blue-700 text-white font-semibold rounded-md hover:bg-blue-800 transition duration-200"
+            disabled={isLoading}
+          >
+            {isLoading ? 'Loading...' : 'Register'}
+          </button>
               </form>
               {message && (
             <div className="mt-4 text-center">
