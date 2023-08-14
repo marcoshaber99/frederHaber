@@ -135,6 +135,8 @@ const AllRequests = ({role}) => {
         <Typography variant="body1"><strong>Reg. Num:</strong> {selectedItem?.registration_number}</Typography>
         <Typography variant="body1"><strong>Gov. ID:</strong> {selectedItem?.government_id}</Typography>
         <Typography variant="body1"><strong>Sport:</strong> {selectedItem?.sport}</Typography>
+        <Typography variant="body1"><strong>Year Of Admission:</strong> {selectedItem?.year_of_admission}</Typography>
+
         <Typography variant="body1"><strong>Campus:</strong> {selectedItem?.city}</Typography>
         <Typography variant="body1"><strong>Ed. Level:</strong> {selectedItem?.education_level}</Typography>
         <Typography variant="body1"><strong>Percentage:</strong> {selectedItem?.percentage}</Typography>
@@ -271,7 +273,7 @@ const AllRequests = ({role}) => {
       },
       {
         field: 'government_id',
-        headerName: 'Gov. ID',
+        headerName: 'ID',
         flex: 1,
         minWidth: 100,
         resizable: true,
@@ -311,6 +313,23 @@ const AllRequests = ({role}) => {
             <span>{params.value}</span>
           </Tooltip>
         ),
+      },
+
+      //add new field for year_of_admission
+        
+      {
+        field: "year_of_admission",
+        headerName: "Year of Admission",
+        flex: 1,
+        minWidth: 100,
+        resizable: true,
+        sortable: true,
+        renderCell: (params) => (
+          <Tooltip title={params.value.toString()}>
+            <span>{params.value}</span>
+          </Tooltip>
+        ),
+  
       },
       {
         field: 'percentage',

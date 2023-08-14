@@ -7,6 +7,8 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useRequest } from '../contexts/RequestContext';
 
+
+
 const UpdateRequest = () => {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -19,7 +21,7 @@ const UpdateRequest = () => {
     registration_number: '',
     phone_number: '',
     course_title: '',
-    academic_year: '',
+    year_of_admission: '',
     education_level: '',
     city: '',
     status: '',
@@ -67,8 +69,9 @@ const UpdateRequest = () => {
     if (!formValues.course_title || formValues.course_title.length > 55) {
       errors.course_title = 'Course title is required and should not be more than 55 characters';
     }
-    if (!formValues.academic_year || isNaN(formValues.academic_year) || formValues.academic_year < 1 || formValues.academic_year > 4) {
-      errors.academic_year = 'Academic year is required and should be a numeric value between 1 and 4';
+    // Year of admission is required and should be a number between 1950 and the current year
+    if (!formValues.year_of_admission || isNaN(formValues.year_of_admission) || formValues.year_of_admission < 1950 || formValues.year_of_admission > new Date().getFullYear()) {
+      errors.year_of_admission = 'Year of admission is required and should be a number between 1950 and the current year';
     }
     if (!formValues.education_level || formValues.education_level === 'Select education level') {
       errors.education_level = 'Education level is required';
@@ -163,7 +166,7 @@ const fetchRequest = useCallback(async () => {
       registration_number,
       phone_number,
       course_title,
-      academic_year,
+      year_of_admission,
       education_level,
       city,
       status,
@@ -181,7 +184,7 @@ const fetchRequest = useCallback(async () => {
       registration_number,
       phone_number,
       course_title,
-      academic_year,
+      year_of_admission,
       education_level,
       city,
       status,
@@ -320,22 +323,23 @@ if (fetchError) {
           <p className="text-red-500 text-sm">{errors.course_title}</p>
         )}
 
-        <div className="flex flex-col">
-          <label htmlFor="academic_year" className="text-sm font-medium mb-1">
-            Academic Year:
-          </label>
-          <input
-            type="number"
-            id="academic_year"
-            name="academic_year"
-            value={formValues.academic_year}
-            onChange={handleChange}
-            className="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-indigo-500"
-          />
-        </div>
-        {errors.academic_year && (
-          <p className="text-red-500 text-sm">{errors.academic_year}</p>
-        )}
+      <div className="flex flex-col">
+        <label htmlFor="year_of_admission" className="text-sm font-medium mb-1">
+          Year of Admission:
+        </label>
+        <input
+          type="text"
+          id="year_of_admission"
+          name="year_of_admission"
+          value={formValues.year_of_admission}
+          onChange={handleChange}
+          className="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-indigo-500"
+        />
+        
+      </div>
+      {errors.year_of_admission && (
+        <p className="text-red-500 text-sm">{errors.year_of_admission}</p>
+      )}
 
         <div className="flex flex-col">
           <label htmlFor="education_level" className="text-sm font-medium mb-1">

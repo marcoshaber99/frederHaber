@@ -33,10 +33,10 @@ exports.createRequest = async (req, res) => {
       registration_number, 
       phone_number, 
       course_title, 
-      academic_year, 
+      year_of_admission, 
       education_level, 
       city, 
-      status // Get the status from the client-side
+      status 
     } = req.body;
 
     const user_id = req.user.id;
@@ -70,8 +70,8 @@ exports.createRequest = async (req, res) => {
     }
 
     await db.query(
-      'INSERT INTO scholarship_requests (user_id, first_name, last_name, sport, description, government_id, registration_number, phone_number, course_title, academic_year, education_level, city, status, file_url, file_key) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', 
-      [user_id, first_name, last_name, sport, description, government_id, registration_number, phone_number, course_title, academic_year, education_level, city, status, file_url, file_key]
+      'INSERT INTO scholarship_requests (user_id, first_name, last_name, sport, description, government_id, registration_number, phone_number, course_title, year_of_admission, education_level, city, status, file_url, file_key) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', 
+      [user_id, first_name, last_name, sport, description, government_id, registration_number, phone_number, course_title, year_of_admission, education_level, city, status, file_url, file_key]
     );
 
     // Only send the email if the status is 'submitted'
@@ -175,7 +175,7 @@ exports.updateRequest = async (req, res) => {
       registration_number, 
       phone_number, 
       course_title, 
-      academic_year, 
+      year_of_admission,
       education_level, 
       city
     } = req.body;
@@ -256,7 +256,7 @@ exports.updateRequest = async (req, res) => {
     console.log("Status:", status);
 
 
-    await db.query('UPDATE scholarship_requests SET first_name = ?, last_name = ?, sport = ?, description = ?, government_id = ?, registration_number = ?, phone_number = ?, course_title = ?, academic_year = ?, education_level = ?, city = ?, status = ?, file_url = ?, file_key = ? WHERE id = ? AND user_id = ?', [first_name, last_name, sport, description, government_id, registration_number, phone_number, course_title, academic_year, education_level, city, status, file_url, file_key, requestId, user_id]);
+    await db.query('UPDATE scholarship_requests SET first_name = ?, last_name = ?, sport = ?, description = ?, government_id = ?, registration_number = ?, phone_number = ?, course_title = ?, year_of_admission = ?, education_level = ?, city = ?, status = ?, file_url = ?, file_key = ? WHERE id = ? AND user_id = ?', [first_name, last_name, sport, description, government_id, registration_number, phone_number, course_title, year_of_admission, education_level, city, status, file_url, file_key, requestId, user_id]); 
 
 
     res.status(200).json({ message: 'Scholarship request updated successfully' });

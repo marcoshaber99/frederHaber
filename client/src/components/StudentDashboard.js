@@ -18,8 +18,6 @@ import CreateRequest from './CreateRequest';
 import UpdateRequest from './UpdateRequest';
 import ViewRequests from './ViewRequests';
 
-import { useLanguage } from '../contexts/LanguageContext';
-
 
 const override = css`
   display: inline-block;
@@ -37,7 +35,6 @@ const StudentDashboard = ({ role }) => {
   const [showCreateRequest, setShowCreateRequest] = useState(true);
 
   const { latestRequestStatus, fetchLatestRequestStatus } = useRequest();
-  const { toggleLanguage } = useLanguage();
 
 
 

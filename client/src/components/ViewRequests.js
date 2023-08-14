@@ -452,17 +452,18 @@ const ViewRequests = () => {
     <div className="bg-white rounded-lg p-8 shadow-md">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
         <div className="bg-white p-4 rounded-lg shadow-md space-y-4">
-          <p className="text-lg mb-1"><strong>First Name:</strong> {selectedRequestDetails.first_name}</p>
-          <p className="text-lg mb-1"><strong>Last Name:</strong> {selectedRequestDetails.last_name}</p>
-          <p className="text-lg mb-1"><strong>Government ID:</strong> {selectedRequestDetails.government_id}</p>
-          <p className="text-lg mb-1"><strong>Registration Number:</strong> {selectedRequestDetails.registration_number}</p>
+          <p className="text-lg mb-1"><strong>Name:</strong> {selectedRequestDetails.first_name} {selectedRequestDetails.last_name}</p>
+          <p className="text-lg mb-1"><strong>ID Number:</strong> {selectedRequestDetails.government_id}</p>
+          <p className="text-lg mb-1"><strong>Reg. Number:</strong> {selectedRequestDetails.registration_number}</p>
+          <p className="text-lg mb-1"><strong>Phone Number:</strong> {selectedRequestDetails.phone_number}</p>
+          <p className="text-lg mb-1"><strong>Year Of Admission:</strong> {selectedRequestDetails.year_of_admission}</p>
         </div>
         <div className="bg-white p-4 rounded-lg shadow-md space-y-4">
-          <p className="text-lg mb-1"><strong>Phone Number:</strong> {selectedRequestDetails.phone_number}</p>
+
           <p className="text-lg mb-1"><strong>Course Title:</strong> {selectedRequestDetails.course_title}</p>
           <p className="text-lg mb-1"><strong>Sport:</strong> {selectedRequestDetails.sport}</p>
-          <p className="text-lg mb-1"><strong>Description:</strong> {selectedRequestDetails.description}</p>
           <p className="text-lg mb-1"><strong>Date:</strong> {format(new Date(selectedRequestDetails.created_at), 'MMMM dd, yyyy')}</p>
+          <p className="text-lg mb-1"><strong>Description:</strong> {selectedRequestDetails.description}</p>
         </div>
       </div>
       <div className="flex flex-col mt-4 ml-4 space-y-2">

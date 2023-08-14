@@ -1,8 +1,8 @@
 import axios from 'axios';
 import React, { useState } from 'react';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import frederickLogo from '../images/frederick-university-logo.png';
-import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
 const RegisterForm = () => {
   const [email, setEmail] = useState('');
@@ -39,38 +39,29 @@ const RegisterForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage('');
-
+  
     // Validate input before making API request
     if (!validateInput()) {
       return;
     }
-
+  
     setIsLoading(true);
-
-
-    try 
-    {
+  
+    try {
       const response = await axios.post('http://localhost:5001/api/auth/register', { email, password });
       setMessage(response.data.message);
-    } catch (error)
-    {
-      if (error.response)
-      {
-        // Check if the error response is an array
-        if (Array.isArray(error.response.data.errors)) {
-          // Join all the error messages into a single string
-          const validationErrors = error.response.data.errors.map(err => err.msg).join('. ');
-          setMessage(validationErrors);
-        } else {
-          setMessage(error.response.data.message);
-        }
+    } catch (error) {
+      if (error.response && error.response.data.errors) {
+        const serverErrors = error.response.data.errors.map((err) => err.msg);
+        setMessage(serverErrors.join('. '));
       } else {
         setMessage('Error registering user');
       }
-    }finally {
+    } finally {
       setIsLoading(false);
     }
   };
+  
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -106,7 +97,11 @@ const RegisterForm = () => {
                   required
                   className="w-full px-3 py-2 mb-4 placeholder-gray-500 border border-gray-300 rounded-md focus:outline-none focus:border-blue-400"
                 />
-                {emailError && <div className="text-red-500">{emailError}</div>}
+                {emailError && (
+                <div className="text-red-500 transition-all duration-300 ease-in-out">
+                  {emailError}
+                </div>
+              )}
               </div>
               <div>
               <label htmlFor="password" className="block text-gray-700 font-semibold py-2">
@@ -121,20 +116,23 @@ const RegisterForm = () => {
             required
             className="w-full px-3 py-2 mb-4 placeholder-gray-500 border border-gray-300 rounded-md focus:outline-none focus:border-blue-400"
           />
-          <button
-            type="button"
-            onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 top-3 text-gray-500"
-          >
-            {showPassword ? (
-              <FaEyeSlash /> 
-            ) : (
-              <FaEye /> 
-            )}
-          </button>
+        <button
+          type="button"
+          onClick={() => setShowPassword(!showPassword)}
+          className="absolute right-3 top-3 text-gray-500"
+          title={showPassword ? "Hide password" : "Show password"} // Tooltip
+        >
+          {showPassword ? <FaEyeSlash /> : <FaEye />}
+        </button>
+
         </div>
-        {passwordError && <div className="text-red-500">{passwordError}</div>}
-      </div>
+        {passwordError && (
+          <div className="text-red-500 transition-all duration-300 ease-in-out">
+            {passwordError}
+          </div>
+        )}     
+
+        </div>
       <button
             type="submit"
             className="w-full py-2 bg-blue-700 text-white font-semibold rounded-md hover:bg-blue-800 transition duration-200"

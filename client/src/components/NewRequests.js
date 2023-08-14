@@ -199,19 +199,31 @@ const NewRequests = (props) => {
         <div className="mt-10">
           <h2 className="text-2xl font-semibold mb-6">Selected Request Details</h2>
           <div className="bg-white rounded-lg p-4 shadow-md">
+            <h3 className="font-semibold text-lg mb-2 text-blue-500">Student's Information</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Personal Information */}
               <div className="bg-white p-4 rounded-lg shadow-md">
-                <p><strong>First Name:</strong> {selectedRequest.first_name}</p>
-                <p><strong>Last Name:</strong> {selectedRequest.last_name}</p>
-                <p><strong>Government ID:</strong> {selectedRequest.government_id}</p>
-                <p><strong>Registration Number:</strong> {selectedRequest.registration_number}</p>
-                <p><strong>Phone Number:</strong> {selectedRequest.phone_number}</p>
-                <p><strong>Course Title:</strong> {selectedRequest.course_title}</p>
+                <h3 className="font-bold text-custom-blue mb-2">Personal Information</h3>
+                <p><strong>Name:</strong> {selectedRequest.first_name} {selectedRequest.last_name}</p>
+                <p> <strong>Government ID:</strong> {selectedRequest.government_id}</p>
+                <p><strong>Year Of Admission:</strong> {selectedRequest.year_of_admission}</p>
               </div>
+              {/* Contact Details */}
               <div className="bg-white p-4 rounded-lg shadow-md">
-                <p><strong>Academic Year:</strong> {selectedRequest.academic_year}</p>
-                <p><strong>Education Level:</strong> {selectedRequest.education_level}</p>
+                <h4 className="font-bold text-custom-blue mb-2">Contact Details</h4>
                 <p><strong>City:</strong> {selectedRequest.city}</p>
+                <p><strong>Phone Number:</strong> {selectedRequest.phone_number}</p>
+              </div>
+              {/* Academic Details */}
+              <div className="bg-white p-4 rounded-lg shadow-md">
+                <h3 className="font-bold text-custom-blue mb-2">Academic Details</h3>
+                <p><strong>Course Title:</strong> {selectedRequest.course_title}</p>
+                <p><strong>Educational Level:</strong> {selectedRequest.education_level}</p>
+              </div>
+              {/* Other Information */}
+              <div className="bg-white p-4 rounded-lg shadow-md">
+              <h3 className="font-bold text-custom-blue mb-2">Other Information</h3>
+                
                 <p><strong>Sport:</strong> {selectedRequest.sport}</p>
                 <p><strong>Description:</strong> {selectedRequest.description}</p>
               </div>

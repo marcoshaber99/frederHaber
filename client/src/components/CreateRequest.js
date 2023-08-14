@@ -1,13 +1,13 @@
 import axios from 'axios';
 import { useEffect, useState } from 'react';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 import { Oval } from 'react-loader-spinner';
 import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { translations, useLanguage } from '../contexts/LanguageContext';
 import { useRequest } from '../contexts/RequestContext';
-
-
 
 const CreateRequest = () => {
   const navigate = useNavigate();
@@ -21,10 +21,10 @@ const CreateRequest = () => {
     registration_number: '',
     phone_number: '',
     course_title: '',
-    academic_year: '',
     education_level: '',
     city: '',
   });
+  const [yearOfAdmission, setYearOfAdmission] = useState(null);
   const [formStatus, setFormStatus] = useState('draft');
   const [errors, setErrors] = useState({});
   const [message, setMessage] = useState('');
@@ -35,15 +35,15 @@ const CreateRequest = () => {
   const [isToggled, setIsToggled] = useState(language === 'en' ? false : true);
   
 
-
   useEffect(() => {
     fetchLatestRequestStatus();
   }, [fetchLatestRequestStatus]);
 
   const handleChange = (e) => {
-    setFormValues({ ...formValues, [e.target.name]: e.target.value });
+    if (e.target.name !== 'year_of_admission') {
+      setFormValues({ ...formValues, [e.target.name]: e.target.value });
+    }
   };
-  
 
   const validateForm = () => {
     const errors = {};
@@ -74,8 +74,8 @@ const CreateRequest = () => {
     if (!formValues.course_title || formValues.course_title.length > 55) {
       errors.course_title = `${translations[language].courseTitle} ${translations[language].isRequired} & ${translations[language].maxLength.replace('{length}', '55')}`;
     }
-    if (!formValues.academic_year || isNaN(formValues.academic_year) || formValues.academic_year < 1 || formValues.academic_year > 4) {
-      errors.academic_year = `${translations[language].academicYear} ${translations[language].isRequired} & ${translations[language].betweenNumeric.replace('{min}', '1').replace('{max}', '4')}`;
+    if (!yearOfAdmission || yearOfAdmission.getFullYear() < 1950 || yearOfAdmission.getFullYear() > new Date().getFullYear()) {
+      errors.year_of_admission = `${translations[language].yearOfAdmission} ${translations[language].isRequired} & ${translations[language].betweenNumeric.replace('{min}', '1950').replace('{max}', new Date().getFullYear().toString())}`;
     }
     if (!formValues.education_level || formValues.education_level === 'Select education level') {
       errors.education_level = `${translations[language].educationLevel} ${translations[language].isRequired}`;
@@ -139,19 +139,16 @@ const handleSubmit = async (e, status = 'submitted') => {
   }
 
   setMessage('');
-  setIsLoading(true); // set loading state to true
-
+  setIsLoading(true);
 
   try {
     const token = localStorage.getItem('token');
     const formData = new FormData();
-    // Append the form values
     for (const key in formValues) {
       formData.append(key, formValues[key]);
     }
-    // Append the status
+    formData.append('year_of_admission', yearOfAdmission ? yearOfAdmission.getFullYear().toString() : '');
     formData.append('status', status);
-    // Append the file
     formData.append('file', file);
 
     await axios.post(
@@ -164,35 +161,28 @@ const handleSubmit = async (e, status = 'submitted') => {
         },
       }
     );
-    
-    
+
     if (status === 'draft') {
       toast.success('Scholarship request saved as a draft successfully');
       setTimeout(() => {
         navigate('/student-dashboard/view-requests');
-      }, 2000); // delay of 2 seconds
+      }, 2000);
     } else {
       setFormStatus('submitted');
       toast.success('Scholarship request created successfully');
       setTimeout(() => {
         fetchLatestRequestStatus();
         navigate('/student-dashboard/view-requests');
-      }, 2000); // delay of 2 seconds
+      }, 2000);
     }
   } catch (error) {
-    if (error.response) {
-      if (error.response.data.errors) {
-        setErrors(error.response.data.errors);
-        toast.error('Form errors occurred');
-      } else {
-        toast.error(error.response.data.message);
-      }
+    if (error.response && error.response.status === 403) {
+      setMessage('Your session has expired. Please log in again.');
     } else {
-      toast.error('Error submitting scholarship request');
+      setMessage('An error occurred while creating the scholarship request. Please try again.');
     }
-  }
-  finally {
-    setIsLoading(false); // set loading state back to false
+  } finally {
+    setIsLoading(false);
   }
 };
 
@@ -254,7 +244,7 @@ const handleFileChange = (e) => {
         {/* For Government ID */}
         <div className="flex flex-col">
           <label htmlFor="government_id" className="text-sm font-medium mb-1">
-            {translations[language].governmentId}
+            {translations[language].governmentId}:
           </label>
           <input
             type="text"
@@ -305,7 +295,7 @@ const handleFileChange = (e) => {
 
           <div className="flex flex-col">
             <label htmlFor="course_title" className="text-sm font-medium mb-1">
-              {translations[language].courseTitle}
+              {translations[language].courseTitle}:
             </label>
             <input
               type="text"
@@ -320,26 +310,28 @@ const handleFileChange = (e) => {
               <p className="text-red-500 text-sm">{errors.course_title}</p>
             )}
 
-            <div className="flex flex-col">
-              <label htmlFor="academic_year" className="text-sm font-medium mb-1">
-                {translations[language].academicYear}
-              </label>
-              <input
-                type="number"
-                id="academic_year"
-                name="academic_year"
-                value={formValues.academic_year}
-                onChange={handleChange}
-                className="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-indigo-500"
-              />
-              </div>
-              {errors.academic_year && (
-                <p className="text-red-500 text-sm">{errors.academic_year}</p>
-              )}
+      <div className="flex flex-col">
+          <label htmlFor="year_of_admission" className="text-sm font-medium mb-1">
+            {translations[language].yearOfAdmission}:
+          </label>
+          <DatePicker
+            selected={yearOfAdmission}
+            onChange={(date) => setYearOfAdmission(date)}
+            dateFormat="yyyy"
+            showYearPicker
+            className="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-indigo-500"
+            placeholderText={translations[language].selectYear}
+          />
+        </div>
+        {errors.year_of_admission && (
+          <p className="text-red-500 text-sm">{errors.year_of_admission}</p>
+        )}
+
+
 
               <div className="flex flex-col">
                         <label htmlFor="education_level" className="text-sm font-medium mb-1">
-                          {translations[language].educationLevel}
+                          {translations[language].educationLevel}:
                         </label>
                         <select
                           id="education_level"
@@ -358,7 +350,7 @@ const handleFileChange = (e) => {
                       )}
             <div className="flex flex-col">
               <label htmlFor="city" className="text-sm font-medium mb-1">
-                {translations[language].city}
+                {translations[language].city}:
               </label>
               <select
                 id="city"
@@ -378,7 +370,7 @@ const handleFileChange = (e) => {
 
             <div className="flex flex-col">
             <label htmlFor="sport" className="text-sm font-medium mb-1">
-              {translations[language].sport}
+              {translations[language].sport}:
               </label>
               <input
                 type="text"
@@ -395,7 +387,7 @@ const handleFileChange = (e) => {
 
             <div className="flex flex-col">
               <label htmlFor="description" className="text-sm font-medium mb-1">
-                {translations[language].description}
+                {translations[language].description}:
               </label>
               <textarea
                 id="description"
@@ -411,7 +403,7 @@ const handleFileChange = (e) => {
 
             <div className="flex flex-col">
                 <label htmlFor="file" className="text-sm font-medium mb-1">
-                  {translations[language].uploadFile}
+                  {translations[language].uploadFile}:
                 </label>
                 <input
                   id="file"
