@@ -5,19 +5,20 @@ import frederickLogo from '../images/frederick-university-logo.png';
 import RoleSelection from './RoleSelection';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
-
 const LoginForm = ({ setCurrentUserRole, setCurrentUserEmail }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
   const [showRoleSelection, setShowRoleSelection] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false); // Add this line for loading state
 
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage('');
+    setIsLoading(true); // Set loading state when starting the login process
 
     try {
       const response = await axios.post(`http://localhost:5001/api/auth/login`, { email, password });
@@ -57,6 +58,8 @@ const LoginForm = ({ setCurrentUserRole, setCurrentUserEmail }) => {
       } else {
         setMessage('Error registering user');
       }
+    } finally {
+      setIsLoading(false); // Reset loading state when login process is done
     }
   };
 
@@ -125,11 +128,12 @@ const LoginForm = ({ setCurrentUserRole, setCurrentUserEmail }) => {
                 <Link to="/forgot-password">Forgot Password?</Link>
               </p>
               <button
-                type="submit"
-                className="w-full py-2 bg-blue-700 text-white font-semibold rounded-md hover:bg-blue-800 transition duration-200"
-              >
-                Login
-              </button>
+            type="submit"
+            className="w-full py-2 bg-blue-700 text-white font-semibold rounded-md hover:bg-blue-800 transition duration-200"
+            disabled={isLoading} // Disable the button when loading
+          >
+            {isLoading ? 'Loading...' : 'Login'}
+          </button>
             </form>
             
             {message && (

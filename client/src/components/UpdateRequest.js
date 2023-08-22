@@ -1,13 +1,13 @@
 import axios from 'axios';
 import React, { useCallback, useEffect, useState } from 'react';
-import { Oval } from 'react-loader-spinner'; // Import the Oval component
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import { Oval } from 'react-loader-spinner';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
-
 import 'react-toastify/dist/ReactToastify.css';
+import { translations, useLanguage } from '../contexts/LanguageContext';
 import { useRequest } from '../contexts/RequestContext';
-
-
 
 const UpdateRequest = () => {
   const navigate = useNavigate();
@@ -21,70 +21,66 @@ const UpdateRequest = () => {
     registration_number: '',
     phone_number: '',
     course_title: '',
-    year_of_admission: '',
     education_level: '',
     city: '',
     status: '',
   });
+  const [yearOfAdmission, setYearOfAdmission] = useState(null);
   const [message, setMessage] = useState('');
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState(null);
-  const [file, setFile] = useState(null); // Added file state
+  const [file, setFile] = useState(null);
   const { updateScholarshipRequest, fetchLatestRequestStatus } = useRequest();
-  const [isLoading, setIsLoading] = useState(false); // Add isLoading state
+  const [isLoading, setIsLoading] = useState(false);
+  const { language } = useLanguage();
 
   const handleChange = (e) => {
     setFormValues({ ...formValues, [e.target.name]: e.target.value });
   };
 
   const handleFileChange = (e) => {
-    setFile(e.target.files[0]); // File handling function
+    setFile(e.target.files[0]);
   };
 
   const validateForm = () => {
     const errors = {};
-
     if (!formValues.first_name) {
-      errors.first_name = 'First name is required';
+      errors.first_name = `${translations[language].firstName} ${translations[language].isRequired}`;
     }
     if (!formValues.last_name) {
-      errors.last_name = 'Last name is required';
+      errors.last_name = `${translations[language].lastName} ${translations[language].isRequired}`;
     }
     if (!formValues.sport) {
-      errors.sport = 'Sport is required';
+      errors.sport = `${translations[language].sport} ${translations[language].isRequired}`;
     }
     if (!formValues.description || formValues.description.length > 200) {
-      errors.description = 'Description is required and should not be more than 200 characters';
+      errors.description = `${translations[language].description} ${translations[language].isRequired} & ${translations[language].maxLength.replace('{length}', '200')}`;
     }
     if (!formValues.government_id || isNaN(formValues.government_id)) {
-      errors.government_id = 'Government ID is required and should be a numeric value';
+      errors.government_id = `${translations[language].governmentId} ${translations[language].isRequired} & ${translations[language].shouldBeNumeric}`;
     }
-     if (formValues.registration_number && (isNaN(formValues.registration_number))) {
-      errors.registration_number = 'Registration number should be a numeric value';
+    if (formValues.registration_number && (isNaN(formValues.registration_number))) {
+      errors.registration_number = `${translations[language].registrationNumber} ${translations[language].shouldBeNumeric}`;
     }
     if (!formValues.phone_number || isNaN(formValues.phone_number)) {
-      errors.phone_number = 'Phone number is required and should be a numeric value';
+      errors.phone_number = `${translations[language].phoneNumber} ${translations[language].isRequired} & ${translations[language].shouldBeNumeric}`;
     }
     if (!formValues.course_title || formValues.course_title.length > 55) {
-      errors.course_title = 'Course title is required and should not be more than 55 characters';
+      errors.course_title = `${translations[language].courseTitle} ${translations[language].isRequired} & ${translations[language].maxLength.replace('{length}', '55')}`;
     }
-    // Year of admission is required and should be a number between 1950 and the current year
-    if (!formValues.year_of_admission || isNaN(formValues.year_of_admission) || formValues.year_of_admission < 1950 || formValues.year_of_admission > new Date().getFullYear()) {
-      errors.year_of_admission = 'Year of admission is required and should be a number between 1950 and the current year';
+    if (!yearOfAdmission || yearOfAdmission.getFullYear() < 1950 || yearOfAdmission.getFullYear() > new Date().getFullYear()) {
+      errors.year_of_admission = `${translations[language].yearOfAdmission} ${translations[language].isRequired} & ${translations[language].betweenNumeric.replace('{min}', '1950').replace('{max}', new Date().getFullYear().toString())}`;
     }
     if (!formValues.education_level || formValues.education_level === 'Select education level') {
-      errors.education_level = 'Education level is required';
+      errors.education_level = `${translations[language].educationLevel} ${translations[language].isRequired}`;
     }
     if (!formValues.city || formValues.city === 'Select city') {
-      errors.city = 'City is required';
+      errors.city = `${translations[language].city} ${translations[language].isRequired}`;
     }
-    //file upload
     if (!file) {
       errors.file = 'File is required';
     }
-    
-
     return errors;
   };
 
@@ -92,30 +88,20 @@ const UpdateRequest = () => {
     e.preventDefault();
     const validationErrors = validateForm();
     setErrors(validationErrors);
-
     if (Object.keys(validationErrors).length > 0) {
       return;
     }
-
     setMessage('');
-
     const formData = new FormData();
-    // Update the status field with the new status value
     formValues.status = status;
-    // Append the form values
     for (const key in formValues) {
       formData.append(key, formValues[key]);
     }
-
-    // Append the file
+    formData.append('year_of_admission', yearOfAdmission ? yearOfAdmission.getFullYear().toString() : '');
     formData.append('file', file);
-
-    setIsLoading(true); // Set loading state to true before the API call
-
-
+    setIsLoading(true);
     try {
       const { status: responseStatus } = await updateScholarshipRequest(id, formData);
-
       if (responseStatus === 200) {
         if (status === 'draft') {
           toast.success('Scholarship request updated and saved as a draft successfully');
@@ -125,7 +111,7 @@ const UpdateRequest = () => {
         setTimeout(async () => {
           await fetchLatestRequestStatus();
           navigate('/student-dashboard/view-requests');
-        }, 2000); // delay of 2 seconds
+        }, 2000);
       }
     } catch (error) {
       if (error.response) {
@@ -138,82 +124,75 @@ const UpdateRequest = () => {
       } else {
         toast.error('Error updating scholarship request');
       }
-    }finally {
-      setIsLoading(false); // Set loading state back to false after the API call
     }
+    setIsLoading(false);
   };
 
-const fetchRequest = useCallback(async () => {
-  setLoading(true);
-  setFetchError(null);
-  try {
-    const token = localStorage.getItem('token');
-    const response = await axios.get(
-      `http://localhost:5001/api/scholarship/get-request/${id}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+  const fetchRequest = useCallback(async () => {
+    setLoading(true);
+    setFetchError(null);
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get(
+        `http://localhost:5001/api/scholarship/get-request/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      const {
+        first_name,
+        last_name,
+        sport,
+        description,
+        government_id,
+        registration_number,
+        phone_number,
+        course_title,
+        year_of_admission,
+        education_level,
+        city,
+        status,
+      } = response.data;
+      setFormValues({
+        first_name,
+        last_name,
+        sport,
+        description,
+        government_id,
+        registration_number,
+        phone_number,
+        course_title,
+        education_level,
+        city,
+        status,
+      });
+      setYearOfAdmission(new Date(year_of_admission));
+      setLoading(false);
+    } catch (error) {
+      console.error("Error loading request: ", error);
+      setFetchError(error);
+      setLoading(false);
+    }
+  }, [id]);
 
-    const {
-      first_name,
-      last_name,
-      sport,
-      description,
-      government_id,
-      registration_number,
-      phone_number,
-      course_title,
-      year_of_admission,
-      education_level,
-      city,
-      status,
-    } = response.data;
+  useEffect(() => {
+    fetchRequest();
+  }, [id, fetchRequest]);
 
-    console.log(response.data);
-
-
-    setFormValues({
-      first_name,
-      last_name,
-      sport,
-      description,
-      government_id,
-      registration_number,
-      phone_number,
-      course_title,
-      year_of_admission,
-      education_level,
-      city,
-      status,
-    });
-    setLoading(false);
-  } catch (error) {
-    console.error("Error loading request: ", error);
-    setFetchError(error);
-    setLoading(false);
+  if (loading) {
+    return <div>Loading...</div>;
   }
-}, [id]);
 
-useEffect(() => {
-  console.log('Calling fetchRequest with id:', id);
-  fetchRequest();
-}, [id, fetchRequest]);
-
-if (loading) {
-  return <div>Loading...</div>;
-}
-
-if (fetchError) {
-  return (
-    <div>
-      <p>Error loading request details: {fetchError.message}</p>
-      <button onClick={fetchRequest}>Retry</button>
-    </div>
-  );
-}
+  if (fetchError) {
+    return (
+      <div>
+        <p>Error loading request details: {fetchError.message}</p>
+        <button onClick={fetchRequest}>Retry</button>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-lg mx-auto mt-10 ml-16">
@@ -324,22 +303,22 @@ if (fetchError) {
         )}
 
       <div className="flex flex-col">
-        <label htmlFor="year_of_admission" className="text-sm font-medium mb-1">
-          Year of Admission:
-        </label>
-        <input
-          type="text"
-          id="year_of_admission"
-          name="year_of_admission"
-          value={formValues.year_of_admission}
-          onChange={handleChange}
-          className="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-indigo-500"
-        />
-        
-      </div>
-      {errors.year_of_admission && (
-        <p className="text-red-500 text-sm">{errors.year_of_admission}</p>
-      )}
+          <label htmlFor="year_of_admission" className="text-sm font-medium mb-1">
+            Year Of Admission
+          </label>
+          <DatePicker
+            selected={yearOfAdmission}
+            onChange={(date) => setYearOfAdmission(date)}
+            dateFormat="yyyy"
+            showYearPicker
+            className="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-indigo-500 w-full"
+            placeholderText={translations[language].selectYear}
+          />
+          
+        </div>
+        {errors.year_of_admission && (
+          <p className="text-red-500 text-sm">{errors.year_of_admission}</p>
+        )}
 
         <div className="flex flex-col">
           <label htmlFor="education_level" className="text-sm font-medium mb-1">

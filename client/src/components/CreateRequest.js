@@ -2,6 +2,8 @@ import axios from 'axios';
 import { useEffect, useState } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import { FaCity, FaFileAlt, FaGraduationCap, FaIdCard, FaPhoneAlt, FaRegCalendarAlt, FaUpload, FaUser } from 'react-icons/fa';
+import { MdSports } from 'react-icons/md';
 import { Oval } from 'react-loader-spinner';
 import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
@@ -57,7 +59,7 @@ const CreateRequest = () => {
     if (!formValues.sport) {
       errors.sport = `${translations[language].sport} ${translations[language].isRequired}`;
     }
-    if (!formValues.description || formValues.description.length > 200) {
+    if (formValues.description && formValues.description.length > 200) {
       errors.description = `${translations[language].description} ${translations[language].isRequired} & ${translations[language].maxLength.replace('{length}', '200')}`;
     }
 
@@ -113,9 +115,6 @@ const ToggleButton = ({ isToggled, onToggle }) => {
     </div>
   );
 };
-
-
-
 
 
 const handleToggle = () => {
@@ -310,18 +309,20 @@ const handleFileChange = (e) => {
               <p className="text-red-500 text-sm">{errors.course_title}</p>
             )}
 
-      <div className="flex flex-col">
+      <div className="flex flex-col relative">
           <label htmlFor="year_of_admission" className="text-sm font-medium mb-1">
             {translations[language].yearOfAdmission}:
           </label>
-          <DatePicker
+
+          <DatePicker 
             selected={yearOfAdmission}
             onChange={(date) => setYearOfAdmission(date)}
             dateFormat="yyyy"
             showYearPicker
-            className="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-indigo-500"
+            className="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-indigo-500 w-full"
             placeholderText={translations[language].selectYear}
           />
+
         </div>
         {errors.year_of_admission && (
           <p className="text-red-500 text-sm">{errors.year_of_admission}</p>
@@ -401,21 +402,36 @@ const handleFileChange = (e) => {
               <p className="text-red-500 text-sm">{errors.description}</p>
             )}
 
-            <div className="flex flex-col">
-                <label htmlFor="file" className="text-sm font-medium mb-1">
-                  {translations[language].uploadFile}:
-                </label>
-                <input
-                  id="file"
-                  name="file"
-                  type="file"
-                  accept=".pdf,.png,.jpg"
-                  onChange={handleFileChange}
-                />
-              </div>
-              {errors.file && (
-                <p className="text-red-500 text-sm">{errors.file}</p>
-              )}
+<div className="flex flex-col space-y-2">
+  <label htmlFor="file" className="text-sm font-medium mb-1">
+    {translations[language].uploadFile}:
+  </label>
+  <div className="flex items-center justify-between bg-white p-4 border-2 border-gray-300 rounded-md">
+    <div className="text-sm text-gray-500">
+      {file ? file.name : "No file chosen"}
+    </div>
+
+    <label
+      htmlFor="file"
+      className="cursor-pointer bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-900 transition duration-200"
+    >
+
+      Select File
+    </label>
+    <input
+      id="file"
+      name="file"
+      type="file"
+      accept=".pdf,.png,.jpg"
+      onChange={handleFileChange}
+      className="hidden" // Hide the default file input
+    />
+  </div>
+  {errors.file && <p className="text-red-500 text-sm">{errors.file}</p>}
+  <span className="text-xs text-gray-500">Allowed file types: .pdf, .png, .jpg</span>
+</div>
+
+
               <div className="flex space-x-4">
                   <div className="relative flex items-center">
                     <div 

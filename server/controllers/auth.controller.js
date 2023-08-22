@@ -13,45 +13,49 @@ const isValidEmail = (email) => {
 };
 
 
+const validatePasswordComplexity = (password) => {
+  // Require at least 5 characters and one number
+  const regex = /^(?=.*\d)[A-Za-z\d]{5,}$/;
+  return regex.test(password);
+};
 
 exports.register = async (req, res) => {
   try {
     const { email, password} = req.body;
 
-
     if (!isValidEmail(email)) {
       return res.status(400).json({ message: 'Invalid email format' });
     }
 
+
+    if (!validatePasswordComplexity(password)) {
+      return res.status(400).json({
+        message: 'Password must be at least 5 characters long and contain at least one number'
+      });
+    }
+
     let role;
-if (email.startsWith('st') && email.includes('@stud.')) {
-  role = 'student';
-} else if (email.includes('@frederick.')) {
-  role = 'unset';
-} else if (isValidEmail(email)) {
-  role = 'student'; // Assign 'student' role to non-Frederick emails
-} else {
-  return res.status(400).json({ message: 'Invalid email format' });
-}
+    if (email.startsWith('st') && email.includes('@stud.')) {
+      role = 'student';
+    } else if (email.includes('@frederick.')) {
+      role = 'unset';
+    } else if (isValidEmail(email)) {
+      role = 'student';
+    } else {
+      return res.status(400).json({ message: 'Invalid email format' });
+    }
 
-
-
-    // Check if the email already exists
     const [existingUser] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
     if (existingUser.length > 0) {
       return res.status(400).json({ message: 'Email already exists' });
     }
 
-    // Hash the password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
-    //console.log("Hashed password:", hashedPassword);
 
-    // Insert the new user
     const [result] = await db.query('INSERT INTO users (email, password, role) VALUES (?, ?, ?)', [email, hashedPassword, role]);
 
     if (result.affectedRows === 1) {
-      // Send an activation email
       const token = jwt.sign({ id: result.insertId }, process.env.JWT_SECRET, {
         expiresIn: '1h'
       });
@@ -64,14 +68,11 @@ if (email.startsWith('st') && email.includes('@stud.')) {
         html: `<p>Click the following link to activate your account: <a href="${activationLink}">${activationLink}</a></p>`
       };
 
-      try {
-        await sgMail.send(msg);
-      } catch (err) {
-        console.error(err);
-      }
+      await sgMail.send(msg);
 
       res.status(201).json({ 
-        message: "User registered successfully. Check your email to activate your account."});
+        message: "User registered successfully. Check your email to activate your account."
+      });
     } else {
       res.status(500).json({ message: 'Error registering user' });
     }

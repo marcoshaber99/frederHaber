@@ -92,40 +92,36 @@ const StudentDashboard = ({ role }) => {
 
   return (
 
-    <div className="h-screen flex flex-col md:flex-row overflow-hidden bg-gray-100">
-      <div
-        className={`bg-blue-800 shadow-md fixed inset-y-0 left-0 z-10 transform transition-transform duration-300 w-60 md:w-62 ${
-          isMenuOpen ? 'translate-x-0' : '-translate-x-full'
-        } md:relative md:translate-x-0`}
-      >
-        <div className="flex justify-between items-center mb-8 mt-8">
-          <Link to="view-requests">
-          <img
-              src={frederickLogo}
-              alt="Logo of Frederick University"
-              className="w-60 h-8 object-cover md:mt-6 ml-4"
-            />
+<div className="h-screen flex flex-col md:flex-row overflow-hidden bg-gray-100">
+<div className={`bg-blue-800 shadow-md fixed inset-y-0 left-0 z-10 transform transition-transform duration-300 w-60 md:w-62 ${isMenuOpen ? 'translate-x-0' : '-translate-x-full'} md:relative md:translate-x-0`}>
+  <div className="flex justify-between items-center mb-8 mt-8">
+    <Link to="view-requests">
+      <img src={frederickLogo} alt="Logo of Frederick University" className="w-60 h-8 object-cover md:mt-6 ml-4" />
+    </Link>
+    <div className="md:hidden">
+      <button onClick={toggleMenu} className="text-white p-2 rounded-full hover:text-red-500 transition-colors duration-200" style={{ lineHeight: 0 }}>
+        <FontAwesomeIcon icon={faTimes} className="text-2xl" />
+      </button>
+    </div>
+  </div>
+  <div className="md:text-left px-8 group">
+  <div className="relative inline-flex items-center">
+    <BsFillPersonFill className="text-white text-2xl mr-2" size={17} />
+    <span className="font-semibold text-orange-400">{role}</span>
+  </div>
+  <div className="relative text-sm text-gray-100 max-w-md hover:cursor-pointer">
+    <span className="truncate block group-hover:underline" title={email}>
+      {email}
+    </span>
+    {/* Custom Tooltip */}
+    <div className="absolute left-0 bottom-full mb-2 text-xs text-gray-800 bg-white p-1 rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-300 ease-in-out">
+      {email}
+    </div>
+  </div>
+</div>
 
-          </Link>
 
-          <div className="md:hidden">
-            <button 
-              onClick={toggleMenu} 
-              className="text-white p-2 rounded-full hover:text-red-500 transition-colors duration-200"
-              style={{ lineHeight: 0 }} // Adjusts alignment
-            >
-              <FontAwesomeIcon icon={faTimes} className="text-2xl" />
-            </button>
-          </div>
 
-        </div>
-        <div className="md:text-left px-8">
-          <div className="relative inline-flex items-center"> 
-              <BsFillPersonFill className="text-white text-2xl mr-2" size={17}/>
-              <span className="font-semibold text-orange-400">{role}</span>
-            </div>
-          <p className="text-sm text-gray-100 ">{email}</p>
-        </div>
         <nav className="flex flex-col items-center md:justify-start py-48 md:mt-0 w-full">
           <Link to="view-requests" className={`w-full text-center py-4  ${isActive('view-requests') ? 'text-white bg-blue-700' : 'text-white'}  hover:bg-blue-900 py-2 rounded-md`} >
           <div className="relative inline-flex items-center mr-3">

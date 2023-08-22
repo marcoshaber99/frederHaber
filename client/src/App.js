@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
 import { css } from "@emotion/react";
-import ClipLoader from "react-spinners/ClipLoader";
 import axios from 'axios';
+import React, { useEffect, useState } from 'react';
 import { Navigate, Route, BrowserRouter as Router, Routes } from 'react-router-dom';
-import ActivateAccount from './components/ActivateAccount/ActivateAccount';
+import ClipLoader from "react-spinners/ClipLoader";
+import ActivateAccount from './components/ActivateAccount';
 import AdminDashboard from './components/AdminDashboard';
 import ForgotPasswordForm from './components/ForgotPasswordForm';
 import LoginForm from './components/LoginForm';
@@ -12,8 +12,8 @@ import ManagerDashboard from './components/ManagerDashboard';
 import RegisterForm from './components/RegisterForm';
 import ResetPasswordForm from './components/ResetPasswordForm';
 import StudentDashboard from './components/StudentDashboard';
-import { RequestContextProvider } from './contexts/RequestContext'; // add this line
 import { LanguageProvider } from './contexts/LanguageContext';
+import { RequestContextProvider } from './contexts/RequestContext'; // add this line
 
 
 const override = css`

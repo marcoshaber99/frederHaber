@@ -13,7 +13,11 @@ const RegisterForm = () => {
   const [passwordError, setPasswordError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-
+  const validatePasswordComplexity = (password) => {
+    // Require at least 5 characters and one number
+    const regex = /^(?=.*\d)[A-Za-z\d]{5,}$/;
+    return regex.test(password);
+  };
   const validateInput = () => {
     let valid = true;
 
@@ -33,8 +37,16 @@ const RegisterForm = () => {
       setPasswordError('');
     }
 
-    return valid;
-  };
+    // Password complexity validation
+    if (!validatePasswordComplexity(password)) {
+      setPasswordError('Password must be at least 5 characters long and contain at least one number');
+      valid = false;
+    } else {
+      setPasswordError('');
+    }
+
+  return valid;
+};
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -74,9 +86,9 @@ const RegisterForm = () => {
 
           </Link>
       <div className="bg-white h-2/3 w-full">
-        <div className="flex justify-center">
-          <div className="bg-white py-12 px-20 rounded-lg shadow-xl mt-12 w-120">
-            <h1 className="text-3xl font-semibold mb-4">Register</h1>
+      <div className="flex justify-center">
+  <div className="bg-white py-12 px-20 rounded-lg shadow-xl mt-12 max-w-lg">
+    <h1 className="text-3xl font-semibold mb-4">Register</h1>
             <p className="text-base mb-4">
               If you already have an account,{' '}
               <Link to="/login" className="text-blue-600">
@@ -97,17 +109,17 @@ const RegisterForm = () => {
                   required
                   className="w-full px-3 py-2 mb-4 placeholder-gray-500 border border-gray-300 rounded-md focus:outline-none focus:border-blue-400"
                 />
-                {emailError && (
-                <div className="text-red-500 transition-all duration-300 ease-in-out">
-                  {emailError}
+                <div className="h-6 mt-1 text-red-500 transition-all duration-300 ease-in-out">
+                    {emailError && (
+                      <div className="flex flex-wrap">
+                        {emailError}
+                      </div>
+                    )}
+                  </div>
                 </div>
-              )}
-              </div>
-              <div>
-              <label htmlFor="password" className="block text-gray-700 font-semibold py-2">
-          Password
-        </label>
-        <div className="relative">
+                <div>
+      <label htmlFor="password" className="block text-gray-700 font-semibold py-2">Password</label>
+      <div className="relative">
           <input
             type={showPassword ? 'text' : 'password'}
             placeholder="Enter password"
@@ -126,13 +138,14 @@ const RegisterForm = () => {
         </button>
 
         </div>
-        {passwordError && (
-          <div className="text-red-500 transition-all duration-300 ease-in-out">
-            {passwordError}
-          </div>
-        )}     
-
+        <div className="mt-1 text-red-500 transition-all duration-300 ease-in-out break-words">
+          {passwordError && (
+            <div className="flex flex-wrap">
+              {passwordError}
+            </div>
+          )}
         </div>
+      </div>
       <button
             type="submit"
             className="w-full py-2 bg-blue-700 text-white font-semibold rounded-md hover:bg-blue-800 transition duration-200"

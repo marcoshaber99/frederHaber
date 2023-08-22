@@ -10,8 +10,8 @@ exports.validateRequest = (requestBody) => {
   if (!requestBody.sport) {
     errors.sport = 'Sport is required';
   }
-  if (!requestBody.description || requestBody.description.length > 200) {
-    errors.description = 'Description is required and should not be more than 200 characters';
+  if (requestBody.description && requestBody.description.length > 200) {
+    errors.description = 'Description should not be more than 200 characters';
   }
   if (!requestBody.government_id || !/^\d+$/.test(requestBody.government_id)) {
     errors.government_id = 'Government ID is required and should only contain numbers';
