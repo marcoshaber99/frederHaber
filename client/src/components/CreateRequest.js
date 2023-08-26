@@ -2,8 +2,6 @@ import axios from 'axios';
 import { useEffect, useState } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { FaCity, FaFileAlt, FaGraduationCap, FaIdCard, FaPhoneAlt, FaRegCalendarAlt, FaUpload, FaUser } from 'react-icons/fa';
-import { MdSports } from 'react-icons/md';
 import { Oval } from 'react-loader-spinner';
 import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
