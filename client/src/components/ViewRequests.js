@@ -435,16 +435,16 @@ const ViewRequests = () => {
       >
                 <div className="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full sm:p-6">
 
-          <div className="hidden sm:block absolute top-0 right-0 pt-4 pr-4">
-            <button
-              type="button"
-              className="bg-white rounded-md text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-              onClick={() => setDetailsModalOpen(false)}
-            >
-              <span className="sr-only">Close</span>
-              <XIcon className="h-6 w-6" aria-hidden="true" />
-            </button>
-          </div>
+                <div className="absolute top-0 right-0 pt-4 pr-4">
+  <button
+    type="button"
+    className="bg-white rounded-md text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+    onClick={() => setDetailsModalOpen(false)}
+  >
+    <span className="sr-only">Close</span>
+    <XIcon className="h-6 w-6" aria-hidden="true" />
+  </button>
+</div>
           <div>
           {selectedRequestDetails && (
   <section className="request-detail mt-10">
