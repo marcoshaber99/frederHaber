@@ -105,19 +105,13 @@ const NewRequests = (props) => {
     setIsLoading(false);
   };
 
-  const downloadFile = async (key, firstName, lastName, sport, fileUrl) => {
+  const downloadFile = async (key) => {
     try {
-      // Extract file extension from the URL
-      const fileExtension = fileUrl.split('.').pop();
-  
       const token = localStorage.getItem('token');
       const response = await axios.get(`http://localhost:5001/api/scholarship/get-presigned-url/${key}`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
-        },
-        params: {
-          filename: `${firstName}_${lastName}_${sport}.${fileExtension}`
         }
       });
       const presignedUrl = response.data.presignedUrl;
@@ -236,22 +230,16 @@ const NewRequests = (props) => {
             <div className="flex flex-col mt-4 ml-4">
               <p><strong>Attached File: </strong></p>
               {selectedRequest.file_url && (
-              <div className="mt-2">
-                <button 
-                  onClick={() => downloadFile(
-                    selectedRequest.file_key, 
-                    selectedRequest.first_name, 
-                    selectedRequest.last_name, 
-                    selectedRequest.sport,  // Using sport instead of ID
-                    selectedRequest.file_url
-                  )} 
-                  className="flex items-center justify-center gap-2 px-4 py-2 text-white font-semibold bg-blue-800 rounded-md focus:outline-none hover:bg-blue-600"
-                >
-                  <FiDownload className="w-4 h-4" />
-                  Download File
-                </button>
-              </div>
-            )}
+                <div className="mt-2">
+                  <button 
+                    onClick={() => downloadFile(selectedRequest.file_key)} 
+                    className="flex items-center justify-center gap-2 px-4 py-2 text-white font-semibold bg-blue-800 rounded-md focus:outline-none hover:bg-blue-600"
+                  >
+                    <FiDownload className="w-4 h-4" />
+                    Download File
+                  </button>
+                </div>
+              )}
 
             </div>
             <button 

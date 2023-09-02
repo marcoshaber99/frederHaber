@@ -46,23 +46,21 @@ const OpenRequests = () => {
 
   const downloadFile = async (key) => {
     try {
-      const token = localStorage.getItem('token');  // Retrieve the token from local storage
+      const token = localStorage.getItem('token');
       const response = await axios.get(`http://localhost:5001/api/scholarship/get-presigned-url/${key}`, {
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,  // Add the Authorization header
-        },
+          Authorization: `Bearer ${token}`,
+        }
       });
       const presignedUrl = response.data.presignedUrl;
-  
       window.location.href = presignedUrl;
     } catch (err) {
       console.error(err);
-      // Display a user-friendly message to inform the user that the file could not be downloaded
       alert('Failed to download file. Please try again later.');
     }
   };
-
+  
   return (
     <div className="max-w-6xl mx-auto mt-10 p-5">
       <ToastContainer />
@@ -137,7 +135,7 @@ const OpenRequests = () => {
                     Download File
                   </button>
                 </div>
-               )}
+              )}
             </div>
             {selectedRequest.admin_full_name && (
               <div className="mt-10 mb-10 bg-gray-100 p-4 rounded-lg">

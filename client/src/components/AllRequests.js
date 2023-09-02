@@ -148,6 +148,17 @@ const AllRequests = ({role}) => {
           </>
         )}
         <Typography variant="body1"><strong>Manager's Comments:</strong> {selectedItem?.manager_comment || '-'}</Typography>
+        {selectedItem?.file_url && (
+          <div className="mt-2">
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => downloadFile(selectedItem?.file_key)}
+            >
+              Download File
+            </Button>
+          </div>
+        )}
       </DialogContent>
       <DialogActions>
         <Button onClick={() => setSelectedItem(null)} color="primary">
@@ -178,6 +189,24 @@ const AllRequests = ({role}) => {
   const handlePageSizeChange = (event) => {
     setPageSize(event.target.value);
   };
+
+  const downloadFile = async (key) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get(`http://localhost:5001/api/scholarship/get-presigned-url/${key}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        }
+      });
+      const presignedUrl = response.data.presignedUrl;
+      window.location.href = presignedUrl;
+    } catch (err) {
+      console.error(err);
+      alert('Failed to download file. Please try again later.');
+    }
+  };
+  
 
   useEffect(() => {
     const debouncedHandleSearch = debounce(() => {
@@ -370,8 +399,8 @@ const AllRequests = ({role}) => {
       {
         field: 'manager_comment',
         headerName: "Manager's Comments",
-        flex: 1,
-        minWidth: 150, // Increased width
+        flex: 3, // Increased flex
+        minWidth: 200, // Increased minWidth
         resizable: true,
         sortable: true,
         renderCell: (params) => (
@@ -384,6 +413,7 @@ const AllRequests = ({role}) => {
 
     const actionColumn = {
       flex: 1,
+      minWidth: 100,
       sortable: false,
       renderCell: (params) => (
         <IconButton 
@@ -396,7 +426,27 @@ const AllRequests = ({role}) => {
     };
     
 
-    return role === 'admin' ? baseColumns : [...baseColumns, actionColumn];
+  const downloadColumn = {
+    field: 'download',
+    headerName: 'Download',
+    flex: 3,
+    minWidth: 150,
+    sortable: false,
+    renderCell: (params) => (
+      <Button 
+        variant="contained" 
+        color="primary" 
+        onClick={() => downloadFile(params.row.file_key)}
+      >
+        Download
+      </Button>
+    ),
+  };
+  
+
+  return role === 'admin' ? [...baseColumns, downloadColumn] : [...baseColumns, downloadColumn, actionColumn];
+
+
   }, [role]);
 
 
