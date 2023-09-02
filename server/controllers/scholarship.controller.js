@@ -2,6 +2,7 @@ const db = require('../config/db.config');
 const sgMail = require('@sendgrid/mail');
 const { S3Client, GetObjectCommand, PutObjectCommand, DeleteObjectCommand } = require('@aws-sdk/client-s3');
 const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
+const path = require('path');
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
@@ -46,7 +47,7 @@ exports.createRequest = async (req, res) => {
     let file_url = null;
     let file_key = null; // Initialize the file key
     if (file) {
-      const Key = Date.now().toString(); // Save the key
+      const Key = Date.now().toString() + path.extname(file.originalname); // Add the file extension to the Key
       const params = {
         Bucket: 'frederickscholarships',
         Key,
@@ -70,8 +71,8 @@ exports.createRequest = async (req, res) => {
     }
 
     await db.query(
-      'INSERT INTO scholarship_requests (user_id, first_name, last_name, sport, description, government_id, registration_number, phone_number, course_title, year_of_admission, education_level, city, status, file_url, file_key) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', 
-      [user_id, first_name, last_name, sport, description, government_id, registration_number, phone_number, course_title, year_of_admission, education_level, city, status, file_url, file_key]
+      'INSERT INTO scholarship_requests (user_id, first_name, last_name, sport, description, government_id, registration_number, phone_number, course_title, year_of_admission, education_level, city, status, file_url, file_key, file_extension) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', 
+      [user_id, first_name, last_name, sport, description, government_id, registration_number, phone_number, course_title, year_of_admission, education_level, city, status, file_url, file_key, path.extname(file.originalname)]
     );
 
     // Only send the email if the status is 'submitted'
@@ -122,13 +123,25 @@ exports.createRequest = async (req, res) => {
 
 exports.generatePresignedUrl = async (req, res) => {
   try {
+    // Fetch the file details from the database using req.params.key
+    const [fileData] = await db.query('SELECT file_key, file_extension, first_name, last_name, sport FROM scholarship_requests WHERE file_key = ?', [req.params.key]);
+
+    // Extract the extension from the file_key
+    const extension = fileData[0].file_key.split('.').pop();
+
+    // Create a filename in the format FirstName_LastName_Sport.extension
+    const filename = `${fileData[0].first_name}_${fileData[0].last_name}_${fileData[0].sport}.${extension}`;
+
     const command = new GetObjectCommand({
       Bucket: 'frederickscholarships',
       Key: req.params.key,
+      ResponseContentDisposition: `attachment; filename="${filename}"`,
+      ResponseContentType: `application/${fileData[0].file_extension}`
     });
+    
 
     // Generate the pre-signed URL
-    const signedUrl = await getSignedUrl(s3, command, { expiresIn: 3600 }); // URL expires in 1 hour
+    const signedUrl = await getSignedUrl(s3, command, { expiresIn: 3600 });
 
     res.status(200).json({ presignedUrl: signedUrl });
   } catch (err) {
@@ -136,6 +149,8 @@ exports.generatePresignedUrl = async (req, res) => {
     res.status(500).json({ message: 'Failed to generate presigned URL' });
   }
 };
+
+
 
 
 exports.getRequests = async (req, res) => {
@@ -194,11 +209,15 @@ exports.updateRequest = async (req, res) => {
       registration_number = null;
     }
 
-    // Get the file from the request
     const file = req.file;
     let file_url = null;
     let file_key = null; // Initialize the file key
+    let file_extension = null; // Initialize the file extension
+
     if (file) {
+      // Capture the file extension
+      file_extension = path.extname(file.originalname);
+
       // Delete the old file from S3
       if (existingRequests[0].file_key) {
         const deleteParams = {
@@ -209,7 +228,7 @@ exports.updateRequest = async (req, res) => {
       }
 
       // Upload the new file to S3
-      const Key = Date.now().toString(); // Save the key
+      const Key = `${Date.now().toString()}${file_extension}`; // Add the file extension to the Key
       const params = {
         Bucket: 'frederickscholarships',
         Key,
@@ -220,6 +239,7 @@ exports.updateRequest = async (req, res) => {
       file_url = `https://${params.Bucket}.s3.eu-north-1.amazonaws.com/${Key}`;
       file_key = Key; // Save the key for database storage
     }
+
 
     const status = req.body.status;
 
@@ -256,14 +276,17 @@ exports.updateRequest = async (req, res) => {
     console.log("Status:", status);
 
 
-    await db.query('UPDATE scholarship_requests SET first_name = ?, last_name = ?, sport = ?, description = ?, government_id = ?, registration_number = ?, phone_number = ?, course_title = ?, year_of_admission = ?, education_level = ?, city = ?, status = ?, file_url = ?, file_key = ? WHERE id = ? AND user_id = ?', [first_name, last_name, sport, description, government_id, registration_number, phone_number, course_title, year_of_admission, education_level, city, status, file_url, file_key, requestId, user_id]); 
+// Update database record
+await db.query(
+  'UPDATE scholarship_requests SET first_name = ?, last_name = ?, sport = ?, description = ?, government_id = ?, registration_number = ?, phone_number = ?, course_title = ?, year_of_admission = ?, education_level = ?, city = ?, status = ?, file_url = ?, file_key = ?, file_extension = ? WHERE id = ? AND user_id = ?',
+  [first_name, last_name, sport, description, government_id, registration_number, phone_number, course_title, year_of_admission, education_level, city, status, file_url, file_key, file_extension, requestId, user_id]
+); 
 
-
-    res.status(200).json({ message: 'Scholarship request updated successfully' });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Server error' });
-  }
+res.status(200).json({ message: 'Scholarship request updated successfully' });
+} catch (err) {
+console.error(err);
+res.status(500).json({ message: 'Server error' });
+}
 };
 
 

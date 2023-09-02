@@ -156,22 +156,24 @@ const ViewRequests = () => {
   
   const downloadFile = async (key) => {
     try {
-      const token = localStorage.getItem('token');  // Retrieve the token from local storage
+      const token = localStorage.getItem('token');
       const response = await axios.get(`http://localhost:5001/api/scholarship/get-presigned-url/${key}`, {
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,  // Add the Authorization header
-        },
+          Authorization: `Bearer ${token}`,
+        }
       });
       const presignedUrl = response.data.presignedUrl;
-  
       window.location.href = presignedUrl;
     } catch (err) {
       console.error(err);
-      // Display a user-friendly message to inform the user that the file could not be downloaded
       alert('Failed to download file. Please try again later.');
     }
   };
+  
+  
+  
+  
 
   function statusColorClass(status) {
     switch(status) {
@@ -469,16 +471,22 @@ const ViewRequests = () => {
       <div className="flex flex-col mt-4 ml-4 space-y-2">
         <p className="text-lg mb-1"><strong>Attached File: </strong></p>
         {selectedRequestDetails.file_url && (
-          <div>
-            <button 
-              onClick={() => downloadFile(selectedRequestDetails.file_key)} 
-              className="flex items-center justify-center gap-2 px-4 py-2 text-white font-semibold bg-blue-800 rounded-md focus:outline-none hover:bg-blue-600"
-            >
-              <FiDownload className="w-4 h-4" />
-              Download File
-            </button>
-          </div>
-        )}
+  <div>
+    <button 
+      onClick={() => downloadFile(
+        selectedRequestDetails.file_key,
+        selectedRequestDetails.first_name, 
+        selectedRequestDetails.last_name, 
+        selectedRequestDetails.sport // Using sport instead of ID
+      )} 
+      className="flex items-center justify-center gap-2 px-4 py-2 text-white font-semibold bg-blue-800 rounded-md focus:outline-none hover:bg-blue-600"
+    >
+      <FiDownload className="w-4 h-4" />
+      Download File
+    </button>
+  </div>
+)}
+
       </div>
     </div>
   </section>
