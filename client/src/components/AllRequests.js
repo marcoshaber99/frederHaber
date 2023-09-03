@@ -399,7 +399,7 @@ const AllRequests = ({role}) => {
       {
         field: 'manager_comment',
         headerName: "Manager's Comments",
-        flex: 3, // Increased flex
+        flex: 3, 
         minWidth: 200, // Increased minWidth
         resizable: true,
         sortable: true,
