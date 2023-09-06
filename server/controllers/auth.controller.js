@@ -94,17 +94,13 @@ exports.login = async (req, res) => {
     if (user.length === 0) {
       return res.status(400).json({ message: 'Email not found' });
     }
-   // console.log('User:', user[0]); 
 
-    //console.log('Submitted password:', password);
-    //console.log('Stored hashed password:', user[0].password);
     const isMatch = await bcrypt.compare(password, user[0].password);
-    //console.log('Is match:', isMatch); 
     if (!isMatch) {
       return res.status(400).json({ message: 'Incorrect password' });
     }
 
-    // Check if the account is active
+
     if (!user[0].is_active) {
       return res.status(400).json({ message: 'Account not activated' });
     }
@@ -143,7 +139,7 @@ exports.activate = async (req, res) => {
     }
     const { id } = decoded;
 
-    // Activate the user account (you may need to add an 'is_active' column to the users table)
+    // Activate the user account
     const [result] = await db.query('UPDATE users SET is_active = 1 WHERE id = ?', [id]);
 
     if (result.affectedRows === 1) {

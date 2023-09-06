@@ -8,7 +8,7 @@ import { BsFillPersonFill } from 'react-icons/bs';
 
 import { animated, useSpring } from 'react-spring';
 
-import clsx from 'clsx'; // Add this import to use the clsx utility
+import clsx from 'clsx'; 
 import React, { useCallback, useEffect, useState } from 'react';
 import { Link, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import ClipLoader from "react-spinners/ClipLoader";
