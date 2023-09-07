@@ -60,13 +60,26 @@ exports.register = async (req, res) => {
         expiresIn: '1h'
       });
       const activationLink = `http://localhost:3000/activate/${token}`;
-      const msg = {
-        to: email,
-        from: 'st018940@stud.frederick.ac.cy',
-        subject: 'Activate your account',
-        text: `Click the following link to activate your account: ${activationLink}`,
-        html: `<p>Click the following link to activate your account: <a href="${activationLink}">${activationLink}</a></p>`
-      };
+       // HTML for the email
+    const htmlContent = `
+    <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f4;">
+      <div style="max-width: 600px; margin: 0 auto; background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+        <h2 style="color: #333; font-size: 24px;">Activate your account</h2>
+        <p>Hello ${email},</p>
+        <p>Thank you for registering. To complete your registration, please click the button below:</p>
+        <a href="${activationLink}" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: #fff; border-radius: 4px; text-decoration: none;">Activate Account</a>
+        <p>If you did not register for this account, you can safely ignore this email.</p>
+        <p>If you have any questions, please <a href="mailto:dl-support@frederick.ac.cy">contact us</a>.</p>
+      </div>
+    </div>
+  `;
+
+  const msg = {
+    to: email,
+    from: 'st018940@stud.frederick.ac.cy',
+    subject: 'Complete Your Registration',
+    html: htmlContent,
+  };
 
       await sgMail.send(msg);
 

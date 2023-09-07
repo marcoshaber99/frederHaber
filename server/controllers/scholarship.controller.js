@@ -86,13 +86,22 @@ exports.createRequest = async (req, res) => {
         return res.status(500).json({ message: 'Server error while fetching admin emails' });
       }
 
-      const msg = {
-        to: adminEmails,
-        from: 'st018940@stud.frederick.ac.cy',
-        subject: 'New Sports Scholarship Request',
-        text: `A new sports scholarship request has been submitted. Please review it here: http://localhost:3000/admin-dashboard/new-requests`,
-        html: `<p>A new sports scholarship request has been submitted. Please review it <a href="http://localhost:3000/admin-dashboard/new-requests">here</a>.</p>`
-      };
+      const htmlContent = `
+      <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f4;">
+        <div style="max-width: 600px; margin: 0 auto; background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+          <h2 style="color: #002660; font-size: 24px;">New Sports Scholarship Request</h2>
+          <p>A new sports scholarship request has been submitted by ${first_name} ${last_name}.
+          <p>You can review the request <a href="http://localhost:3000/admin-dashboard/new-requests">here</a></p>
+        </div>
+      </div>
+    `;
+    
+    const msg = {
+      to: adminEmails,
+      from: 'st018940@stud.frederick.ac.cy',
+      subject: 'New Sports Scholarship Request',
+      html: htmlContent
+    };
       
       try {
         await sgMail.sendMultiple(msg);
@@ -255,14 +264,23 @@ exports.updateRequest = async (req, res) => {
         return res.status(500).json({ message: 'Server error while fetching admin emails' });
       }
 
-      //the email contents
-      const msg = {
-        to: adminEmails,
-        from: 'st018940@stud.frederick.ac.cy',
-        subject: 'New Sports Scholarship Request',
-        text: `A sports scholarship request has been submitted. Please review it here: http://localhost:3000/admin-dashboard/new-requests`,
-        html: `<p>A sports scholarship request has been submitted. Please review it <a href="http://localhost:3000/admin-dashboard/new-requests">here</a>.</p>`
-      };
+      // HTML content for the email
+  const htmlContent = `
+  <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f4;">
+    <div style="max-width: 600px; margin: 0 auto; background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+      <h2 style="color: #002660; font-size: 24px;">New Sports Scholarship Request</h2>
+      <p>A new sports scholarship request has been submitted by ${first_name} ${last_name}.
+      <p>You can review the request <a href="http://localhost:3000/admin-dashboard/new-requests">here</a></p>
+    </div>
+  </div>
+`;
+
+const msg = {
+  to: adminEmails,
+  from: 'st018940@stud.frederick.ac.cy',
+  subject: 'New Sports Scholarship Request',
+  html: htmlContent
+};
 
       // Send an email notification to all admins when a new request is made
       try {
@@ -473,6 +491,52 @@ exports.adminReview = async (req, res) => {
       SET status = 'admin_reviewed'
       WHERE id = ?
     `, [requestId]);
+
+    // Notify managers via email
+    let managerEmails;
+    try {
+      const [managers] = await db.query('SELECT email FROM users WHERE role = "manager"');
+      managerEmails = managers.map(manager => manager.email);
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({ message: 'Server error while fetching manager emails' });
+    }
+
+    const htmlContent = `
+      <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f4;">
+        <style>
+          @media (min-width: 640px) {
+            .text-size-desktop {
+              font-size: 16px;
+            }
+          }
+        </style>
+        <div style="max-width: 600px; margin: 0 auto; background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+          <h2 style="color: #002660; font-size: 24px;" class="text-size-desktop">A Scholarship Request Needs Final Approval</h2>
+          <p class="text-size-desktop">This scholarship request has been reviewed by ${adminFullName}. Below are the review details:</p>
+          <ul class="text-size-desktop">
+            <li><strong>Admin Comments:</strong> ${comments || "None"}</li>
+            <li><strong>Scholarship Category:</strong> ${scholarshipCategory || "N/A"}</li>
+            <li><strong>Percentage:</strong> ${percentage || "N/A"}%</li>
+          </ul>
+          <p class="text-size-desktop">Please <a href="http://localhost:3000/manager-dashboard/pending-approvals">review the request</a> for final approval.</p>
+        </div>
+      </div>
+      `;
+
+      const msg = {
+        to: managerEmails,
+        from: 'st018940@stud.frederick.ac.cy',
+        subject: 'A Scholarship Request Needs Final Approval',
+        html: htmlContent
+      };
+              
+    try {
+      await sgMail.sendMultiple(msg);
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({ message: 'Server error while sending notification emails to managers' });
+    }
 
     res.json({ message: 'Review submitted' });
   } catch (error) {
