@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import clsx from 'clsx';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { BiLogOut, BiTable } from 'react-icons/bi';
-import {BsFillPersonFill} from 'react-icons/bs';
+import { BsFillPersonFill } from 'react-icons/bs';
 import { MdPendingActions } from 'react-icons/md';
 import { Link, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import ClipLoader from "react-spinners/ClipLoader";
@@ -25,7 +25,7 @@ const ManagerDashboard = ({ role }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [email, setEmail] = useState('');  
 
-    // updated these lines
+
     const { pendingApprovalsCount, loadingPendingApprovalsCount, fetchPendingApprovalsCount } = useContext(PendingApprovalCountContext);
 
     useEffect(() => {
@@ -92,7 +92,7 @@ const ManagerDashboard = ({ role }) => {
             {loadingPendingApprovalsCount 
                 ? <ClipLoader color="#ffffff" loading={loadingPendingApprovalsCount} css={override} size={20} /> 
                 : 
-                <div class="w-6 inline-block">
+                <div className="w-6 inline-block">
                     {pendingApprovalsCount > 0 &&
                         <span class="relative flex h-3 w-3 mb-4 ml-2">
                             <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
@@ -107,7 +107,6 @@ const ManagerDashboard = ({ role }) => {
           </Link>
           <Link to="all-requests" className={`w-full text-center  py-4  ${isActive('all-requests') ? 'text-white bg-blue-700' : 'text-white'}  hover:bg-blue-900 py-2 rounded-md`} >
             <div className="relative inline-flex items-center mr-2">
-              {/* place icon next to closed requests */}
               <BiTable className="text-white mr-2" size={18}/>
               <span>Approved Requests</span>
             </div>

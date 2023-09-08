@@ -1,7 +1,6 @@
 import { css } from '@emotion/react';
 import { faBars, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import axios from 'axios';
 import { AiOutlineForm, AiOutlineIdcard } from 'react-icons/ai';
 import { BiLogOut } from 'react-icons/bi';
 import { BsFillPersonFill } from 'react-icons/bs';
@@ -28,9 +27,9 @@ const StudentDashboard = ({ role }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [requestsCount, setRequestsCount] = useState(null);
-  const [loadingRequestsCount, setLoadingRequestsCount] = useState(false);
-  const [email, setEmail] = useState('');  // New state for email
+  const [requestsCount] = useState(null);
+  const [loadingRequestsCount] = useState(false);
+  const [email, setEmail] = useState('');  
   const [shouldShowInProgress, setShouldShowInProgress] = useState(false);
   const [showCreateRequest, setShowCreateRequest] = useState(true);
 
@@ -39,28 +38,10 @@ const StudentDashboard = ({ role }) => {
 
 
 
-  const fetchRequestsCount = useCallback(async () => {
-    setLoadingRequestsCount(true);
-    try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:5001/api/scholarship/get-requests-count', {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      setRequestsCount(response.data);
-    } catch (error) {
-      console.error('Error fetching requests count:', error);
-    } finally {
-      setLoadingRequestsCount(false);
-    }
-  }, []);
 
   useEffect(() => {
-    fetchRequestsCount();
     fetchLatestRequestStatus();
-  }, [fetchRequestsCount, fetchLatestRequestStatus, latestRequestStatus]);
+  }, [fetchLatestRequestStatus, latestRequestStatus]);
 
   useEffect(() => {
     const userEmail = localStorage.getItem('userEmail');

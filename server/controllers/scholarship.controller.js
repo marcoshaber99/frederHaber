@@ -282,7 +282,7 @@ const msg = {
   html: htmlContent
 };
 
-      // Send an email notification to all admins when a new request is made
+      // Send email notification to admins when new request is made
       try {
         await sgMail.sendMultiple(msg);
       } catch (err) {
@@ -468,7 +468,7 @@ exports.adminReview = async (req, res) => {
   }
 
   try {
-    // Check if a review already exists for this request
+    // Check if review already exists for this request
     const [existingReviews] = await db.query('SELECT * FROM reviews WHERE request_id = ?', [requestId]);
 
     if (existingReviews.length > 0) {

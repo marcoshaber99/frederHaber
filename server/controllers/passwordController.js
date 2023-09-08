@@ -62,7 +62,7 @@ exports.resetPassword = async (req, res) => {
       });
     }
 
-    // Ensure both data and salt are provided to bcrypt.hash
+    // Ensure both data & salt are provided to bcrypt.hash
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 

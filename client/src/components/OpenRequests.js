@@ -103,19 +103,19 @@ const OpenRequests = () => {
                 <p> <strong>Government ID:</strong> {selectedRequest.government_id}</p>
                 <p><strong>Year Of Admission:</strong> {selectedRequest.year_of_admission}</p>
               </div>
-              {/* Contact Details */}
+
               <div className="bg-white p-4 rounded-lg shadow-md">
                 <h4 className="font-bold text-custom-blue mb-2">Contact Details</h4>
                 <p><strong>City:</strong> {selectedRequest.city}</p>
                 <p><strong>Phone Number:</strong> {selectedRequest.phone_number}</p>
               </div>
-              {/* Academic Details */}
+
               <div className="bg-white p-4 rounded-lg shadow-md">
                 <h3 className="font-bold text-custom-blue mb-2">Academic Details</h3>
                 <p><strong>Course Title:</strong> {selectedRequest.course_title}</p>
                 <p><strong>Educational Level:</strong> {selectedRequest.education_level}</p>
               </div>
-              {/* Other Information */}
+              {/* Other Info */}
               <div className="bg-white p-4 rounded-lg shadow-md">
               <h3 className="font-bold text-custom-blue mb-2">Other Information</h3>
                 

@@ -60,7 +60,7 @@ exports.register = async (req, res) => {
         expiresIn: '1h'
       });
       const activationLink = `http://localhost:3000/activate/${token}`;
-       // HTML for the email
+       // HTML for email
     const htmlContent = `
     <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f4;">
       <div style="max-width: 600px; margin: 0 auto; background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
@@ -99,10 +99,9 @@ exports.register = async (req, res) => {
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    //console.log('Email:', email); 
-    //console.log('Password:', password); 
 
-    // Check if the email exists
+
+    // Check if  email exists
     const [user] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
     if (user.length === 0) {
       return res.status(400).json({ message: 'Email not found' });
@@ -118,7 +117,7 @@ exports.login = async (req, res) => {
       return res.status(400).json({ message: 'Account not activated' });
     }
 
-    // Create a JWT token
+    // Create JWT token
     const token = jwt.sign({ 
       id: user[0].id, 
       role: user[0].role, 
@@ -145,14 +144,14 @@ exports.activate = async (req, res) => {
   try {
     const { token } = req.body;
 
-    // Verify the token
+    // Verify  token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     if (!decoded) {
       return res.status(400).json({ message: 'Invalid or expired activation link' });
     }
     const { id } = decoded;
 
-    // Activate the user account
+    // Activate user account
     const [result] = await db.query('UPDATE users SET is_active = 1 WHERE id = ?', [id]);
 
     if (result.affectedRows === 1) {

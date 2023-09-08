@@ -82,11 +82,11 @@ const AdminReviewForm = (props) => {
       
 
       toast.success('Review submitted successfully');
-      props.fetchNewRequestsCount(); // Add this line
+      props.fetchNewRequestsCount();
 
       setTimeout(() => {
         navigate('/admin-dashboard/open-requests');
-      }, 2000); // delay of 2 seconds
+      }, 2000); // delay 2 seconds
 
     } catch (error) {
       if (error.response) {
@@ -111,7 +111,7 @@ const AdminReviewForm = (props) => {
   return (
     <div className="max-w-6xl mx-auto p-5">
       <form onSubmit={handleSubmit} className="mx-auto space-y-4">
-        {/* Percentage Input */}
+
         <div className="mb-4">
           <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="percentage">
             Percentage *
@@ -130,8 +130,7 @@ const AdminReviewForm = (props) => {
             <p className="text-red-500 text-xs italic">{errors.percentage}</p>
           )}
         </div>
-  
-        {/* Scholarship Category Select */}
+
         <div className="mb-4">
           <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="scholarshipCategory">
             Scholarship Category *
@@ -144,7 +143,7 @@ const AdminReviewForm = (props) => {
             onChange={handleAdminChange}
             required
           >
-            {/* Options */}
+            
             <option value="">Select category</option>
             <option value="A">A</option>
             <option value="B">B</option>
@@ -156,7 +155,7 @@ const AdminReviewForm = (props) => {
           )}
         </div>
   
-        {/* Other Scholarship Select */}
+        
         <div className="mb-4">
           <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="otherScholarship">
             Other Scholarship
@@ -243,11 +242,11 @@ const AdminReviewForm = (props) => {
             Signature
           </label>
           <input 
-            readOnly // Make this input read-only
+            readOnly 
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
             id="signature" 
             type="text" 
-            value={formValues.signature || ''} // Display the signature field
+            value={formValues.signature || ''} 
           />
         </div>
   

@@ -219,7 +219,7 @@ const NewRequests = (props) => {
                 <p><strong>Course Title:</strong> {selectedRequest.course_title}</p>
                 <p><strong>Educational Level:</strong> {selectedRequest.education_level}</p>
               </div>
-              {/* Other Information */}
+              {/* Other  */}
               <div className="bg-white p-4 rounded-lg shadow-md">
               <h3 className="font-bold text-custom-blue mb-2">Other Information</h3>
                 

@@ -276,7 +276,7 @@ const AllRequests = ({role}) => {
         headerName: 'Reg. Num.',
         flex: 1,
         minWidth: 100,
-        resizable: true,
+        //resizable: true,
         sortable: true,
         renderCell: (params) => (
           <Tooltip title={params.value.toString()}>
@@ -289,7 +289,7 @@ const AllRequests = ({role}) => {
         headerName: 'Name',
         flex: 1,
         minWidth: 100,
-        resizable: true,
+        //resizable: true,
         sortable: true,
       },
       {
@@ -297,7 +297,7 @@ const AllRequests = ({role}) => {
         headerName: 'Surname',
         flex: 1,
         minWidth: 100,
-        resizable: true,
+        //resizable: true,
         sortable: true,
       },
       {
@@ -305,7 +305,7 @@ const AllRequests = ({role}) => {
         headerName: 'ID',
         flex: 1,
         minWidth: 100,
-        resizable: true,
+        //resizable: true,
         sortable: true,
         renderCell: (params) => (
           <Tooltip title={params.value.toString()}>
@@ -319,7 +319,7 @@ const AllRequests = ({role}) => {
         headerName: 'Sport',
         flex: 1,
         minWidth: 100,
-        resizable: true,
+        //resizable: true,
         sortable: true,
       },
       {
@@ -327,15 +327,15 @@ const AllRequests = ({role}) => {
         headerName: 'Campus',
         flex: 1,
         minWidth: 100,
-        resizable: true,
+        //resizable: true,
         sortable: true,
       },
       {
         field: 'education_level',
         headerName: 'Ed. Level',
         flex: 1,
-        minWidth: 100,
-        resizable: true,
+        minWidth: 120,
+        //resizable: true,
         sortable: true,
         renderCell: (params) => (
           <Tooltip title={params.value.toString()}>
@@ -350,8 +350,8 @@ const AllRequests = ({role}) => {
         field: "year_of_admission",
         headerName: "Year of Admission",
         flex: 1,
-        minWidth: 100,
-        resizable: true,
+        minWidth: 80,
+        //resizable: true,
         sortable: true,
         renderCell: (params) => (
           <Tooltip title={params.value.toString()}>
@@ -365,7 +365,7 @@ const AllRequests = ({role}) => {
         headerName: 'Percentage',
         flex: 1,
         minWidth: 100,
-        resizable: true,
+        //resizable: true,
         sortable: true,
       },
       {
@@ -373,7 +373,7 @@ const AllRequests = ({role}) => {
         headerName: 'Category',
         flex: 1,
         minWidth: 100,
-        resizable: true,
+        //resizable: true,
         sortable: true,
       },
       {
@@ -381,7 +381,7 @@ const AllRequests = ({role}) => {
         headerName: 'Other Scholarship',
         flex: 1,
         minWidth: 100,
-        resizable: true,
+        //resizable: true,
         sortable: true,
       },
       {
@@ -389,7 +389,7 @@ const AllRequests = ({role}) => {
         headerName: 'Other Scholarship %',
         flex: 1,
         minWidth: 100,
-        resizable: true,
+        //resizable: true,
         sortable: true,
         valueGetter: (params) => {
           // Only display the percentage if "Other Scholarship" is "YES"
@@ -412,16 +412,20 @@ const AllRequests = ({role}) => {
     ];
 
     const actionColumn = {
+      field: 'delete',
+      headerName: 'Delete',
       flex: 1,
-      minWidth: 100,
+      minWidth: 80,
       sortable: false,
       renderCell: (params) => (
+        <Tooltip title="Delete" arrow>
         <IconButton 
           color="error" 
           onClick={() => openDeleteDialog(params.row.id)}
         >
           <DeleteIcon />
         </IconButton>
+        </Tooltip>
       ),
     };
     
@@ -430,12 +434,18 @@ const AllRequests = ({role}) => {
     field: 'download',
     headerName: 'Download',
     flex: 3,
-    minWidth: 150,
+    minWidth: 120,
     sortable: false,
     renderCell: (params) => (
       <Button 
-        variant="contained" 
+        variant="contained"
+        size='small' 
         color="primary" 
+        style={{
+          fontSize: '0.7rem',  // Smaller font size
+          padding: '4px 8px',  // Reduced padding
+          minWidth: '60px'  // Minimum width
+        }}
         onClick={() => downloadFile(params.row.file_key)}
       >
         Download
