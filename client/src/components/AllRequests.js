@@ -186,9 +186,9 @@ const AllRequests = ({role}) => {
   };
 
 
-  const handlePageSizeChange = (event) => {
-    setPageSize(event.target.value);
-  };
+  // const handlePageSizeChange = (event) => {
+  //   setPageSize(event.target.value);
+  // };
 
   const downloadFile = async (key) => {
     try {
@@ -401,7 +401,7 @@ const AllRequests = ({role}) => {
         headerName: "Manager's Comments",
         flex: 3, 
         minWidth: 200, // Increased minWidth
-        resizable: true,
+        //resizable: true,
         sortable: true,
         renderCell: (params) => (
           <Tooltip title={params.value || '-'}>
@@ -503,8 +503,8 @@ const AllRequests = ({role}) => {
             count={Math.ceil(filteredData.length / pageSize)}
             page={page + 1}
             onChange={(_, newPage) => setPage(newPage - 1)}
-            onChangeRowsPerPage={handlePageSizeChange}
-            // ...
+            //onChangeRowsPerPage={handlePageSizeChange}
+            
           />
         </>          
         ) : (
@@ -531,7 +531,7 @@ const AllRequests = ({role}) => {
                   count={Math.ceil(filteredData.length / pageSize)}
                   page={page + 1}
                   onChange={(_, newPage) => setPage(newPage - 1)}
-                  onChangeRowsPerPage={handlePageSizeChange}
+                 // onChangeRowsPerPage={handlePageSizeChange}
                   boundaryCount={isSmallScreen ? 2 : 5}
                 />
               ),

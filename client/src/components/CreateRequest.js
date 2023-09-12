@@ -212,6 +212,7 @@ const handleFileChange = (e) => {
             type="text"
             id="first_name"
             name="first_name"
+            autoComplete='on'
             value={formValues.first_name}
             onChange={handleChange}
             className="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-indigo-500"
@@ -229,6 +230,7 @@ const handleFileChange = (e) => {
             type="text"
             id="last_name"
             name="last_name"
+            autoComplete='on'
             value={formValues.last_name}
             onChange={handleChange}
             className="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-indigo-500"
@@ -247,6 +249,7 @@ const handleFileChange = (e) => {
             type="text"
             id="government_id"
             name="government_id"
+            autoComplete='on'
             value={formValues.government_id}
             onChange={handleChange}
             className="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-indigo-500"
@@ -264,6 +267,7 @@ const handleFileChange = (e) => {
             type="text"
             id="registration_number"
             name="registration_number"
+            autoComplete='on'
             value={formValues.registration_number}
             onChange={handleChange}
             className="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-indigo-500"
@@ -281,6 +285,7 @@ const handleFileChange = (e) => {
             type="tel"
             id="phone_number"
             name="phone_number"
+            autoComplete='on'
             value={formValues.phone_number}
             onChange={handleChange}
             className="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-indigo-500"
@@ -298,6 +303,7 @@ const handleFileChange = (e) => {
               type="text"
               id="course_title"
               name="course_title"
+              autoComplete='on'
               value={formValues.course_title}
               onChange={handleChange}
               className="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-indigo-500"
@@ -315,6 +321,8 @@ const handleFileChange = (e) => {
           <DatePicker 
             selected={yearOfAdmission}
             onChange={(date) => setYearOfAdmission(date)}
+            id='year_of_admission'
+            name='year_of_admission'
             dateFormat="yyyy"
             showYearPicker
             className="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-indigo-500 w-full"
@@ -335,6 +343,7 @@ const handleFileChange = (e) => {
                         <select
                           id="education_level"
                           name="education_level"
+                          autoComplete='on'
                           value={formValues.education_level}
                           onChange={handleChange}
                           className="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-indigo-500"
@@ -354,6 +363,7 @@ const handleFileChange = (e) => {
               <select
                 id="city"
                 name="city"
+                autoComplete='on'
                 value={formValues.city}
                 onChange={handleChange}
                 className="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-indigo-500"
@@ -375,6 +385,7 @@ const handleFileChange = (e) => {
                 type="text"
                 id="sport"
                 name="sport"
+                autoComplete='on'
                 value={formValues.sport}
                 onChange={handleChange}
                 className="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-indigo-500"
@@ -391,6 +402,7 @@ const handleFileChange = (e) => {
               <textarea
                 id="description"
                 name="description"
+                autoComplete='on'
                 value={formValues.description}
                 onChange={handleChange}
                 className="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-indigo-500 h-32"
@@ -420,6 +432,7 @@ const handleFileChange = (e) => {
       id="file"
       name="file"
       type="file"
+      autoComplete='on'
       accept=".pdf,.png,.jpg"
       onChange={handleFileChange}
       className="hidden" // Hide the default file input

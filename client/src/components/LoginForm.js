@@ -11,7 +11,7 @@ const LoginForm = ({ setCurrentUserRole, setCurrentUserEmail }) => {
   const [message, setMessage] = useState('');
   const [showRoleSelection, setShowRoleSelection] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false); // Add this line for loading state
+  const [isLoading, setIsLoading] = useState(false);
 
   const navigate = useNavigate();
 
@@ -31,11 +31,10 @@ const LoginForm = ({ setCurrentUserRole, setCurrentUserEmail }) => {
         localStorage.setItem('userEmail', response.data.userEmail);
         localStorage.setItem('userRole', response.data.userRole);
         setCurrentUserRole(response.data.userRole);
-        window.dispatchEvent(new Event('storage')); // Add this line
+        window.dispatchEvent(new Event('storage')); 
         navigate('/student-dashboard/view-requests');
       } else if (response.data.userRole === 'admin' || response.data.userRole === 'manager') {
-        localStorage.setItem('userEmail', response.data.userEmail); // Add this line
-        window.dispatchEvent(new Event('storage'));
+        localStorage.setItem('userEmail', response.data.userEmail); 
         if (response.data.firstLogin) {
           setShowRoleSelection(true);
         } else {
@@ -65,15 +64,17 @@ const LoginForm = ({ setCurrentUserRole, setCurrentUserEmail }) => {
 
   return (
 
-    <div className="flex flex-col min-h-screen">
-      <Link to="#">
+<div className="flex flex-col min-h-screen">
+      {/* Logo */}
+      <div className="flex justify-center p-4"> 
+        <Link to="#">
           <img
-  src={frederickLogo}
-  alt="Logo of Frederick University"
-  className=" object-cover md:mt-6 ml-8"
-/>
-
-          </Link>
+            src={frederickLogo}
+            alt="Logo of Frederick University"
+            className=" object-cover max-w-md mx-auto"
+          />
+        </Link>
+      </div>
     
     <div className="bg-white h-2/3 w-full">
       <div className="flex justify-center">
@@ -92,6 +93,7 @@ const LoginForm = ({ setCurrentUserRole, setCurrentUserEmail }) => {
               <input
                 type="email"
                 id="email"
+                autoComplete='email'
                 placeholder="Enter email address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -130,7 +132,7 @@ const LoginForm = ({ setCurrentUserRole, setCurrentUserEmail }) => {
               <button
             type="submit"
             className="w-full py-2 bg-blue-700 text-white font-semibold rounded-md hover:bg-blue-800 transition duration-200"
-            disabled={isLoading} // Disable the button when loading
+            disabled={isLoading} // Disable button when loading
           >
             {isLoading ? 'Loading...' : 'Login'}
           </button>

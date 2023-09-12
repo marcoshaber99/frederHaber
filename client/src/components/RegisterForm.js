@@ -69,13 +69,15 @@ const RegisterForm = () => {
   return (
     <div className="flex flex-col min-h-screen">
     <ToastContainer />
-    <Link to="#">
-      <img
-        src={frederickLogo}
-        alt="Logo of Frederick University"
-        className="object-cover md:mt-6 ml-8"
-      />
-    </Link>
+    <div className="flex justify-center p-4"> 
+        <Link to="#">
+          <img
+            src={frederickLogo}
+            alt="Logo of Frederick University"
+            className=" object-cover max-w-md mx-auto"
+          />
+        </Link>
+      </div>
     <div className="bg-white h-2/3 w-full">
       <div className="flex justify-center">
       {showSuccessCard ? (

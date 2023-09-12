@@ -1,5 +1,5 @@
 import axios from 'axios';
-import React, { createContext, useCallback, useContext, useState, useEffect } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 
 const RequestContext = createContext();
 export const NewRequestCountContext = createContext(); // New context
@@ -96,8 +96,12 @@ export function RequestContextProvider({ children }) {
     }, [fetchNewRequestsCount]);
 
     useEffect(() => {
-        fetchPendingApprovalsCount();
+        const userRole = localStorage.getItem('userRole');
+        if(userRole !== 'student' && userRole !== 'admin') {
+            fetchPendingApprovalsCount();
+        }
     }, [fetchPendingApprovalsCount]);
+    
 
 
     const value = {

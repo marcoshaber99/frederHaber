@@ -59,7 +59,7 @@ const ManagerDashboard = ({ role }) => {
           isMenuOpen ? 'translate-x-0' : '-translate-x-full'
         } md:relative md:translate-x-0`}
       >
-        <div className="flex items-center mb-8 mt-8 ml-4">
+        <div className="flex items-center mb-8 mt-8 ml-2">
         <Link to="#">
           <img
               src={frederickLogo}
@@ -70,7 +70,7 @@ const ManagerDashboard = ({ role }) => {
           </Link>
           <div className="md:hidden">
             <button onClick={toggleMenu} className="text-white">
-              <FontAwesomeIcon icon={faTimes} className="text-2xl" />
+              <FontAwesomeIcon icon={faTimes} className="text-2xl mr-3 mt-1" />
             </button>
           </div>
         </div>
@@ -94,9 +94,9 @@ const ManagerDashboard = ({ role }) => {
                 : 
                 <div className="w-6 inline-block">
                     {pendingApprovalsCount > 0 &&
-                        <span class="relative flex h-3 w-3 mb-4 ml-2">
-                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
-                            <span class="relative inline-flex rounded-full h-3 w-3 bg-green-300"></span>
+                        <span className="relative flex h-3 w-3 mb-4 ml-2">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-3 w-3 bg-green-300"></span>
                         </span>
                     }
                 </div>
@@ -122,20 +122,16 @@ const ManagerDashboard = ({ role }) => {
           </button>
         </div>
       </div>
-      <div className={clsx(
-  "flex-1 p-4 md:p-8 overflow-y-auto h-full min-h-screen",
-  {
-    "md:ml-8": !isMenuOpen,
-    "md:ml-16": isMenuOpen,
-  }
-)}
->
+      <div className={clsx("flex-1 p-4 md:p-8 overflow-y-auto", {
+              "md:ml-8": !isMenuOpen,
+              "md:ml-16": isMenuOpen 
+            })}>
 
         <div className="md:hidden mb-4">
           <button onClick={toggleMenu} className="text-blue-800">
             <FontAwesomeIcon
               icon={isMenuOpen ? faTimes : faBars}
-              className="text-2xl"
+              className="text-2xl mr-3 mt-1"
             />
           </button>
         </div>

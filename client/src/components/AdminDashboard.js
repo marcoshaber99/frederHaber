@@ -93,11 +93,11 @@ const AdminDashboard = ({ role }) => {
               {loadingNewRequestsCount 
                   ? <ClipLoader color="#ffffff" loading={loadingNewRequestsCount} css={override} size={20} /> 
                   : 
-                  <div class="w-6 inline-block">
+                  <div className="w-6 inline-block">
                       {newRequestsCount > 0 &&
-                          <span class="relative flex h-3 w-3 mb-4 ml-2">
-                              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
-                              <span class="relative inline-flex rounded-full h-3 w-3 bg-green-300"></span>
+                          <span className="relative flex h-3 w-3 mb-4 ml-2">
+                              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
+                              <span className="relative inline-flex rounded-full h-3 w-3 bg-green-300"></span>
                           </span>
                       }
                   </div>
