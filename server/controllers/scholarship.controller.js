@@ -49,7 +49,7 @@ exports.createRequest = async (req, res) => {
     if (file) {
       const Key = Date.now().toString() + path.extname(file.originalname); // Add the file extension to the Key
       const params = {
-        Bucket: 'frederickscholarships',
+        Bucket: `${process.env.AWS_BUCKET_NAME}`,
         Key,
         Body: file.buffer
       };

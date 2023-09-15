@@ -69,6 +69,9 @@ const AdminReviewForm = (props) => {
 
     try {
       const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('Token not available');
+      }
       await axios.post(
         `http://localhost:5001/api/scholarship/admin-review`,
         { ...formValues, requestId },

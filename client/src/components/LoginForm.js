@@ -1,9 +1,9 @@
 import axios from 'axios';
 import React, { useState } from 'react';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { Link, useNavigate } from 'react-router-dom';
 import frederickLogo from '../images/frederick-university-logo.png';
 import RoleSelection from './RoleSelection';
-import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
 const LoginForm = ({ setCurrentUserRole, setCurrentUserEmail }) => {
   const [email, setEmail] = useState('');
@@ -12,6 +12,7 @@ const LoginForm = ({ setCurrentUserRole, setCurrentUserEmail }) => {
   const [showRoleSelection, setShowRoleSelection] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
 
   const navigate = useNavigate();
 
@@ -156,7 +157,7 @@ const LoginForm = ({ setCurrentUserRole, setCurrentUserEmail }) => {
                 onSuccess={(userRole) => {
                   setCurrentUserRole(userRole);
                   navigate(
-                    userRole === 'admin' ? '/admin-dashboard' : '/manager-dashboard'
+                    userRole === 'admin' ? '/admin-dashboard/new-requests' : '/manager-dashboard/pending-approval'
                   );
                 }}
               />

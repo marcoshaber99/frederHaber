@@ -85,7 +85,7 @@ useEffect(() => {
           path="/student-dashboard/*"
            element={
               currentUserRole === 'student' ? (
-                <RequestContextProvider> {/* Wrap the component with RequestContextProvider */}
+                <RequestContextProvider> 
                   <StudentDashboard email={currentUserEmail} role={currentUserRole} />
                 </RequestContextProvider>
               ) : (
@@ -97,7 +97,7 @@ useEffect(() => {
           path="/admin-dashboard/*"
           element={
             currentUserRole === 'admin' ? (
-              <RequestContextProvider> {/* Wrap the component with RequestContextProvider */}
+              <RequestContextProvider> 
                 <AdminDashboard email={currentUserEmail} role={currentUserRole} />
               </RequestContextProvider>
             ) : (
@@ -110,7 +110,7 @@ useEffect(() => {
           path="/manager-dashboard/*"
           element={
             currentUserRole === 'manager' ? (
-              <RequestContextProvider> {/* Wrap the component with RequestContextProvider */}
+              <RequestContextProvider> 
                 <ManagerDashboard email={currentUserEmail} role={currentUserRole} />
               </RequestContextProvider>
             ) : (

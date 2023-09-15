@@ -6,8 +6,12 @@ const verifyToken = (req, res, next) => {
       return res.status(401).json({ message: 'Access denied' });
     }
   
-    const token = authHeader.split(' ')[1];
-  
+    const authParts = authHeader.split(' ');
+    if (authParts.length !== 2 || authParts[0] !== 'Bearer') {
+      return res.status(401).json({ message: 'Invalid authorization header format' });
+    }
+    const token = authParts[1];  
+    
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
       req.user = decoded;
