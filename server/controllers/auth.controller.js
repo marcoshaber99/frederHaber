@@ -7,7 +7,7 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 const isValidEmail = (email) => {
   const studentEmailRegex = /^st\d+@stud\.frederick\.ac\.cy$/i;
-  const frederickEmailRegex = /@utwoko\.com$/i;
+  const frederickEmailRegex = /@frederick\.ac\.cy$/i;
   const normalEmailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i;
   return studentEmailRegex.test(email) || frederickEmailRegex.test(email) || normalEmailRegex.test(email);
 };
@@ -37,7 +37,7 @@ exports.register = async (req, res) => {
     let role;
     if (email.startsWith('st') && email.includes('@stud.')) {
       role = 'student';
-    } else if (email.includes('@utwoko.')) {
+    } else if (email.includes('@frederick.')) {
       role = 'unset';
     } else if (isValidEmail(email)) {
       role = 'student';
