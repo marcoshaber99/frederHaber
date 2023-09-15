@@ -28,13 +28,17 @@ const LoginForm = ({ setCurrentUserRole, setCurrentUserEmail }) => {
       // Store the token in local storage
       localStorage.setItem('token', response.data.token);
 
-      if (response.data.userRole === 'student') {
+      if (response.data.userRole === 'unset') {
+        setShowRoleSelection(true); // Trigger role selection here
+      }
+      else if (response.data.userRole === 'student') {
         localStorage.setItem('userEmail', response.data.userEmail);
         localStorage.setItem('userRole', response.data.userRole);
         setCurrentUserRole(response.data.userRole);
         window.dispatchEvent(new Event('storage')); 
         navigate('/student-dashboard/view-requests');
-      } else if (response.data.userRole === 'admin' || response.data.userRole === 'manager') {
+      }
+      else if (response.data.userRole === 'admin' || response.data.userRole === 'manager') {
         localStorage.setItem('userEmail', response.data.userEmail); 
         if (response.data.firstLogin) {
           setShowRoleSelection(true);
@@ -156,6 +160,9 @@ const LoginForm = ({ setCurrentUserRole, setCurrentUserEmail }) => {
                 email={email}
                 onSuccess={(userRole) => {
                   setCurrentUserRole(userRole);
+                  localStorage.setItem('userEmail', email); 
+                  localStorage.setItem('userRole', userRole);
+                  window.dispatchEvent(new Event('storage'));
                   navigate(
                     userRole === 'admin' ? '/admin-dashboard/new-requests' : '/manager-dashboard/pending-approval'
                   );

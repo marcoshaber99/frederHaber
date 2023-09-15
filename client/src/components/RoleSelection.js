@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import axios from 'axios';
 import { ExclamationIcon } from '@heroicons/react/solid';
+import axios from 'axios';
+import React, { useState } from 'react';
 
 const RoleSelection = ({ email, onSuccess }) => {
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
@@ -11,17 +11,19 @@ const RoleSelection = ({ email, onSuccess }) => {
       setConfirmModalOpen(false);
       const token = localStorage.getItem('token');
       
-      const response = await axios.post('http://localhost:5001/api/auth/role-selection', { email, role: pendingRole }, {
+      const response = await axios.post('http://localhost:5001/api/auth/set-role', { email, role: pendingRole }, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
       
       if (response.status === 200) {
+        // Store new token if server sends it
+        if (response.data.newToken) {
+          localStorage.setItem('token', response.data.newToken);
+        }
         localStorage.setItem('userRole', pendingRole);
         onSuccess(pendingRole);
-      } else {
-        throw new Error('Error updating user role');
       }
     } catch (error) {
       console.error(error);

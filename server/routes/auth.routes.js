@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { register, login, activate, setRole, roleSelection, getUserDetails } = require('../controllers/auth.controller');
 const verifyToken = require('../middlewares/verifyToken');
-const { body } = require('express-validator'); // Add this line
+const { body } = require('express-validator'); 
 const { check } = require('express-validator');
 
 

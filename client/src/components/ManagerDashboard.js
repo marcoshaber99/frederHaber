@@ -33,12 +33,25 @@ const ManagerDashboard = ({ role }) => {
     }, [fetchPendingApprovalsCount]);
 
 
-  useEffect(() => {
-    const userEmail = localStorage.getItem('userEmail');
-    if (userEmail) {
-      setEmail(userEmail);
-    }
-  }, []);
+    useEffect(() => {
+      const updateEmail = () => {
+        const userEmail = localStorage.getItem('userEmail');
+        if (userEmail) {
+          setEmail(userEmail);
+        }
+      };
+      // Initially set the email
+      updateEmail();
+    
+      // Set up a listener for changes in localStorage
+      window.addEventListener('storage', updateEmail);
+    
+      // Clean up the event listener
+      return () => {
+        window.removeEventListener('storage', updateEmail);
+      };
+    }, []);
+    
 
   const handleLogout = () => {
     navigate('/logout');

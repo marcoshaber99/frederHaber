@@ -7,7 +7,7 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 const isValidEmail = (email) => {
   const studentEmailRegex = /^st\d+@stud\.frederick\.ac\.cy$/i;
-  const frederickEmailRegex = /@frederick\.ac\.cy$/i;
+  const frederickEmailRegex = /@utwoko\.com$/i;
   const normalEmailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i;
   return studentEmailRegex.test(email) || frederickEmailRegex.test(email) || normalEmailRegex.test(email);
 };
@@ -37,7 +37,7 @@ exports.register = async (req, res) => {
     let role;
     if (email.startsWith('st') && email.includes('@stud.')) {
       role = 'student';
-    } else if (email.includes('@frederick.')) {
+    } else if (email.includes('@utwoko.')) {
       role = 'unset';
     } else if (isValidEmail(email)) {
       role = 'student';
@@ -126,13 +126,15 @@ exports.login = async (req, res) => {
       expiresIn: '1h'
     })
 
-    res.status(200).json({
-      token,
-      userRole: user[0].role,
-      userEmail: user[0].email,
-      firstLogin: !user[0].role_updated,
-      message: 'Logged in successfully'
-    });
+    // Existing code
+res.status(200).json({
+  token,
+  userRole: user[0].role,
+  userEmail: user[0].email,
+  firstLogin: !user[0].role_updated, // check role_updated here
+  message: 'Logged in successfully'
+});
+
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Server error' });
@@ -173,10 +175,26 @@ exports.setRole = async (req, res) => {
       return res.status(400).json({ message: 'Invalid role' });
     }
 
-    const [result] = await db.query('UPDATE users SET role = ? WHERE email = ? AND role = "unset"', [role, email]);
+    const [result] = await db.query('UPDATE users SET role = ?, role_updated = 1 WHERE email = ? AND role = "unset"', [role, email]);
 
-    if (result.affectedRows === 1) {
-      res.status(200).json({ message: 'Role set successfully' });
+if (result.affectedRows === 1) {
+  // Fetch the user details after updating the role
+  const [updatedUser] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
+      
+      if (updatedUser.length === 0) {
+        return res.status(400).json({ message: 'User not found' });
+      }
+
+      // Create a new JWT token
+      const newToken = jwt.sign({ 
+        id: updatedUser[0].id, 
+        role: role,
+        email: updatedUser[0].email 
+      }, process.env.JWT_SECRET, {
+        expiresIn: '1h'
+      });
+
+      res.status(200).json({ message: 'Role set successfully', newToken });
     } else {
       res.status(400).json({ message: 'Error setting role' });
     }
@@ -199,11 +217,11 @@ exports.roleSelection = async (req, res) => {
     // Update user role in the database
     const [result] = await db.query('UPDATE users SET role = ?, role_updated = 1 WHERE email = ?', [role, email]);
 
-    if (result.affectedRows === 1) {
-      res.status(200).json({ message: 'Role updated successfully' });
-    } else {
-      res.status(400).json({ message: 'Error updating user role' });
-    }
+if (result.affectedRows === 1) {
+  res.status(200).json({ message: 'Role updated successfully' });
+} else {
+  res.status(400).json({ message: 'Error updating user role' });
+}
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Internal server error' });
