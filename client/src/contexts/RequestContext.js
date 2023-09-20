@@ -2,7 +2,7 @@ import axios from 'axios';
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 
 const RequestContext = createContext();
-export const NewRequestCountContext = createContext(); // New context
+export const NewRequestCountContext = createContext(); 
 export const PendingApprovalCountContext = createContext();
 
 
@@ -13,7 +13,7 @@ export function useRequest() {
 export function RequestContextProvider({ children }) {
     const [latestRequestStatus, setLatestRequestStatus] = useState('');
     const [loadingLatestRequestStatus, setLoadingLatestRequestStatus] = useState(true);
-    const [newRequestsCount, setNewRequestsCount] = useState(null); // New state
+    const [newRequestsCount, setNewRequestsCount] = useState(null); 
     const [loadingNewRequestsCount, setLoadingNewRequestsCount] = useState(false);
     const [pendingApprovalsCount, setPendingApprovalsCount] = useState(null);
     const [loadingPendingApprovalsCount, setLoadingPendingApprovalsCount] = useState(false);
@@ -21,7 +21,7 @@ export function RequestContextProvider({ children }) {
 
     const fetchLatestRequestStatus = useCallback(async () => {
         try {
-            setLoadingLatestRequestStatus(true); // start loading
+            setLoadingLatestRequestStatus(true); 
             const token = localStorage.getItem('token');
             const response = await axios.get('http://localhost:5001/api/scholarship/get-latest-request-status', {
                 headers: {

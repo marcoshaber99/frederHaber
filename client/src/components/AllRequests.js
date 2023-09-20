@@ -186,9 +186,6 @@ const AllRequests = ({role}) => {
   };
 
 
-  // const handlePageSizeChange = (event) => {
-  //   setPageSize(event.target.value);
-  // };
 
   const downloadFile = async (key) => {
     try {
@@ -247,7 +244,7 @@ const AllRequests = ({role}) => {
       });
   
       if (response.status === 200) {
-        fetchData(); // refresh the data
+        fetchData(); // refresh data
         alert('Request deleted successfully');
       } else {
         throw new Error(`Request failed with status code ${response.status}`);
@@ -344,7 +341,6 @@ const AllRequests = ({role}) => {
         ),
       },
 
-      //add new field for year_of_admission
         
       {
         field: "year_of_admission",
@@ -400,7 +396,7 @@ const AllRequests = ({role}) => {
         field: 'manager_comment',
         headerName: "Manager's Comments",
         flex: 3, 
-        minWidth: 200, // Increased minWidth
+        minWidth: 200, 
         //resizable: true,
         sortable: true,
         renderCell: (params) => (
@@ -442,9 +438,9 @@ const AllRequests = ({role}) => {
         size='small' 
         color="primary" 
         style={{
-          fontSize: '0.7rem',  // Smaller font size
-          padding: '4px 8px',  // Reduced padding
-          minWidth: '60px'  // Minimum width
+          fontSize: '0.7rem',  
+          padding: '4px 8px',  
+          minWidth: '60px'  
         }}
         onClick={() => downloadFile(params.row.file_key)}
       >
@@ -482,7 +478,7 @@ const AllRequests = ({role}) => {
           value={searchText}
           onChange={(event) => setSearchText(event.target.value)}
           className="rounded-lg shadow-md"
-          sx={{ flex: 1, maxWidth: '100%' }} // Updated maxWidth to 100%
+          sx={{ flex: 1, maxWidth: '100%' }} 
           InputProps={{
             endAdornment: searchText && (
               <InputAdornment position="end">
@@ -502,9 +498,7 @@ const AllRequests = ({role}) => {
           <Pagination
             count={Math.ceil(filteredData.length / pageSize)}
             page={page + 1}
-            onChange={(_, newPage) => setPage(newPage - 1)}
-            //onChangeRowsPerPage={handlePageSizeChange}
-            
+            onChange={(_, newPage) => setPage(newPage - 1)}            
           />
         </>          
         ) : (
@@ -531,7 +525,6 @@ const AllRequests = ({role}) => {
                   count={Math.ceil(filteredData.length / pageSize)}
                   page={page + 1}
                   onChange={(_, newPage) => setPage(newPage - 1)}
-                 // onChangeRowsPerPage={handlePageSizeChange}
                   boundaryCount={isSmallScreen ? 2 : 5}
                 />
               ),

@@ -126,12 +126,11 @@ exports.login = async (req, res) => {
       expiresIn: '1h'
     })
 
-    // Existing code
 res.status(200).json({
   token,
   userRole: user[0].role,
   userEmail: user[0].email,
-  firstLogin: !user[0].role_updated, // check role_updated here
+  firstLogin: !user[0].role_updated, 
   message: 'Logged in successfully'
 });
 
@@ -214,7 +213,7 @@ exports.roleSelection = async (req, res) => {
       return res.status(400).json({ message: 'Invalid role' });
     }
 
-    // Update user role in the database
+    // Update user role in db
     const [result] = await db.query('UPDATE users SET role = ?, role_updated = 1 WHERE email = ?', [role, email]);
 
 if (result.affectedRows === 1) {

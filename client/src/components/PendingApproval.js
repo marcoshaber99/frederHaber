@@ -59,7 +59,7 @@ const PendingApproval = (props) => {
       setEditedRequest(prevState => ({
         ...prevState,
         [field]: value,
-        other_scholarship_percentage: '', // Remove the percentage if "no" is selected
+        other_scholarship_percentage: '', // Remove  percentage if "no" is selected
       }));
     } else {
       setEditedRequest(prevState => ({
@@ -104,7 +104,7 @@ const PendingApproval = (props) => {
 
       if (response.status === 200) {
         fetchPendingApprovalRequests();
-        props.fetchPendingApprovalsCount(); // add this line
+        props.fetchPendingApprovalsCount(); 
         navigate('/manager-dashboard/all-requests');
       } else {
         console.error(response);
@@ -132,7 +132,7 @@ const PendingApproval = (props) => {
   
       if (response.status === 200) {
         fetchPendingApprovalRequests();
-        props.fetchPendingApprovalsCount(); // add this line
+        props.fetchPendingApprovalsCount(); 
 
         navigate('/manager-dashboard/all-requests');
       } else {

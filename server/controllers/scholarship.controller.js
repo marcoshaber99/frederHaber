@@ -45,18 +45,18 @@ exports.createRequest = async (req, res) => {
     // Get the file from the request
     const file = req.file;
     let file_url = null;
-    let file_key = null; // Initialize the file key
+    let file_key = null; 
     if (file) {
-      const Key = Date.now().toString() + path.extname(file.originalname); // Add the file extension to the Key
+      const Key = Date.now().toString() + path.extname(file.originalname); // Added file extension to the Key
       const params = {
         Bucket: `${process.env.AWS_BUCKET_NAME}`,
         Key,
         Body: file.buffer
       };
       await s3.send(new PutObjectCommand(params));
-      // Construct the file URL
+      // Create file URL
       file_url = `https://${params.Bucket}.s3.eu-north-1.amazonaws.com/${Key}`;
-      file_key = Key; // Save the key for database storage
+      file_key = Key; // Save the key
     }
 
     const [existingRequests] = await db.query('SELECT * FROM scholarship_requests WHERE user_id = ? AND (status = ? OR status = ?)', [user_id, 'submitted', 'requires_more_info']);
@@ -149,7 +149,7 @@ exports.generatePresignedUrl = async (req, res) => {
     });
     
 
-    // Generate the pre-signed URL
+    // Generate  pre-signed URL
     const signedUrl = await getSignedUrl(s3, command, { expiresIn: 3600 });
 
     res.status(200).json({ presignedUrl: signedUrl });
@@ -213,21 +213,20 @@ exports.updateRequest = async (req, res) => {
     }
 
 
-    // If registration_number is not provided or is an empty string, set it to null
+    // If registration_number is not provided or is an empty string ==>  null
     if (!registration_number) {
       registration_number = null;
     }
 
     const file = req.file;
     let file_url = null;
-    let file_key = null; // Initialize the file key
-    let file_extension = null; // Initialize the file extension
+    let file_key = null; // Initialize file key
+    let file_extension = null; // Initialize  file extension
 
     if (file) {
-      // Capture the file extension
       file_extension = path.extname(file.originalname);
 
-      // Delete the old file from S3
+      // Delete old file from S3
       if (existingRequests[0].file_key) {
         const deleteParams = {
           Bucket: 'frederickscholarships',
@@ -236,17 +235,17 @@ exports.updateRequest = async (req, res) => {
         await s3.send(new DeleteObjectCommand(deleteParams));
       }
 
-      // Upload the new file to S3
-      const Key = `${Date.now().toString()}${file_extension}`; // Add the file extension to the Key
+      // Upload new file to S3
+      const Key = `${Date.now().toString()}${file_extension}`; // Add file extension to the Key
       const params = {
         Bucket: 'frederickscholarships',
         Key,
         Body: file.buffer
       };
       await s3.send(new PutObjectCommand(params));
-      // Construct the file URL
+      // Construct file URL
       file_url = `https://${params.Bucket}.s3.eu-north-1.amazonaws.com/${Key}`;
-      file_key = Key; // Save the key for database storage
+      file_key = Key; 
     }
 
 
@@ -254,7 +253,7 @@ exports.updateRequest = async (req, res) => {
 
 
     if ((existingRequests[0].status === 'draft' || existingRequests[0].status === 'requires_more_info') && status === 'submitted') {
-      // Get all admins' emails from the database
+      // Get all admins' emails from db
       let adminEmails;
       try {
         const [admins] = await db.query('SELECT email FROM users WHERE role = "admin"');
@@ -264,7 +263,7 @@ exports.updateRequest = async (req, res) => {
         return res.status(500).json({ message: 'Server error while fetching admin emails' });
       }
 
-      // HTML content for the email
+      // HTML content for email
   const htmlContent = `
   <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f4;">
     <div style="max-width: 600px; margin: 0 auto; background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
@@ -282,7 +281,7 @@ const msg = {
   html: htmlContent
 };
 
-      // Send email notification to admins when new request is made
+      // email notification to admins when new request is made
       try {
         await sgMail.sendMultiple(msg);
       } catch (err) {
@@ -294,7 +293,7 @@ const msg = {
     console.log("Status:", status);
 
 
-    // Update database record
+    // Update db 
     await db.query(
       'UPDATE scholarship_requests SET first_name = ?, last_name = ?, sport = ?, description = ?, government_id = ?, registration_number = ?, phone_number = ?, course_title = ?, year_of_admission = ?, education_level = ?, city = ?, status = ?, file_url = ?, file_key = ?, file_extension = ? WHERE id = ? AND user_id = ?',
       [first_name, last_name, sport, description, government_id, registration_number, phone_number, course_title, year_of_admission, education_level, city, status, file_url, file_key, file_extension, requestId, user_id]
@@ -343,15 +342,13 @@ exports.deleteRequest = async (req, res) => {
       return res.status(400).json({ message: 'You cannot delete a request that is waiting for approval.' });
     }
 
-    // If the request being deleted is a duplicate, update the original request
+    // If the request being deleted is a duplicate, update original request
     if (existingRequests[0].original_request_id) {
       await db.query('UPDATE scholarship_requests SET has_been_duplicated = false, original_request_id = NULL WHERE id = ?', [existingRequests[0].original_request_id]);
     }
 
-    // Delete related reviews
     await db.query('DELETE FROM reviews WHERE request_id = ?', [requestId]);
 
-    // Delete the request
     await db.query('DELETE FROM scholarship_requests WHERE id = ? AND user_id = ?', [requestId, user_id]);
 
     res.status(200).json({ message: 'Scholarship request deleted successfully', request: existingRequests[0] });
@@ -365,22 +362,20 @@ exports.managerDeleteRequest = async (req, res) => {
   try {
     const requestId = req.params.id;
 
-    // Fetch the current request to check if it is a duplicate
+    // Fetch  current request to check if it is a duplicate
     const [existingRequests] = await db.query('SELECT * FROM scholarship_requests WHERE id = ?', [requestId]);
 
     if (existingRequests.length === 0) {
       return res.status(404).json({ message: 'Scholarship request not found' });
     }
 
-    // If the request being deleted is a duplicate, update the original request
+    // If request being deleted is a duplicate, update original request
     if (existingRequests[0].original_request_id) {
       await db.query('UPDATE scholarship_requests SET has_been_duplicated = false WHERE id = ?', [existingRequests[0].original_request_id]);
     }
 
-    // Delete related reviews
     await db.query('DELETE FROM reviews WHERE request_id = ?', [requestId]);
 
-    // Delete the request
     await db.query('DELETE FROM scholarship_requests WHERE id = ?', [requestId]);
 
     res.status(200).json({ message: 'Request deleted successfully' });
@@ -407,12 +402,11 @@ exports.updateRequestStatus = async (req, res) => {
     const requestId = req.params.id;
     const newStatus = req.body.status;
 
-    // Validate new status
     if (!['draft', 'submitted', 'requires_more_info', 'approved'].includes(newStatus)) {
       return res.status(400).json({ message: 'Invalid status' });
     }
 
-    // Update status in the database
+    // Update status in db
     await db.query('UPDATE scholarship_requests SET status = ? WHERE id = ?', [newStatus, requestId]);
 
     res.status(200).json({ message: 'Scholarship request status updated successfully' });
@@ -457,7 +451,6 @@ exports.adminReview = async (req, res) => {
   comments = comments !== '' ? comments : null;
 
 
-  // Signature is the same as admin full name
   const signature = adminFullName;
 
   // Validate admin request
@@ -652,7 +645,7 @@ exports.approve = async (req, res) => {
       throw new Error(`Could not update review for request id ${requestId}`);
     }
 
-    // Fetch the user_id of the request being approved
+    // Fetch  user_id of the request being approved
     const [[request]] = await connection.query(
       'SELECT * FROM scholarship_requests WHERE id = ? LIMIT 1', 
       [requestId]
@@ -773,7 +766,6 @@ exports.duplicateRequest = async (req, res) => {
       { ...requestToDuplicate, user_id, status: 'draft', last_duplicated_at: new Date(), original_request_id: id }
     );
 
-    // Fetch the new request to send it back in the response
     const [[newRequest]] = await db.query('SELECT * FROM scholarship_requests ORDER BY id DESC LIMIT 1');
 
     // Return also the id of the original request

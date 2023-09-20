@@ -16,7 +16,7 @@ const verifyAdmin = async (req, res, next) => {
       return res.status(403).json({ message: 'Access denied' });
     }
 
-    // If  user is an admin, call the next middleware
+    // If user is an admin, call the next middleware
     next();
   } catch (err) {
     console.error(err);

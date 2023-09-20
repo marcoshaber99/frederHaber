@@ -40,7 +40,7 @@ const ManagerDashboard = ({ role }) => {
           setEmail(userEmail);
         }
       };
-      // Initially set the email
+      // Initially set  email
       updateEmail();
     
       // Set up a listener for changes in localStorage

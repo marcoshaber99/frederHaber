@@ -16,7 +16,6 @@ import NewRequests from './NewRequests';
 import OpenRequests from './OpenRequests';
 import OpenRequestsDetails from './OpenRequestsDetails';
 
-// Loader CSS override
 const override = css`
   display: inline-block;
   margin-left: 5px;
@@ -28,7 +27,6 @@ const AdminDashboard = ({ role }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [email, setEmail] = useState(''); 
 
-  // updated these lines
   const { newRequestsCount, loadingNewRequestsCount, fetchNewRequestsCount } = useContext(NewRequestCountContext);
 
   useEffect(() => {
@@ -109,7 +107,6 @@ const AdminDashboard = ({ role }) => {
         <nav className="flex flex-col items-center md:justify-start py-48 md:mt-0 w-full">
         <Link to="new-requests" className={`w-full text-center py-4 ${isActive('new-requests') ? 'text-white bg-blue-700' : 'text-white'} hover:bg-blue-900 py-2 rounded-md`} >
           <div className="relative inline-flex items-center mr-3">
-              {/* place notification icon next to new requests */}
               <BiNotification className="text-white mr-2" size={18}/>
               <span>New Requests</span>
               {loadingNewRequestsCount 

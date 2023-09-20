@@ -25,11 +25,11 @@ const LoginForm = ({ setCurrentUserRole, setCurrentUserEmail }) => {
       const response = await axios.post(`http://localhost:5001/api/auth/login`, { email, password });
       setMessage('Logged in successfully');
 
-      // Store the token in local storage
+      // Store  token in local storage
       localStorage.setItem('token', response.data.token);
 
       if (response.data.userRole === 'unset') {
-        setShowRoleSelection(true); // Trigger role selection here
+        setShowRoleSelection(true); 
       }
       else if (response.data.userRole === 'student') {
         localStorage.setItem('userEmail', response.data.userEmail);

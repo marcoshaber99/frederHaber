@@ -99,7 +99,7 @@ const ViewRequests = () => {
       });
 
       if (selectedRequestDetails && selectedRequestDetails.id === requestId) {
-        setSelectedRequestDetails(null); // If the deleted request is currently being viewed, stop viewing it
+        setSelectedRequestDetails(null); 
       }
 
       fetchLatestRequestStatus(); // Fetch the latest request status after deleting a request
@@ -118,14 +118,14 @@ const ViewRequests = () => {
         },
       });
 
-      // Add the new request to the local state
+      // Add  new request to the local state
       setRequests(prevRequests => {
         // Map through the previous requests
         const updatedRequests = prevRequests.map(request => {
           if (request.id === requestId) {
             return {
               ...request,
-              duplicated_request_id: response.data.request.id,  // Add the ID of the new request
+              duplicated_request_id: response.data.request.id, 
               has_been_duplicated: true,
             };
           }
@@ -477,7 +477,7 @@ const ViewRequests = () => {
         selectedRequestDetails.file_key,
         selectedRequestDetails.first_name, 
         selectedRequestDetails.last_name, 
-        selectedRequestDetails.sport // Using sport instead of ID
+        selectedRequestDetails.sport 
       )} 
       className="flex items-center justify-center gap-2 px-4 py-2 text-white font-semibold bg-blue-800 rounded-md focus:outline-none hover:bg-blue-600"
     >

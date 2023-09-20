@@ -124,7 +124,6 @@ const StudentDashboard = ({ role }) => {
           ) : showCreateRequest ? (
             <Link to="create-request" className={`w-full text-center py-4 ${isActive('create-request') ? 'text-white bg-blue-700' : 'text-white'} hover:bg-blue-900 py-2 rounded-md`}>
               <div className="relative inline-flex items-center mr-2">
-                {/* put the icon here */}
                 <AiOutlineForm className="text-white mr-2" size={18}/>
                 <span>Create Request</span>
                 {loadingRequestsCount 

@@ -9,7 +9,7 @@ exports.forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
 
-    // Check if the email exists
+    // Check if  email exists
     const [user] = await pool.query('SELECT * FROM users WHERE email = ?', [email]);
     if (user.length === 0) {
       return res.status(400).json({ message: 'Email not found' });

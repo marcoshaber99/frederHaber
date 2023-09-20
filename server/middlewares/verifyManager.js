@@ -4,7 +4,7 @@ const verifyManager = async (req, res, next) => {
   try {
     const user_id = req.user.id;
 
-    // Fetch  user's role from the database
+    // Fetch user's role from the database
     const [users] = await db.query('SELECT role FROM users WHERE id = ?', [user_id]);
 
     if (users.length === 0) {
@@ -16,7 +16,7 @@ const verifyManager = async (req, res, next) => {
       return res.status(403).json({ message: 'Access denied' });
     }
 
-    // If  user is an manager, call the next middleware
+    // If user is an manager, call the next middleware
     next();
   } catch (err) {
     console.error(err);

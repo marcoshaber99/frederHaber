@@ -435,7 +435,7 @@ const handleFileChange = (e) => {
       autoComplete='on'
       accept=".pdf,.png,.jpg"
       onChange={handleFileChange}
-      className="hidden" // Hide the default file input
+      className="hidden" 
     />
   </div>
   {errors.file && <p className="text-red-500 text-sm">{errors.file}</p>}
@@ -453,7 +453,7 @@ const handleFileChange = (e) => {
                       type="submit"
                       onClick={(e) => handleSubmit(e, 'submitted')}
                       className="bg-blue-700 text-white px-6 py-2 rounded hover:bg-blue-900 transition duration-200"
-                      disabled={formStatus === 'submitted' || isLoading} // disable the button while loading
+                      disabled={formStatus === 'submitted' || isLoading} 
                     >
                       {isLoading ?  `${translations[language].submit}...` : `${translations[language].submit}`}
                     </button>
