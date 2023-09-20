@@ -4,6 +4,7 @@ const { S3Client, GetObjectCommand, PutObjectCommand, DeleteObjectCommand } = re
 const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
 const path = require('path');
 
+
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 const { validateRequest } = require('./validateRequest');
@@ -141,15 +142,17 @@ exports.generatePresignedUrl = async (req, res) => {
     // Create a filename in the format FirstName_LastName_Sport.extension
     const filename = `${fileData[0].first_name}_${fileData[0].last_name}_${fileData[0].sport}.${extension}`;
 
+    // URL-encode the filename
+    const encodedFilename = encodeURIComponent(filename);
+
     const command = new GetObjectCommand({
       Bucket: 'frederickscholarships',
       Key: req.params.key,
-      ResponseContentDisposition: `attachment; filename="${filename}"`,
+      ResponseContentDisposition: `attachment; filename="${encodedFilename}"`,
       ResponseContentType: `application/${fileData[0].file_extension}`
     });
-    
 
-    // Generate  pre-signed URL
+    // Generate pre-signed URL
     const signedUrl = await getSignedUrl(s3, command, { expiresIn: 3600 });
 
     res.status(200).json({ presignedUrl: signedUrl });
@@ -158,7 +161,6 @@ exports.generatePresignedUrl = async (req, res) => {
     res.status(500).json({ message: 'Failed to generate presigned URL' });
   }
 };
-
 
 
 

@@ -19,7 +19,7 @@
 ### Backend Setup (`frederHaber/server`)
 1. Navigate to `frederHaber/server` directory.
 2. Run `npm install` to install the backend dependencies.
-3. Create a `.env` file based on the `.env_example.txt` file provided. Replace the placeholders with actual values
+3. Create a `.env` file based on the `env_example.txt` file provided. Replace the placeholders with actual values
 4. Run `npm run dev` to start the server.
 
 ### Frontend Setup (`frederHaber/client`)
