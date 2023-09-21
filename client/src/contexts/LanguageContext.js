@@ -47,7 +47,7 @@ export const translations = {
     maxLength: 'should not be more than {length} characters',
     shouldBeNumeric: 'should be a numeric value',
     betweenNumeric: 'should be a numeric value between {min} and {max}',
-
+    title: "Create Scholarship Request" 
 
   },
   el: {
@@ -76,6 +76,7 @@ export const translations = {
     maxLength: 'δεν πρέπει να ξεπερνά τους {length} χαρακτήρες',
     shouldBeNumeric: 'πρέπει να είναι αριθμητική τιμή',
     betweenNumeric: 'πρέπει να είναι αριθμητική τιμή μεταξύ {min} και {max}',
+    title: "Δημιουργία Αίτησης Υποτροφίας"
 
 
   },
